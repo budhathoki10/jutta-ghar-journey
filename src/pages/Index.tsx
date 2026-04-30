@@ -5,19 +5,23 @@ import shoeHeels from "@/assets/shoe-heels.jpg";
 import shoeSneaker from "@/assets/shoe-sneaker.jpg";
 import shoeLoafer from "@/assets/shoe-loafer.jpg";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Clock, Star, ArrowUpRight } from "lucide-react";
+import { MapPin, Phone, Clock, Star, ArrowUpRight, ShoppingBag, Plus } from "lucide-react";
 import { useReveal } from "@/hooks/use-reveal";
+import { Link } from "react-router-dom";
+import { useCart } from "@/context/CartContext";
+import { toast } from "sonner";
 
 const collections = [
-  { name: "Heritage Oxford", category: "Men · Formal", price: "Rs. 4,800", img: shoeOxford },
-  { name: "Velvet Burgundy", category: "Women · Heels", price: "Rs. 5,200", img: shoeHeels },
-  { name: "Cream Court", category: "Unisex · Sneakers", price: "Rs. 3,900", img: shoeSneaker },
-  { name: "Tassel Loafer", category: "Men · Casual", price: "Rs. 4,400", img: shoeLoafer },
+  { id: "oxford", name: "Heritage Oxford", category: "Men · Formal", price: 4800, img: shoeOxford },
+  { id: "heels", name: "Velvet Burgundy", category: "Women · Heels", price: 5200, img: shoeHeels },
+  { id: "sneaker", name: "Cream Court", category: "Unisex · Sneakers", price: 3900, img: shoeSneaker },
+  { id: "loafer", name: "Tassel Loafer", category: "Men · Casual", price: 4400, img: shoeLoafer },
 ];
 
 const Index = () => {
   const [time, setTime] = useState("");
   useReveal();
+  const { add, count } = useCart();
   useEffect(() => {
     const tick = () => {
       const d = new Date().toLocaleTimeString("en-US", {
@@ -59,9 +63,23 @@ const Index = () => {
             <a href="#craft" className="link-underline hover:text-primary transition-colors">Craft</a>
             <a href="#visit" className="link-underline hover:text-primary transition-colors">Visit</a>
           </nav>
-          <Button asChild variant="default" className="rounded-full bg-ink text-ink-foreground hover:bg-ink/90 transition-all duration-300 hover:scale-105 hover:shadow-card">
-            <a href="#visit">Find the Shop</a>
-          </Button>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/checkout"
+              aria-label="Open cart"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              {count > 0 && (
+                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground animate-scale-in">
+                  {count}
+                </span>
+              )}
+            </Link>
+            <Button asChild variant="default" className="rounded-full bg-ink text-ink-foreground hover:bg-ink/90 transition-all duration-300 hover:scale-105 hover:shadow-card">
+              <a href="#visit">Find the Shop</a>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -180,14 +198,33 @@ const Index = () => {
                   <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{item.category}</p>
                   <h3 className="mt-1 font-serif text-xl font-bold transition-colors duration-300 group-hover:text-primary">{item.name}</h3>
                 </div>
-                <span className="font-medium tabular-nums">{item.price}</span>
+                <span className="font-medium tabular-nums">Rs. {item.price.toLocaleString()}</span>
               </div>
               <div className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur transition-all duration-500 group-hover:bg-mustard group-hover:text-ink">
                 №&nbsp;{String(i + 1).padStart(2, "0")}
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  add({ id: item.id, name: item.name, category: item.category, price: item.price, img: item.img });
+                  toast.success(`${item.name} added to bag`);
+                }}
+                aria-label={`Add ${item.name} to cart`}
+                className="absolute bottom-20 right-3 inline-flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-ink text-ink-foreground opacity-0 shadow-card transition-all duration-300 hover:scale-110 hover:bg-primary group-hover:translate-y-0 group-hover:opacity-100"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0 bg-gradient-to-t from-ink/20 to-transparent transition-all duration-500 group-hover:h-1/3" />
             </article>
           ))}
+        </div>
+        <div className="mt-10 flex justify-center">
+          <Button asChild size="lg" className="h-12 rounded-full bg-primary px-7 text-primary-foreground hover:bg-terracotta-deep">
+            <Link to="/checkout">
+              <ShoppingBag className="mr-2 h-4 w-4" />
+              Go to checkout {count > 0 && `· ${count} item${count > 1 ? "s" : ""}`}
+            </Link>
+          </Button>
         </div>
       </section>
 
