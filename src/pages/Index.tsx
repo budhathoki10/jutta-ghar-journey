@@ -266,9 +266,6 @@ const Index = () => {
             </p>
 
             <ul className="mt-10 space-y-5 text-base">
-              {[
-                null
-              ]}
               <li className="group flex gap-4 transition-transform duration-300 hover:translate-x-1">
                 <MapPin className="mt-1 h-5 w-5 text-mustard transition-transform duration-300 group-hover:scale-125" />
                 <div>
