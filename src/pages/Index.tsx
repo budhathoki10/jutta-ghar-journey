@@ -58,10 +58,34 @@ const Index = () => {
             <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground transition-colors group-hover:text-primary">Jutta Ghar</span>
           </a>
           <nav className="hidden gap-8 text-sm font-medium md:flex">
-            <a href="#collection" className="link-underline hover:text-primary transition-colors">Collection</a>
-            <a href="#story" className="link-underline hover:text-primary transition-colors">Our Story</a>
-            <a href="#craft" className="link-underline hover:text-primary transition-colors">Craft</a>
-            <a href="#visit" className="link-underline hover:text-primary transition-colors">Visit</a>
+            <a
+              href="#home"
+              onClick={(e) => { e.preventDefault(); document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="link-underline hover:text-primary transition-colors"
+            >
+              Home
+            </a>
+            <a
+              href="#story"
+              onClick={(e) => { e.preventDefault(); document.getElementById('story')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="link-underline hover:text-primary transition-colors"
+            >
+              About Us
+            </a>
+            <a
+              href="#contact"
+              onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="link-underline hover:text-primary transition-colors"
+            >
+              Contact Us
+            </a>
+            <a
+              href="#visit"
+              onClick={(e) => { e.preventDefault(); document.getElementById('visit')?.scrollIntoView({ behavior: 'smooth' }); }}
+              className="link-underline hover:text-primary transition-colors"
+            >
+              Find Us
+            </a>
           </nav>
           <div className="flex items-center gap-3">
             <Link
@@ -84,7 +108,7 @@ const Index = () => {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section id="home" className="relative overflow-hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-16 md:grid-cols-12 md:py-24">
           <div className="md:col-span-6 md:pr-6">
             <div className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground animate-fade-in" style={{ animationDelay: "0.05s" }}>
@@ -198,7 +222,6 @@ const Index = () => {
                   <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{item.category}</p>
                   <h3 className="mt-1 font-serif text-xl font-bold transition-colors duration-300 group-hover:text-primary">{item.name}</h3>
                 </div>
-                <span className="font-medium tabular-nums">Rs. {item.price.toLocaleString()}</span>
               </div>
               <div className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur transition-all duration-500 group-hover:bg-mustard group-hover:text-ink">
                 №&nbsp;{String(i + 1).padStart(2, "0")}
@@ -286,6 +309,46 @@ const Index = () => {
               <p className="mt-3 text-muted-foreground">{c.d}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="mx-auto max-w-7xl px-6 py-24">
+        <div className="mb-6">
+          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">Contact</p>
+          <h2 className="text-3xl font-bold">Contact Us</h2>
+          <p className="mt-4 text-muted-foreground">We're happy to hear from you — call, message, or drop by. Our team is available to help with orders, fittings, and general enquiries.</p>
+
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div className="rounded-lg border p-6">
+              <h3 className="font-semibold">Phone</h3>
+              <ul className="mt-3 space-y-2 text-sm">
+                <li><a href="tel:+9779841898731" className="text-primary">+977 98418 98731</a> — Store / General</li>
+                <li><a href="tel:+9779843183764" className="text-primary">+977 98431 83764</a> — Orders & WhatsApp</li>
+                <li><a href="tel:+9779865481109" className="text-primary">+977 98654 81109</a> — Support</li>
+              </ul>
+            </div>
+
+            <div className="rounded-lg border p-6">
+              <h3 className="font-semibold">Email</h3>
+              <p className="mt-3 text-sm"><a href="mailto:dummy@example.com" className="text-primary">dummy@example.com</a></p>
+              <p className="mt-4 text-sm text-muted-foreground">Typical response time: within 24 hours on weekdays.</p>
+            </div>
+
+            <div className="rounded-lg border p-6">
+              <h3 className="font-semibold">Visit</h3>
+              <p className="mt-3 text-sm">Jagatsundar Marg, Kathmandu, Nepal</p>
+              <p className="mt-2 text-sm">Hours: Mon–Sat, 10:00 — 19:00</p>
+              <div className="mt-4">
+                <a
+                  href="https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082548,85.31198,17z"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-block rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+                >Get directions</a>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
