@@ -1,140 +1,130 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import heroShoes from "@/assets/hero-shoes.jpg";
 import shoeOxford from "@/assets/shoe-oxford.jpg";
 import shoeHeels from "@/assets/shoe-heels.jpg";
 import shoeSneaker from "@/assets/shoe-sneaker.jpg";
 import shoeLoafer from "@/assets/shoe-loafer.jpg";
+import shopImage from "@/assets/shop.png";
+import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Clock, Star, ArrowUpRight, ShoppingBag, Plus } from "lucide-react";
+import { MapPin, Phone, Clock, Star, ArrowUpRight } from "lucide-react";
 import { useReveal } from "@/hooks/use-reveal";
 import { Link } from "react-router-dom";
-import { useCart } from "@/context/CartContext";
-import { toast } from "sonner";
 
 const collections = [
-  { id: "oxford", name: "Heritage Oxford", category: "Men · Formal", price: 4800, img: shoeOxford },
-  { id: "heels", name: "Velvet Burgundy", category: "Women · Heels", price: 5200, img: shoeHeels },
-  { id: "sneaker", name: "Cream Court", category: "Unisex · Sneakers", price: 3900, img: shoeSneaker },
-  { id: "loafer", name: "Tassel Loafer", category: "Men · Casual", price: 4400, img: shoeLoafer },
+  { id: "trending", name: "Trending Now", category: "Trending · Popular", img: heroShoes, trending: true },
+  { id: "oxford", name: "Heritage Oxford", category: "Men · Formal", img: shoeOxford },
+  { id: "heels", name: "Velvet Burgundy", category: "Women · Heels", img: shoeHeels },
+  { id: "sneaker", name: "Cream Court", category: "Unisex · Sneakers", img: shoeSneaker },
+  { id: "loafer", name: "Tassel Loafer", category: "Men · Casual", img: shoeLoafer },
+  { id: "storefront", name: "Street Display", category: "Shop · Window", img: shopImage },
+];
+
+const staffContacts = [
+  {
+    name: "Balaram KC",
+    image: "https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/510969738_10036596226424282_5811402459633255473_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=101&ccb=1-7&_nc_sid=7b2446&_nc_ohc=ocqfnk_oPnAQ7kNvwGWtWd7&_nc_oc=AdrFzQ9HJAmaRNIzkC88_psgS4HryrNMvgxH0tC0GpzRywFZQ5GHm5wNImLH1UyLgqw&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=jFUAJFQUVpcmaZGIiVrrVA&_nc_ss=7b2a8&oh=00_Af5UBSR-Vk-3hrPvBU3LuBqtdHRsQJUdBLD98EXWuCRTJA&oe=69FD4C98",
+    role: "GoGo Shoes Owner",
+    phone: "9841898731",
+    note: "Available all time at the shop",
+    purpose: "Direct orders and shop enquiries",
+    actionLabel: "Connect on TikTok",
+    actionHref: "https://www.tiktok.com/@kceybalaram?is_from_webapp=1&sender_device=pc",
+    color: "bg-mustard/10",
+  },
+  {
+    name: "Anamal Basnet",
+    image: "https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/686953937_122310874418232382_9126030449653839631_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=108&ccb=1-7&_nc_sid=7b2446&_nc_ohc=744F5AJXGycQ7kNvwHFgzZu&_nc_oc=Adp8iVYT5to2n9tKu4RMtKOjA35eYB41ULEbH92QIeOWsc5aojGIZw1R9yPNILTW1gY&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=1xkgedYwQoysE7NJ5ahGRA&_nc_ss=7b2a8&oh=00_Af7DoyEAy15Iq08Xler361d5sD_JbIheNDWTfvyHTt0svA&oe=69FD5945",
+    role: "Instagram Enquiries",
+    phone: "9843183764",
+    note: "Quick social support for product questions",
+    purpose: "Instagram enquiries",
+    actionLabel: "Connect on Instagram",
+    actionHref: "https://www.instagram.com/gogo_juttaa_ghar?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+    color: "bg-pink-50",
+  },
+  {
+    name: "Bishal Budhathoki",
+    image: "https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/477789706_1488858768714955_8664295335267458868_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=7b2446&_nc_ohc=9tJZHMHe-v4Q7kNvwEiCuxr&_nc_oc=AdqbeNUJG2XHZN5ONpttCTami_QfNwxNbES7SLAC37Phwd78P38eV_cVskkYttr8PN0&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=jELq07Yl-36Ug5sxOOqmMA&_nc_ss=7b2a8&oh=00_Af6Fql3Q_6Ny4DWYGXOmOs9efpyAPg-XT0Zc63bPIqxuPQ&oe=69FD6155",
+    role: "WhatsApp Enquiries",
+    phone: "9865481109",
+    note: "Fast WhatsApp support for custom orders",
+    purpose: "WhatsApp enquiries",
+    actionLabel: "Chat on WhatsApp",
+    actionHref: "https://wa.me/9779865481109",
+    color: "bg-green-50",
+  },
 ];
 
 const Index = () => {
-  const [time, setTime] = useState("");
+  const [playing, setPlaying] = useState(false);
+  const videoId = "SZMr39NJ76A";
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [trendingImage, setTrendingImage] = useState<string>(heroShoes);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
+
   useReveal();
-  const { add, count } = useCart();
+
   useEffect(() => {
-    const tick = () => {
-      const d = new Date().toLocaleTimeString("en-US", {
-        timeZone: "Asia/Kathmandu",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      setTime(d + " KTM");
-    };
-    tick();
-    const i = setInterval(tick, 30000);
-    return () => clearInterval(i);
+    fetchShoes()
+      .then((res) => {
+        const trending = (res.data.data || []).filter((shoe: any) => shoe.trending && shoe.images?.length);
+        if (trending.length) {
+          const random = trending[Math.floor(Math.random() * trending.length)];
+          setTrendingImage(random.images[0].url);
+        }
+      })
+      .catch(console.error);
   }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % collections.length);
+    }, 2000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const slider = sliderRef.current;
+    const card = slider?.children[activeSlide] as HTMLElement | undefined;
+    if (card) {
+      slider.scrollTo({ left: card.offsetLeft, behavior: "smooth" });
+    }
+  }, [activeSlide]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Top bar */}
-      <div className="border-b border-border/60 bg-ink text-ink-foreground">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-2 text-[11px] uppercase tracking-[0.2em]">
-          <span>Est. Kathmandu · Nepal</span>
-          <span className="hidden sm:block">Free fitting · Hand-finished leather · Since the bazaar days</span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-mustard animate-blink" />
-            {time}
-          </span>
-        </div>
-      </div>
 
-      {/* Nav */}
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <a href="#" className="group flex items-baseline gap-2 transition-transform duration-300 hover:-translate-y-0.5">
-            <span className="font-serif text-2xl font-black tracking-tight">GoGo</span>
-            <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground transition-colors group-hover:text-primary">Jutta Ghar</span>
-          </a>
-          <nav className="hidden gap-8 text-sm font-medium md:flex">
-            <a
-              href="#home"
-              onClick={(e) => { e.preventDefault(); document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="link-underline hover:text-primary transition-colors"
-            >
-              Home
-            </a>
-            <a
-              href="#story"
-              onClick={(e) => { e.preventDefault(); document.getElementById('story')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="link-underline hover:text-primary transition-colors"
-            >
-              About Us
-            </a>
-            <a
-              href="#contact"
-              onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="link-underline hover:text-primary transition-colors"
-            >
-              Contact Us
-            </a>
-            <a
-              href="#visit"
-              onClick={(e) => { e.preventDefault(); document.getElementById('visit')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="link-underline hover:text-primary transition-colors"
-            >
-              Find Us
-            </a>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/checkout"
-              aria-label="Open cart"
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              {count > 0 && (
-                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground animate-scale-in">
-                  {count}
-                </span>
-              )}
-            </Link>
-            <Button asChild variant="default" className="rounded-full bg-ink text-ink-foreground hover:bg-ink/90 transition-all duration-300 hover:scale-105 hover:shadow-card">
-              <a href="#visit">Find the Shop</a>
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section id="home" className="relative overflow-hidden">
+      {/* ── Hero ── */}
+      <section id="home" className="relative overflow-hidden reveal">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-16 md:grid-cols-12 md:py-24">
           <div className="md:col-span-6 md:pr-6">
-            <div className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground animate-fade-in" style={{ animationDelay: "0.05s" }}>
+            <div className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground reveal-left" style={{ transitionDelay: "0.05s" }}>
               <span className="h-px w-8 bg-foreground/40" />
               Vol. 01 · A Kathmandu Shoe House
             </div>
-            <h1 className="font-serif text-[clamp(3rem,8vw,6.5rem)] font-black leading-[0.92] tracking-tight text-balance animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+            <h1 className="font-serif text-[clamp(3rem,8vw,6.5rem)] font-black leading-[0.92] tracking-tight text-balance reveal-left" style={{ transitionDelay: "0.15s" }}>
               Shoes that <em className="not-italic text-primary">walk</em> the city,
               <br />
               <span className="text-foreground/80">made for Nepali feet.</span>
             </h1>
-            <p className="mt-8 max-w-md text-lg leading-relaxed text-muted-foreground animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
+            <p className="mt-8 max-w-md text-lg leading-relaxed text-muted-foreground reveal-left" style={{ transitionDelay: "0.35s" }}>
               गोगो जुत्ता घर — a small, stubbornly good shoe store on Jagatsundar Marg.
-              Leather you can smell. Soles that survive monsoon. Service that
-              remembers your name.
+              Leather you can smell. Soles that survive monsoon. Service that remembers your name.
             </p>
-            <div className="mt-10 flex flex-wrap items-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
+            <div className="mt-10 flex flex-wrap items-center gap-4 reveal-left" style={{ transitionDelay: "0.5s" }}>
               <Button asChild size="lg" className="group h-12 rounded-full bg-primary px-7 text-primary-foreground hover:bg-terracotta-deep transition-all duration-300 hover:scale-[1.03] hover:shadow-soft">
                 <a href="#collection">Browse the Collection <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="group h-12 rounded-full border border-ink bg-background text-ink hover:border-primary hover:text-primary transition-all duration-300 hover:shadow-soft">
+                <Link to="/shop-floors">Tour Shop Floors</Link>
               </Button>
               <a href="#visit" className="group flex items-center gap-2 text-sm font-medium uppercase tracking-widest">
                 <span className="border-b border-foreground/40 pb-0.5 group-hover:border-primary">Walk in today</span>
                 <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
             </div>
-            <div className="mt-12 flex items-center gap-6 text-sm animate-fade-in" style={{ animationDelay: "0.7s" }}>
+            <div className="mt-12 flex items-center gap-6 text-sm reveal-left" style={{ transitionDelay: "0.7s" }}>
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4].map((i) => <Star key={i} className="h-4 w-4 fill-mustard text-mustard" />)}
                 <Star className="h-4 w-4 fill-mustard/50 text-mustard" />
@@ -144,12 +134,12 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="relative md:col-span-6 animate-scale-in" style={{ animationDelay: "0.25s" }}>
+          <div className="relative md:col-span-6 reveal-right" style={{ transitionDelay: "0.25s" }}>
             <div className="group relative aspect-[4/5] overflow-hidden rounded-sm shadow-soft">
               <img
                 src={heroShoes}
                 alt="Premium leather oxford and tan loafer on warm terracotta backdrop"
-                className="h-full w-full object-cover animate-kenburns transition-transform duration-700 group-hover:scale-[1.04]"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04] rounded-xl"
                 width={1600}
                 height={2000}
               />
@@ -157,17 +147,13 @@ const Index = () => {
                 <div className="rounded-sm bg-ink/80 px-3 py-2 text-xs uppercase tracking-[0.2em] backdrop-blur transition-transform duration-500 group-hover:-translate-y-1">
                   Featured · Heritage Line
                 </div>
-                <div className="rounded-sm bg-mustard px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-ink transition-transform duration-500 group-hover:-translate-y-1">
+                <div className="rounded-sm bg-mustard px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-ink transition-transform duration-500 group-hover:-translate-y-1 ">
                   New In
                 </div>
               </div>
             </div>
-            <div className="absolute -left-6 -top-6 hidden h-24 w-24 rotate-[-8deg] items-center justify-center rounded-full bg-mustard text-center text-[10px] font-bold uppercase leading-tight tracking-widest text-ink shadow-card md:flex animate-float">
-              Hand
-              <br />
-              Finished
-              <br />
-              ◆ Nepal
+            <div className="text-red-600 absolute -left-6 -top-6 hidden h-24 w-24 rotate-[-8deg] items-center justify-center rounded-full bg-mustard text-center text-[18px] font-bold uppercase leading-tight tracking-widest text-ink shadow-card md:flex animate-float">
+              20 %<br />off<br />
             </div>
           </div>
         </div>
@@ -188,7 +174,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Collection */}
+      {/* ── Collection ── */}
       <section id="collection" className="mx-auto max-w-7xl px-6 py-24">
         <div className="mb-12 flex items-end justify-between gap-6 reveal">
           <div>
@@ -200,58 +186,109 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {collections.map((item, i) => (
-            <article
-              key={item.name}
-              className="group reveal relative overflow-hidden rounded-sm bg-card shadow-card transition-all duration-500 hover:-translate-y-2 hover:shadow-soft"
-              style={{ transitionDelay: `${i * 90}ms` }}
-            >
-              <div className="aspect-[4/5] overflow-hidden bg-muted">
-                <img
-                  src={item.img}
-                  alt={item.name}
-                  loading="lazy"
-                  width={800}
-                  height={1000}
-                  className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110 group-hover:rotate-[0.5deg]"
-                />
-              </div>
-              <div className="flex items-center justify-between p-5 transition-colors duration-300 group-hover:bg-secondary/40">
-                <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{item.category}</p>
-                  <h3 className="mt-1 font-serif text-xl font-bold transition-colors duration-300 group-hover:text-primary">{item.name}</h3>
-                </div>
-              </div>
-              <div className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur transition-all duration-500 group-hover:bg-mustard group-hover:text-ink">
-                №&nbsp;{String(i + 1).padStart(2, "0")}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  add({ id: item.id, name: item.name, category: item.category, price: item.price, img: item.img });
-                  toast.success(`${item.name} added to bag`);
-                }}
-                aria-label={`Add ${item.name} to cart`}
-                className="absolute bottom-20 right-3 inline-flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-ink text-ink-foreground opacity-0 shadow-card transition-all duration-300 hover:scale-110 hover:bg-primary group-hover:translate-y-0 group-hover:opacity-100"
+        <div className="overflow-hidden rounded-xl">
+          <div ref={sliderRef} className="flex gap-6 overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory rounded-xl">
+            {collections.map((item, i) => (
+              <article
+                key={item.name}
+                className="snap-start flex-none w-full sm:w-[min(38vw,32rem)] lg:w-[24rem] group reveal relative overflow-hidden rounded-sm bg-card shadow-card transition-all duration-500 hover:-translate-y-2 hover:shadow-soft"
+                style={{ transitionDelay: `${i * 90}ms` }}
               >
-                <Plus className="h-4 w-4" />
-              </button>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0 bg-gradient-to-t from-ink/20 to-transparent transition-all duration-500 group-hover:h-1/3" />
-            </article>
-          ))}
+                <div className="aspect-[11/14] overflow-hidden bg-muted">
+                  <img
+                    src={item.trending ? trendingImage : item.img}
+                    alt={item.trending ? `${item.name} trending shoe` : item.name}
+                    loading="lazy"
+                    width={800}
+                    height={1000}
+                    className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110 group-hover:rotate-[0.5deg]"
+                  />
+                </div>
+                <div className="flex items-center justify-between p-5 transition-colors duration-300 group-hover:bg-secondary/40">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{item.category}</p>
+                    <h3 className="mt-1 font-serif text-xl font-bold transition-colors duration-300 group-hover:text-primary">{item.name}</h3>
+                  </div>
+                </div>
+                <div className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur transition-all duration-500 group-hover:bg-mustard group-hover:text-ink">
+                  №&nbsp;{String(i + 1).padStart(2, "0")}
+                </div>
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0 bg-gradient-to-t from-ink/20 to-transparent transition-all duration-500 group-hover:h-1/3" />
+              </article>
+            ))}
+          </div>
+          <div className="mt-4 flex justify-center gap-2">
+            {collections.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setActiveSlide(index)}
+                className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${index === activeSlide ? "bg-primary" : "bg-muted-foreground/70 hover:bg-primary"}`}
+                aria-label={`Slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
         <div className="mt-10 flex justify-center">
           <Button asChild size="lg" className="h-12 rounded-full bg-primary px-7 text-primary-foreground hover:bg-terracotta-deep">
-            <Link to="/checkout">
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              Go to checkout {count > 0 && `· ${count} item${count > 1 ? "s" : ""}`}
-            </Link>
+            <a href="#contact">Contact for more details</a>
           </Button>
         </div>
       </section>
 
-      {/* Story */}
+      {/* ── About ── */}
+      <section id="about" className="mx-auto max-w-7xl px-6 py-24">
+        <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between reveal">
+          <div>
+            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 03 — About Us</p>
+            <h2 className="font-serif text-5xl font-black tracking-tight md:text-6xl">Meet the proprietor and the heart of the shop.</h2>
+          </div>
+          <p className="hidden max-w-xs text-sm text-muted-foreground md:block">
+            A friendly face behind every pair, with decades of personal fit advice and warm local service.
+          </p>
+        </div>
+
+        <div className="grid gap-10 lg:grid-cols-[360px_minmax(0,1fr)]">
+          <div className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft">
+            <img
+              src="https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/514286099_10090254507725120_4610813327178371235_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=104&ccb=1-7&_nc_sid=7b2446&_nc_ohc=kg0y42i6kaMQ7kNvwFgnQe0&_nc_oc=AdqxtlvhnjPtRNMjrvmzEY8ZPWisraac1yTElHmOMbPU00G8drEg_ehjhdMJKy7DE7s&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=RP-8noDtgWtjPgogsovoSg&_nc_ss=7b2a8&oh=00_Af5h5SZh-DCbc4Hw0Y0z_bzKfJ1Ol-zqt71_zTv6N_fnKQ&oe=69FD67AA"
+              alt="Proprietor portrait"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="space-y-6 rounded-[2rem] border border-border bg-card p-8 shadow-soft">
+            <div className="space-y-4">
+              <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Store owner</p>
+              <h3 className="text-4xl font-black text-ink">Balaram KC — local proprietor, fit expert, and shoemaking storyteller.</h3>
+              <p className="text-foreground/80 leading-relaxed">
+                Balaram knows every foot that walks past the door. He pairs honest advice with hand-checked leather, so the shoes you see here are not only stylish, they are chosen to feel right for the streets of Kathmandu.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[
+                { v: "20+", l: "Years selling shoes" },
+                { v: "100%", l: "Local fit service" },
+                { v: "Friendly", l: "Shop experience" },
+              ].map((s) => (
+                <div key={s.l} className="rounded-3xl border border-border bg-background p-5 text-center">
+                  <p className="text-3xl font-bold text-primary">{s.v}</p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.25em] text-muted-foreground">{s.l}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <a href="#contact" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-terracotta-deep">
+                Message the proprietor
+              </a>
+              <a href="#visit" className="inline-flex items-center justify-center rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary">
+                Visit the shop
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Story ── */}
       <section id="story" className="bg-secondary/60 grain">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 py-24 md:grid-cols-12">
           <div className="md:col-span-5 reveal-left">
@@ -287,7 +324,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Craft / values */}
+      {/* ── Craft ── */}
       <section id="craft" className="mx-auto max-w-7xl px-6 py-24">
         <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground reveal">§ 04 — The Craft</p>
         <h2 className="mb-14 max-w-3xl font-serif text-5xl font-black tracking-tight md:text-6xl reveal">
@@ -295,15 +332,11 @@ const Index = () => {
         </h2>
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-sm bg-border md:grid-cols-3">
           {[
-            { t: "Real Leather", d: "Sourced, conditioned and stitched to last more than a season. We'd rather sell less than sell rubbish." },
+         { t: "Genuine Quality", d: "Sourced, conditioned and stitched to last more than a season. We'd rather sell less than sell rubbish." },
             { t: "Honest Fit", d: "We measure both feet. We'll tell you when a shoe doesn't suit you — even the ones we love." },
             { t: "Open Door", d: "Browse for an hour, sit with a cup of tea, bring the whole family. The shop belongs to the street." },
           ].map((c, i) => (
-            <div
-              key={c.t}
-              className="group bg-card p-10 reveal transition-colors duration-500 hover:bg-secondary/60"
-              style={{ transitionDelay: `${i * 140}ms` }}
-            >
+            <div key={c.t} className="group bg-card p-10 reveal transition-colors duration-500 hover:bg-secondary/60" style={{ transitionDelay: `${i * 140}ms` }}>
               <div className="font-serif text-6xl font-black text-mustard transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105">0{i + 1}</div>
               <h3 className="mt-6 font-serif text-2xl font-bold transition-colors duration-300 group-hover:text-primary">{c.t}</h3>
               <p className="mt-3 text-muted-foreground">{c.d}</p>
@@ -312,59 +345,154 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Contact */}
-      <section id="contact" className="mx-auto max-w-7xl px-6 py-24">
-        <div className="mb-6">
-          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">Contact</p>
-          <h2 className="text-3xl font-bold">Contact Us</h2>
-          <p className="mt-4 text-muted-foreground">We're happy to hear from you — call, message, or drop by. Our team is available to help with orders, fittings, and general enquiries.</p>
+      {/* ── Contact ── */}
+      <section id="contact" className="bg-secondary/30 py-24">
+        <div className="mx-auto max-w-7xl px-6">
 
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-            <div className="rounded-lg border p-6">
-              <h3 className="font-semibold">Phone</h3>
-              <ul className="mt-3 space-y-2 text-sm">
-                <li><a href="tel:+9779841898731" className="text-primary">+977 98418 98731</a> — Store / General</li>
-                <li><a href="tel:+9779843183764" className="text-primary">+977 98431 83764</a> — Orders & WhatsApp</li>
-                <li><a href="tel:+9779865481109" className="text-primary">+977 98654 81109</a> — Support</li>
-              </ul>
+          {/* Header */}
+          <div className="mb-12 text-center reveal">
+            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 05 — सम्पर्क · Contact</p>
+            <h2 className="font-serif text-5xl font-black tracking-tight md:text-6xl">Talk directly with the team.</h2>
+            <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+              For direct orders, Instagram enquiries, and WhatsApp support — these are the people ready to help.
+            </p>
+          </div>
+
+          {/* Store info cards */}
+          <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-2 max-w-2xl mx-auto reveal">
+            <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
+              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Store Line</p>
+              <p className="mt-3 text-2xl font-semibold text-ink">+977 9841 898 731</p>
+              <p className="mt-2 text-sm text-foreground/70">Immediate orders & enquiries</p>
             </div>
-
-            <div className="rounded-lg border p-6">
-              <h3 className="font-semibold">Email</h3>
-              <p className="mt-3 text-sm"><a href="mailto:dummy@example.com" className="text-primary">dummy@example.com</a></p>
-              <p className="mt-4 text-sm text-muted-foreground">Typical response time: within 24 hours on weekdays.</p>
+            <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
+              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Visit</p>
+              <p className="mt-3 text-2xl font-semibold text-ink">Jagatsundar Marg</p>
+              <p className="mt-2 text-sm text-foreground/70">Open daily · Walk-ins welcome</p>
             </div>
+          </div>
 
-            <div className="rounded-lg border p-6">
-              <h3 className="font-semibold">Visit</h3>
-              <p className="mt-3 text-sm">Jagatsundar Marg, Kathmandu, Nepal</p>
-              <p className="mt-2 text-sm">Hours: Mon–Sat, 10:00 — 19:00</p>
-              <div className="mt-4">
-                <a
-                  href="https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082548,85.31198,17z"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-block rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-                >Get directions</a>
+          {/* Staff cards — 3 column grid */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {staffContacts.map((contact, i) => (
+              <div
+                key={contact.name}
+                className="group reveal overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-lg"
+                style={{ transitionDelay: `${i * 100}ms` }}
+              >
+                {/* Image */}
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src={contact.image}
+                    alt={contact.name}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="p-6 space-y-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">{contact.role}</p>
+                    <h3 className="mt-1 text-2xl font-bold text-ink">{contact.name}</h3>
+                  </div>
+                  <p className="text-sm text-foreground/70">{contact.note}</p>
+                  <div className="space-y-1 text-sm">
+                    <p>
+                      <span className="font-semibold">Phone: </span>
+                      <a href={`tel:${contact.phone.replace(/\D/g, "")}`} className="text-primary hover:underline">
+                        {contact.phone}
+                      </a>
+                    </p>
+                    <p className="text-muted-foreground">{contact.purpose}</p>
+                  </div>
+                  
+                   <a href={contact.actionHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex w-full items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-terracotta-deep hover:scale-[1.02]"
+                  >
+                    {contact.actionLabel}
+                  </a>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Visit */}
+      {/* ── Video Short ── */}
+      <section id="video" className="mx-auto max-w-7xl px-6 py-24">
+        <div className="flex flex-col items-center gap-12 md:flex-row md:items-center md:gap-20">
+
+          <div className="flex-1 space-y-5 reveal-left">
+            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 06 — See the Shop</p>
+            <h2 className="font-serif text-5xl font-black tracking-tight md:text-6xl">
+              Step inside <em className="not-italic text-primary">GoGo</em> before you arrive.
+            </h2>
+            <p className="max-w-md text-lg leading-relaxed text-muted-foreground">
+              A quick look at the shop, the shelves, and the people behind the counter — straight from our social media.
+            </p>
+            
+             <a href={`https://youtube.com/shorts/${videoId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+            >
+              Watch on YouTube <ArrowUpRight className="h-4 w-4" />
+            </a>
+          </div>
+
+          {/* Video player */}
+          <div className="w-full max-w-[300px] mx-auto md:mx-0 reveal-right">
+            <div className="aspect-[9/16] overflow-hidden rounded-[2rem] bg-black shadow-soft ring-1 ring-border">
+              {playing ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                  title="GoGo Shoes Shop"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="h-full w-full"
+                />
+              ) : (
+                <div className="relative h-full w-full cursor-pointer" onClick={() => setPlaying(true)}>
+                  <img
+                    src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                    alt="GoGo Shoes shop video thumbnail"
+                    className="h-full w-full object-cover"
+                  />
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  {/* Play button */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-600 shadow-2xl ring-4 ring-white/20 transition-transform duration-300 hover:scale-110">
+                      <svg className="h-8 w-8 translate-x-1 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                  {/* Bottom label */}
+                  <div className="absolute bottom-5 left-4 right-4 rounded-2xl bg-black/60 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-widest text-white backdrop-blur">
+                    Watch the Shop Tour ▶
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── Visit ── */}
       <section id="visit" className="bg-ink text-ink-foreground">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-24 md:grid-cols-12">
           <div className="md:col-span-5 reveal-left">
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-mustard">§ 05 — Visit</p>
+            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-mustard">§ 07 — Visit</p>
             <h2 className="font-serif text-5xl font-black leading-[1.05] tracking-tight md:text-6xl">
               Come in. <br /><em className="not-italic text-mustard">Try a pair.</em>
             </h2>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-foreground/70">
-              We're easiest to find on foot. Look for the wooden door and the
-              shoes drying outside.
+              We're easiest to find on foot. Look for the wooden door and the shoes drying outside.
             </p>
-
             <ul className="mt-10 space-y-5 text-base">
               <li className="group flex gap-4 transition-transform duration-300 hover:translate-x-1">
                 <MapPin className="mt-1 h-5 w-5 text-mustard transition-transform duration-300 group-hover:scale-125" />
@@ -388,13 +516,8 @@ const Index = () => {
                 </div>
               </li>
             </ul>
-
             <Button asChild size="lg" className="group mt-10 h-12 rounded-full bg-mustard px-7 text-ink hover:bg-mustard/90 transition-all duration-300 hover:scale-105 hover:shadow-soft">
-              <a
-                href="https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082548,85.31198,17z"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href="https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082548,85.31198,17z" target="_blank" rel="noreferrer">
                 Get Directions <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
             </Button>
@@ -414,7 +537,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* ── Footer ── */}
       <footer className="border-t border-border/60 bg-background">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between">
           <div className="flex items-baseline gap-2">
@@ -426,6 +549,7 @@ const Index = () => {
           </p>
         </div>
       </footer>
+
     </div>
   );
 };
