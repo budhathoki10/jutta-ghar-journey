@@ -163,7 +163,7 @@ const Index = () => {
           <div className="marquee flex w-max gap-12 whitespace-nowrap font-serif text-3xl italic">
             {Array.from({ length: 2 }).map((_, k) => (
               <div key={k} className="flex gap-12">
-                {["Leather", "Suede", "Canvas", "Comfort", "Craft", "Kathmandu", "गोगो", "Since Day One"].map((w, i) => (
+                {["जुत्ता घर", "Kathmandu", "Quality", "Comfort", "गोगो", "Fit", "Nepal", "Since Day One"].map((w, i) => (
                   <span key={i} className="flex items-center gap-12">
                     {w} <span className="text-mustard">✦</span>
                   </span>

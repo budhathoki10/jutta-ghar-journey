@@ -11,8 +11,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const DEFAULT_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'budhathokikushal170@gmail.com';
-const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '12345';
+const DEFAULT_ADMIN_EMAIL =  'budhathokikushal170@gmail.com';
+const DEFAULT_ADMIN_PASSWORD ='12345';
 
 const createDefaultAdmin = async () => {
   try {
