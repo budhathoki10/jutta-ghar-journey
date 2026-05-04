@@ -1,6 +1,8 @@
 const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { Readable } = require('stream');
+const cloudinary = require('../config/cloudinary');
 
 exports.register = async (req, res) => {
   try {
@@ -13,6 +15,24 @@ exports.register = async (req, res) => {
     const admin = new Admin({ email, password: hashed });
     await admin.save();
     res.status(201).json({ message: 'Admin registered' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.uploadImage = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No image file uploaded' });
+
+    const bufferStream = Readable.from([req.file.buffer]);
+    const uploadStream = cloudinary.uploader.upload_stream({ folder: 'shoe-shop/shoes', resource_type: 'image' }, (error, result) => {
+      if (error) {
+        return res.status(500).json({ message: 'Cloudinary upload failed', error: error.message });
+      }
+      res.json({ url: result.secure_url, publicId: result.public_id });
+    });
+
+    bufferStream.pipe(uploadStream);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

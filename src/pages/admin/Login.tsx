@@ -13,8 +13,10 @@ const Login: React.FC = () => {
     try {
       await login(email, password);
       navigate('/admin/dashboard');
-    } catch (err) {
-      alert('Login failed');
+    } catch (err: any) {
+      const message = err?.response?.data?.message || err?.message || 'Login failed';
+      alert(message);
+      console.error('Admin login error:', err);
     }
   };
 

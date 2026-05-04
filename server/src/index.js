@@ -11,8 +11,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const DEFAULT_ADMIN_EMAIL =  'budhathokikushal170@gmail.com';
-const DEFAULT_ADMIN_PASSWORD ='12345';
+const adminRoutes = require('./routes/adminRoutes');
+const shoeRoutes = require('./routes/shoeRoutes');
+app.use('/api/admin', adminRoutes);
+app.use('/api/shoes', shoeRoutes);
+
+const DEFAULT_ADMIN_EMAIL =  'a';
+const DEFAULT_ADMIN_PASSWORD ='1';
 
 const createDefaultAdmin = async () => {
   try {

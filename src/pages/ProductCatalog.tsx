@@ -1,11 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Sparkles, ChevronLeft, ChevronRight, Phone, SlidersHorizontal, X } from "lucide-react";
+import { Search, Sparkles, Phone, SlidersHorizontal, X, LayoutGrid, LayoutList, ChevronDown } from "lucide-react";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 12;
 
 const ProductCatalog = () => {
   const [shoes, setShoes] = useState<any[]>([]);
@@ -17,6 +26,7 @@ const ProductCatalog = () => {
   const [brand, setBrand] = useState("all");
   const [size, setSize] = useState("all");
   const [trendingOnly, setTrendingOnly] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false); // ← NEW
 
@@ -76,6 +86,20 @@ const ProductCatalog = () => {
 
   const pageCount = Math.max(1, Math.ceil(filteredShoes.length / ITEMS_PER_PAGE));
   const paginated = filteredShoes.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
+  const paginationRange = useMemo(() => {
+    const range: Array<number | string> = [];
+    const start = Math.max(1, page - 1);
+    const end = Math.min(pageCount, page + 1);
+
+    if (start > 1) range.push(1);
+    if (start > 2) range.push("start-ellipsis");
+    for (let i = start; i <= end; i += 1) range.push(i);
+    if (end < pageCount - 1) range.push("end-ellipsis");
+    if (end < pageCount) range.push(pageCount);
+
+    return range;
+  }, [page, pageCount]);
 
   useEffect(() => {
     setPage(1);
@@ -272,14 +296,51 @@ const ProductCatalog = () => {
 
         {/* Results */}
         <section className="space-y-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">{filteredShoes.length} items</p>
-              <h2 className="text-2xl font-bold text-ink">Modern catalogue for every shoe shopper.</h2>
+              <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">
+                {search.trim()
+                  ? `Showing results for "${search.trim()}"`
+                  : category !== 'all'
+                  ? `Showing results for ${category}`
+                  : 'Showing all products'}
+              </p>
+              <h2 className="text-2xl font-bold text-ink">Curated shoe collections for every step.</h2>
+              <p className="mt-2 text-sm text-foreground/70">
+                Compact browsing cards, live filters, and easy ordering for shoppers on the move.
+              </p>
             </div>
-            <Button asChild variant="outline" className="rounded-full px-5 py-3 text-sm">
-              <Link to="/contact"><Phone className="mr-2 h-4 w-4" />Contact to Order</Link>
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-sm text-foreground">
+                <span className="text-muted-foreground">Sort by</span>
+                <span className="font-semibold">Best Match</span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                className={cn(
+                  'inline-flex h-10 w-10 items-center justify-center rounded-full border transition',
+                  viewMode === 'grid'
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
+                )}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                className={cn(
+                  'inline-flex h-10 w-10 items-center justify-center rounded-full border transition',
+                  viewMode === 'list'
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
+                )}
+              >
+                <LayoutList className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
           {loading ? (
@@ -295,38 +356,52 @@ const ProductCatalog = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className={cn(
+              'grid gap-5',
+              viewMode === 'grid'
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                : 'grid-cols-1',
+            )}>
               {paginated.map((shoe) => (
-                <article key={shoe._id} className="group overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition hover:-translate-y-1 hover:shadow-soft">
-                  <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-                    <img
-                      src={shoe.images?.[0]?.url || "https://via.placeholder.com/600x750?text=No+image"}
-                      alt={shoe.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
+                <article key={shoe._id} className="group overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+                  <div className="relative overflow-hidden rounded-t-[1.75rem] bg-muted">
+                    <div className="aspect-[4/5] bg-[#f5f5f5]">
+                      <img
+                        src={shoe.images?.[0]?.url || "https://via.placeholder.com/600x600?text=No+image"}
+                        alt={shoe.name}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    </div>
                     {shoe.trending && (
                       <span className="absolute left-4 top-4 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.25em] text-primary-foreground">
                         Trending
                       </span>
                     )}
                   </div>
-                  <div className="space-y-4 p-6">
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-semibold text-ink">{shoe.name}</h3>
-                      <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
-                        {shoe.subcategory} · {shoe.gender}
-                      </p>
+                  <div className="space-y-3 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-base font-semibold text-ink capitalize">{shoe.name}</h3>
+                        <p className="mt-1 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+                          {shoe.subcategory || 'Other'} · {shoe.gender || 'Unisex'}
+                        </p>
+                      </div>
+                      {shoe.price != null && (
+                        <div className="rounded-full bg-foreground/5 px-2 py-1 text-xs font-semibold text-foreground">
+                          Rs {shoe.price}
+                        </div>
+                      )}
                     </div>
-                    <div className="grid gap-2 text-sm text-foreground/80">
-                      <p><span className="font-semibold text-foreground">Brand:</span> {shoe.branded ? shoe.brand || "Branded" : "Non-branded"}</p>
-                      <p><span className="font-semibold text-foreground">Sizes:</span> {shoe.sizes?.length ? `${Math.min(...shoe.sizes)}–${Math.max(...shoe.sizes)}` : "Not set"}</p>
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                      <span>{shoe.branded ? shoe.brand || 'Branded' : 'Non-branded'}</span>
+                      <span>{shoe.sizes?.length ? `Sizes ${Math.min(...shoe.sizes)}–${Math.max(...shoe.sizes)}` : 'Size N/A'}</span>
                     </div>
-                    <div className="flex flex-wrap gap-3 pt-4">
-                      <Button asChild variant="secondary" className="rounded-full px-4 py-2 text-sm">
-                        <Link to={`/shoes/${shoe._id}`}>View Details</Link>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <Button asChild variant="secondary" className="w-full rounded-full px-3 py-2 text-sm justify-center">
+                        <Link to={`/shoes/${shoe._id}`}>View</Link>
                       </Button>
-                      <Button asChild className="rounded-full px-4 py-2 text-sm">
-                        <a href="tel:+9779800000000">Contact to Order</a>
+                      <Button asChild className="w-full rounded-full px-3 py-2 text-sm justify-center">
+                        <a href="tel:+9779800000000">Contact</a>
                       </Button>
                     </div>
                   </div>
@@ -336,20 +411,56 @@ const ProductCatalog = () => {
           )}
 
           {/* Pagination */}
-          <div className="flex items-center justify-between gap-3 rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground">
+          <Pagination className="flex flex-col gap-3 rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <span>
               {filteredShoes.length === 0 ? "0" : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(filteredShoes.length, page * ITEMS_PER_PAGE)} of {filteredShoes.length} shoes
             </span>
-            <div className="flex items-center gap-2">
-              <Button disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} variant="outline" size="sm">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="font-semibold text-foreground">Page {page} of {pageCount}</span>
-              <Button disabled={page >= pageCount} onClick={() => setPage((p) => Math.min(pageCount, p + 1))} variant="outline" size="sm">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+            <PaginationContent className="justify-center">
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  aria-disabled={page <= 1}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page <= 1) return;
+                    setPage((p) => Math.max(1, p - 1));
+                  }}
+                />
+              </PaginationItem>
+              {paginationRange.map((item) =>
+                typeof item === "number" ? (
+                  <PaginationItem key={item}>
+                    <PaginationLink
+                      href="#"
+                      isActive={item === page}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPage(item as number);
+                      }}
+                      size="default"
+                    >
+                      {item}
+                    </PaginationLink>
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={item}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ),
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  aria-disabled={page >= pageCount}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (page >= pageCount) return;
+                    setPage((p) => Math.min(pageCount, p + 1));
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </section>
       </div>
     </div>

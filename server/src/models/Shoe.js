@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { string } = require('zod');
 
 const ImageSchema = new mongoose.Schema({
   url: { type: String, required: true },
@@ -11,7 +12,7 @@ const ShoeSchema = new mongoose.Schema({
   subcategory: { type: String, required: true },
   description: { type: String },
   price: { type: Number },
-  sizes: [{ type: Number }],
+  sizes: [{ type: String }],
   images: [ImageSchema],
   isFeatured: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }

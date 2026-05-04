@@ -10,8 +10,8 @@ const desktopNavItems = [
   { label: "Product Catalog", to: "/catalog", match: (pathname: string) => pathname === "/catalog" },
   {
     label: "About Us",
-    to: "/#about",
-    match: (pathname: string, hash: string) => pathname === "/" && hash === "#about" || pathname === "/about",
+    to: "/#story",
+    match: (pathname: string, hash: string) => pathname === "/" && hash === "#story" || pathname === "/about",
   },
   {
     label: "Contact Us",
