@@ -7,7 +7,7 @@ const About: React.FC = () => {
         <h1 className="text-4xl font-serif font-black mb-4">A shoe shop that remembers who you are.</h1>
         <p className="text-lg text-muted-foreground">
           गोगो जुत्ता घर — a small, stubbornly good shoe store on Jagatsundar Marg.
-          Leather you can smell. Soles that survive monsoon. Service that remembers your name.
+          Quality you can feel. Soles that survive monsoon. Service that remembers your name.
         </p>
       </section>
     </div>

@@ -7,25 +7,25 @@
 
 @layer base {
   :root {
-    --background: 36 38% 94%;
-    --foreground: 24 30% 12%;
+    --background: 36 40% 95%;
+    --foreground: 24 32% 10%;
 
-    --card: 36 42% 97%;
+    --card: 36 45% 98%;
     --card-foreground: 24 30% 12%;
 
     --popover: 36 42% 97%;
     --popover-foreground: 24 30% 12%;
 
-    --primary: 0 78% 45%;
+    --primary: 0 84% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 25% 88%;
+    --secondary: 32 28% 87%;
     --secondary-foreground: 24 30% 12%;
 
     --muted: 32 22% 86%;
     --muted-foreground: 24 14% 36%;
 
-    --accent: 38 78% 54%;
+    --accent: 40 82% 56%;
     --accent-foreground: 24 30% 12%;
 
     --ink: 24 30% 12%;
@@ -99,6 +99,79 @@
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
+
+  /* Bubble animations */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    25% { transform: translateY(-20px) translateX(10px); }
+    50% { transform: translateY(-40px) translateX(-10px); }
+    75% { transform: translateY(-20px) translateX(10px); }
+  }
+
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    25% { transform: translateY(-30px) translateX(-15px); }
+    50% { transform: translateY(-60px) translateX(15px); }
+    75% { transform: translateY(-30px) translateX(-15px); }
+  }
+
+  @keyframes float-slower {
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    25% { transform: translateY(-40px) translateX(20px); }
+    50% { transform: translateY(-80px) translateX(-20px); }
+    75% { transform: translateY(-40px) translateX(20px); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+    50% { box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); }
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+  }
+
+  .bubble-1 {
+    width: 100px;
+    height: 100px;
+    animation: float 8s ease-in-out infinite;
+    animation-delay: 0s;
+  }
+
+  .bubble-2 {
+    width: 150px;
+    height: 150px;
+    animation: float-slow 10s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  .bubble-3 {
+    width: 80px;
+    height: 80px;
+    animation: float-slower 12s ease-in-out infinite;
+    animation-delay: 4s;
+  }
+
+  .bubble-4 {
+    width: 120px;
+    height: 120px;
+    animation: float 9s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+
+  .bubble-5 {
+    width: 90px;
+    height: 90px;
+    animation: float-slow 11s ease-in-out infinite;
+    animation-delay: 3s;
+  }
+
+  .animate-float { animation: float 6s ease-in-out infinite; }
+
   .grain {
     background-image: radial-gradient(hsl(24 30% 12% / 0.06) 1px, transparent 1px);
     background-size: 3px 3px;

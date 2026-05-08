@@ -22,7 +22,6 @@ const collections = [
 
 const staffContacts = [
   {
-    name: "Balaram KC",
     image: "https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/510969738_10036596226424282_5811402459633255473_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=101&ccb=1-7&_nc_sid=7b2446&_nc_ohc=ocqfnk_oPnAQ7kNvwGWtWd7&_nc_oc=AdrFzQ9HJAmaRNIzkC88_psgS4HryrNMvgxH0tC0GpzRywFZQ5GHm5wNImLH1UyLgqw&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=jFUAJFQUVpcmaZGIiVrrVA&_nc_ss=7b2a8&oh=00_Af5UBSR-Vk-3hrPvBU3LuBqtdHRsQJUdBLD98EXWuCRTJA&oe=69FD4C98",
     role: "GoGo Shoes Owner",
     phone: "9841898731",
@@ -33,7 +32,7 @@ const staffContacts = [
     color: "bg-mustard/10",
   },
   {
-    name: "Anamal Basnet",
+
     image: "https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/686953937_122310874418232382_9126030449653839631_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=108&ccb=1-7&_nc_sid=7b2446&_nc_ohc=744F5AJXGycQ7kNvwHFgzZu&_nc_oc=Adp8iVYT5to2n9tKu4RMtKOjA35eYB41ULEbH92QIeOWsc5aojGIZw1R9yPNILTW1gY&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=1xkgedYwQoysE7NJ5ahGRA&_nc_ss=7b2a8&oh=00_Af7DoyEAy15Iq08Xler361d5sD_JbIheNDWTfvyHTt0svA&oe=69FD5945",
     role: "Instagram Enquiries",
     phone: "9843183764",
@@ -44,7 +43,7 @@ const staffContacts = [
     color: "bg-pink-50",
   },
   {
-    name: "Bishal Budhathoki",
+
     image: "https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/477789706_1488858768714955_8664295335267458868_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=7b2446&_nc_ohc=9tJZHMHe-v4Q7kNvwEiCuxr&_nc_oc=AdqbeNUJG2XHZN5ONpttCTami_QfNwxNbES7SLAC37Phwd78P38eV_cVskkYttr8PN0&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=jELq07Yl-36Ug5sxOOqmMA&_nc_ss=7b2a8&oh=00_Af6Fql3Q_6Ny4DWYGXOmOs9efpyAPg-XT0Zc63bPIqxuPQ&oe=69FD6155",
     role: "WhatsApp Enquiries",
     phone: "9865481109",
@@ -97,20 +96,36 @@ const Index = () => {
 
       {/* ── Hero ── */}
       <section id="home" className="relative overflow-hidden reveal">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-16 md:grid-cols-12 md:py-24">
+        {/* Background Bubbles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="bubble bubble-1" style={{ left: "5%", top: "10%", background: "radial-gradient(circle at 30% 30%, rgba(0, 120, 200, 0.15), rgba(0, 120, 200, 0.05))" }}></div>
+          <div className="bubble bubble-2" style={{ right: "10%", top: "5%", background: "radial-gradient(circle at 30% 30%, rgba(255, 100, 50, 0.1), rgba(255, 100, 50, 0.02))" }}></div>
+          <div className="bubble bubble-3" style={{ left: "20%", bottom: "15%", background: "radial-gradient(circle at 30% 30%, rgba(255, 180, 0, 0.12), rgba(255, 180, 0, 0.03))" }}></div>
+          <div className="bubble bubble-4" style={{ right: "5%", bottom: "20%", background: "radial-gradient(circle at 30% 30%, rgba(200, 50, 50, 0.08), rgba(200, 50, 50, 0.02))" }}></div>
+          <div className="bubble bubble-5" style={{ left: "50%", top: "20%", background: "radial-gradient(circle at 30% 30%, rgba(100, 200, 100, 0.1), rgba(100, 200, 100, 0.03))" }}></div>
+        </div>
+
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-16 md:grid-cols-12 md:py-24 relative z-10">
           <div className="md:col-span-6 md:pr-6">
             <div className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground reveal-left" style={{ transitionDelay: "0.05s" }}>
               <span className="h-px w-8 bg-foreground/40" />
               Vol. 01 · A Kathmandu Shoe House
             </div>
-            <h1 className="font-serif text-[clamp(3rem,8vw,6.5rem)] font-black leading-[0.92] tracking-tight text-balance reveal-left" style={{ transitionDelay: "0.15s" }}>
+            <h1 className="font-serif text-[clamp(2rem,6vw,4.5rem)] font-black leading-[0.92] tracking-tight text-balance reveal-left" style={{ transitionDelay: "0.15s" }}>
               Shoes that <em className="not-italic text-primary">walk</em> the city,
               <br />
               <span className="text-foreground/80">made for Nepali feet.</span>
             </h1>
+            <div className="mt-6 flex flex-wrap gap-3 reveal-left" style={{ transitionDelay: "0.25s" }}>
+              {["Oxfords", "Heels", "Sneakers", "Loafers", "Casuals"].map((type) => (
+                <span key={type} className="rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary border border-primary/30">
+                  {type}
+                </span>
+              ))}
+            </div>
             <p className="mt-8 max-w-md text-lg leading-relaxed text-muted-foreground reveal-left" style={{ transitionDelay: "0.35s" }}>
               गोगो जुत्ता घर — a small, stubbornly good shoe store on Jagatsundar Marg.
-              Leather you can smell. Soles that survive monsoon. Service that remembers your name.
+              Quality you can feel. Soles that survive monsoon. Service that remembers your name.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4 reveal-left" style={{ transitionDelay: "0.5s" }}>
               <Button asChild size="lg" className="group h-12 rounded-full bg-primary px-7 text-primary-foreground hover:bg-terracotta-deep transition-all duration-300 hover:scale-[1.03] hover:shadow-soft">
@@ -175,7 +190,13 @@ const Index = () => {
       </section>
 
       {/* ── Collection ── */}
-      <section id="collection" className="mx-auto max-w-7xl px-6 py-24">
+      <section id="collection" className="relative mx-auto max-w-7xl px-6 py-24">
+        {/* Subtle background animation */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+          <div className="absolute -right-40 -top-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -left-40 -bottom-40 w-80 h-80 bg-mustard/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+        </div>
+
         <div className="mb-12 flex items-end justify-between gap-6 reveal">
           <div>
             <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 02 — The Shelf</p>
@@ -236,61 +257,17 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ── About ── */}
-      <section id="about" className="mx-auto max-w-7xl px-6 py-24">
-        <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between reveal">
-          <div>
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 03 — About Us</p>
-            <h2 className="font-serif text-5xl font-black tracking-tight md:text-6xl">Meet the proprietor and the heart of the shop.</h2>
-          </div>
-          <p className="hidden max-w-xs text-sm text-muted-foreground md:block">
-            A friendly face behind every pair, with decades of personal fit advice and warm local service.
-          </p>
-        </div>
 
-        <div className="grid gap-10 lg:grid-cols-[360px_minmax(0,1fr)]">
-          <div className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft">
-            <img
-              src="https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/514286099_10090254507725120_4610813327178371235_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=104&ccb=1-7&_nc_sid=7b2446&_nc_ohc=kg0y42i6kaMQ7kNvwFgnQe0&_nc_oc=AdqxtlvhnjPtRNMjrvmzEY8ZPWisraac1yTElHmOMbPU00G8drEg_ehjhdMJKy7DE7s&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=RP-8noDtgWtjPgogsovoSg&_nc_ss=7b2a8&oh=00_Af5h5SZh-DCbc4Hw0Y0z_bzKfJ1Ol-zqt71_zTv6N_fnKQ&oe=69FD67AA"
-              alt="Proprietor portrait"
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="space-y-6 rounded-[2rem] border border-border bg-card p-8 shadow-soft">
-            <div className="space-y-4">
-              <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Store owner</p>
-              <h3 className="text-4xl font-black text-ink">Balaram KC — local proprietor, fit expert, and shoemaking storyteller.</h3>
-              <p className="text-foreground/80 leading-relaxed">
-                Balaram knows every foot that walks past the door. He pairs honest advice with hand-checked leather, so the shoes you see here are not only stylish, they are chosen to feel right for the streets of Kathmandu.
-              </p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {[
-                { v: "20+", l: "Years selling shoes" },
-                { v: "100%", l: "Local fit service" },
-                { v: "Friendly", l: "Shop experience" },
-              ].map((s) => (
-                <div key={s.l} className="rounded-3xl border border-border bg-background p-5 text-center">
-                  <p className="text-3xl font-bold text-primary">{s.v}</p>
-                  <p className="mt-2 text-xs uppercase tracking-[0.25em] text-muted-foreground">{s.l}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <a href="#contact" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-terracotta-deep">
-                Message the proprietor
-              </a>
-              <a href="#visit" className="inline-flex items-center justify-center rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary">
-                Visit the shop
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── Story ── */}
-      <section id="story" className="bg-secondary/60 grain">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 py-24 md:grid-cols-12">
+      <section id="story" className="bg-secondary/60 grain relative">
+        {/* Background animation */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+          <div className="absolute -right-50 top-1/4 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -left-50 bottom-1/4 w-96 h-96 bg-mustard/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "3s" }}></div>
+        </div>
+
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 py-24 md:grid-cols-12 relative z-10">
           <div className="md:col-span-5 reveal-left">
             <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 03 — Our Story</p>
             <h2 className="font-serif text-5xl font-black leading-[1.05] tracking-tight md:text-6xl">
@@ -325,7 +302,13 @@ const Index = () => {
       </section>
 
       {/* ── Craft ── */}
-      <section id="craft" className="mx-auto max-w-7xl px-6 py-24">
+      <section id="craft" className="relative mx-auto max-w-7xl px-6 py-24">
+        {/* Background animation */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+          <div className="absolute -right-40 -top-40 w-80 h-80 bg-accent/8 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -left-40 -bottom-40 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1.5s" }}></div>
+        </div>
+
         <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground reveal">§ 04 — The Craft</p>
         <h2 className="mb-14 max-w-3xl font-serif text-5xl font-black tracking-tight md:text-6xl reveal">
           Three things we refuse to compromise on.
@@ -346,8 +329,14 @@ const Index = () => {
       </section>
 
       {/* ── Contact ── */}
-      <section id="contact" className="bg-secondary/30 py-24">
-        <div className="mx-auto max-w-7xl px-6">
+      <section id="contact" className="bg-secondary/30 py-24 relative">
+        {/* Background animation */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+          <div className="absolute right-0 top-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute left-0 bottom-0 w-96 h-96 bg-mustard/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2.5s" }}></div>
+        </div>
+
+        <div className="mx-auto max-w-7xl px-6 relative z-10">
 
           {/* Header */}
           <div className="mb-12 text-center reveal">
@@ -376,44 +365,33 @@ const Index = () => {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {staffContacts.map((contact, i) => (
               <div
-                key={contact.name}
-                className="group reveal overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-lg"
+   
+                className="group reveal rounded-[2rem] border border-border bg-card shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-lg p-6 space-y-4"
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
-                {/* Image */}
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img
-                    src={contact.image}
-                    alt={contact.name}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                </div>
-
                 {/* Content */}
-                <div className="p-6 space-y-4">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">{contact.role}</p>
-                    <h3 className="mt-1 text-2xl font-bold text-ink">{contact.name}</h3>
-                  </div>
-                  <p className="text-sm text-foreground/70">{contact.note}</p>
-                  <div className="space-y-1 text-sm">
-                    <p>
-                      <span className="font-semibold">Phone: </span>
-                      <a href={`tel:${contact.phone.replace(/\D/g, "")}`} className="text-primary hover:underline">
-                        {contact.phone}
-                      </a>
-                    </p>
-                    <p className="text-muted-foreground">{contact.purpose}</p>
-                  </div>
-                  
-                   <a href={contact.actionHref}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex w-full items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-terracotta-deep hover:scale-[1.02]"
-                  >
-                    {contact.actionLabel}
-                  </a>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">{contact.role}</p>
+
                 </div>
+                <p className="text-sm text-foreground/70">{contact.note}</p>
+                <div className="space-y-2 text-sm border-t border-border pt-4">
+                  <p className="text-muted-foreground">{contact.purpose}</p>
+                  <p>
+                    <span className="font-semibold">Phone: </span>
+                    <a href={`tel:${contact.phone.replace(/\D/g, "")}`} className="text-primary hover:underline">
+                      {contact.phone}
+                    </a>
+                  </p>
+                </div>
+                
+                <a href={contact.actionHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-terracotta-deep hover:scale-[1.02]"
+                >
+                  {contact.actionLabel}
+                </a>
               </div>
             ))}
           </div>
@@ -421,8 +399,14 @@ const Index = () => {
       </section>
 
       {/* ── Video Short ── */}
-      <section id="video" className="mx-auto max-w-7xl px-6 py-24">
-        <div className="flex flex-col items-center gap-12 md:flex-row md:items-center md:gap-20">
+      <section id="video" className="relative mx-auto max-w-7xl px-6 py-24">
+        {/* Background animation */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+          <div className="absolute -right-40 -top-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -left-40 -bottom-40 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+        </div>
+
+        <div className="flex flex-col items-center gap-12 md:flex-row md:items-center md:gap-20 relative z-10">
 
           <div className="flex-1 space-y-5 reveal-left">
             <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 06 — See the Shop</p>
@@ -483,8 +467,14 @@ const Index = () => {
       </section>
 
       {/* ── Visit ── */}
-      <section id="visit" className="bg-ink text-ink-foreground">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-24 md:grid-cols-12">
+      <section id="visit" className="bg-ink text-ink-foreground relative">
+        {/* Background animation */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+          <div className="absolute -right-50 top-1/4 w-96 h-96 bg-mustard/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -left-50 bottom-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "3s" }}></div>
+        </div>
+
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-24 md:grid-cols-12 relative z-10">
           <div className="md:col-span-5 reveal-left">
             <p className="mb-3 text-xs uppercase tracking-[0.25em] text-mustard">§ 07 — Visit</p>
             <h2 className="font-serif text-5xl font-black leading-[1.05] tracking-tight md:text-6xl">
