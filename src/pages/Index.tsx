@@ -20,6 +20,8 @@ const collections = [
   { id: "storefront", name: "Street Display", category: "Shop · Window", img: shopImage },
 ];
 
+const googleMapsUrl = "https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082595,85.3093997,928m/data=!3m2!1e3!4b1!4m6!3m5!1s0x39eb18fe4cf62957:0x3054f9c0f5228fb0!8m2!3d27.7082548!4d85.31198!16s%2Fg%2F11d_d1vhp3?entry=ttu&g_ep=EgoyMDI2MDUwNi4wIKXMDSoASAFQAw%3D%3D";
+
 const staffContacts = [
   {
     image: "https://scontent.fktm24-1.fna.fbcdn.net/v/t39.30808-6/510969738_10036596226424282_5811402459633255473_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=101&ccb=1-7&_nc_sid=7b2446&_nc_ohc=ocqfnk_oPnAQ7kNvwGWtWd7&_nc_oc=AdrFzQ9HJAmaRNIzkC88_psgS4HryrNMvgxH0tC0GpzRywFZQ5GHm5wNImLH1UyLgqw&_nc_zt=23&_nc_ht=scontent.fktm24-1.fna&_nc_gid=jFUAJFQUVpcmaZGIiVrrVA&_nc_ss=7b2a8&oh=00_Af5UBSR-Vk-3hrPvBU3LuBqtdHRsQJUdBLD98EXWuCRTJA&oe=69FD4C98",
@@ -98,6 +100,9 @@ const Index = () => {
       <section id="home" className="relative overflow-hidden reveal">
         {/* Background Bubbles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="hero-shape hero-shape-1" />
+          <div className="hero-shape hero-shape-2" />
+          <div className="hero-shape hero-shape-3" />
           <div className="bubble bubble-1" style={{ left: "5%", top: "10%", background: "radial-gradient(circle at 30% 30%, rgba(0, 120, 200, 0.15), rgba(0, 120, 200, 0.05))" }}></div>
           <div className="bubble bubble-2" style={{ right: "10%", top: "5%", background: "radial-gradient(circle at 30% 30%, rgba(255, 100, 50, 0.1), rgba(255, 100, 50, 0.02))" }}></div>
           <div className="bubble bubble-3" style={{ left: "20%", bottom: "15%", background: "radial-gradient(circle at 30% 30%, rgba(255, 180, 0, 0.12), rgba(255, 180, 0, 0.03))" }}></div>
@@ -105,7 +110,7 @@ const Index = () => {
           <div className="bubble bubble-5" style={{ left: "50%", top: "20%", background: "radial-gradient(circle at 30% 30%, rgba(100, 200, 100, 0.1), rgba(100, 200, 100, 0.03))" }}></div>
         </div>
 
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-16 md:grid-cols-12 md:py-24 relative z-10">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-5 py-14 sm:px-6 md:grid-cols-12 md:py-24 relative z-10">
           <div className="md:col-span-6 md:pr-6">
             <div className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground reveal-left" style={{ transitionDelay: "0.05s" }}>
               <span className="h-px w-8 bg-foreground/40" />
@@ -124,20 +129,29 @@ const Index = () => {
               ))}
             </div>
             <p className="mt-8 max-w-md text-lg leading-relaxed text-muted-foreground reveal-left" style={{ transitionDelay: "0.35s" }}>
-              गोगो जुत्ता घर — a small, stubbornly good shoe store on Jagatsundar Marg.
+              गोगो जुत्ता घर — the original shoe destination on Jagatsundar Marg, Kathmandu.
               Quality you can feel. Soles that survive monsoon. Service that remembers your name.
             </p>
-            <div className="mt-10 flex flex-wrap items-center gap-4 reveal-left" style={{ transitionDelay: "0.5s" }}>
-              <Button asChild size="lg" className="group h-12 rounded-full bg-primary px-7 text-primary-foreground hover:bg-terracotta-deep transition-all duration-300 hover:scale-[1.03] hover:shadow-soft">
-                <a href="#collection">Browse the Collection <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>
+            <div className="mt-8 grid gap-3 text-sm sm:grid-cols-2 sm:gap-4 reveal-left" style={{ transitionDelay: "0.4s" }}>
+              <div className="rounded-3xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 text-primary"><MapPin className="h-4 w-4" /> GoGo Jutta Ghar</div>
+                <div className="mt-2 text-foreground/80">Jagatsundar Marg, Kathmandu 44600</div>
+              </div>
+              <div className="rounded-3xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 text-primary"><Clock className="h-4 w-4" /> Open daily</div>
+                <div className="mt-2 text-foreground/80">9:00 AM – 8:00 PM</div>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center reveal-left" style={{ transitionDelay: "0.5s" }}>
+              <Button asChild size="lg" className="group h-12 w-full rounded-full bg-primary px-7 text-primary-foreground hover:bg-terracotta-deep transition-all duration-300 hover:scale-[1.03] hover:shadow-soft sm:w-auto">
+                <a className="w-full text-center" href="#collection">Browse the Collection <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>
               </Button>
-              <Button asChild variant="outline" size="lg" className="group h-12 rounded-full border border-ink bg-background text-ink hover:border-primary hover:text-primary transition-all duration-300 hover:shadow-soft">
-                <Link to="/shop-floors">Tour Shop Floors</Link>
+              <Button asChild variant="outline" size="lg" className="group h-12 w-full rounded-full border border-ink bg-background text-ink hover:border-primary hover:text-primary transition-all duration-300 hover:shadow-soft sm:w-auto">
+                <Link className="w-full text-center" to="/shop-floors">Tour Shop Floors</Link>
               </Button>
-              <a href="#visit" className="group flex items-center gap-2 text-sm font-medium uppercase tracking-widest">
-                <span className="border-b border-foreground/40 pb-0.5 group-hover:border-primary">Walk in today</span>
-                <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </a>
+              <Button asChild size="lg" className="group h-12 w-full rounded-full bg-ink text-ink-foreground hover:bg-ink/90 transition-all duration-300 hover:scale-[1.02] sm:w-auto">
+                <a className="w-full text-center" href={googleMapsUrl} target="_blank" rel="noreferrer">View on Google Maps <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>
+              </Button>
             </div>
             <div className="mt-12 flex items-center gap-6 text-sm reveal-left" style={{ transitionDelay: "0.7s" }}>
               <div className="flex items-center gap-1">
@@ -150,7 +164,7 @@ const Index = () => {
           </div>
 
           <div className="relative md:col-span-6 reveal-right" style={{ transitionDelay: "0.25s" }}>
-            <div className="group relative aspect-[4/5] overflow-hidden rounded-sm shadow-soft">
+            <div className="group relative mx-auto aspect-[4/5] w-full max-w-[520px] overflow-hidden rounded-sm shadow-soft">
               <img
                 src={heroShoes}
                 alt="Premium leather oxford and tan loafer on warm terracotta backdrop"
@@ -507,7 +521,7 @@ const Index = () => {
               </li>
             </ul>
             <Button asChild size="lg" className="group mt-10 h-12 rounded-full bg-mustard px-7 text-ink hover:bg-mustard/90 transition-all duration-300 hover:scale-105 hover:shadow-soft">
-              <a href="https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082548,85.31198,17z" target="_blank" rel="noreferrer">
+              <a href={googleMapsUrl} target="_blank" rel="noreferrer">
                 Get Directions <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
             </Button>
@@ -517,7 +531,7 @@ const Index = () => {
             <div className="overflow-hidden rounded-sm border border-ink-foreground/10 shadow-soft transition-transform duration-500 hover:scale-[1.01]">
               <iframe
                 title="GoGo Jutta Ghar location"
-                src="https://www.google.com/maps?q=27.7082548,85.31198&z=17&output=embed"
+                src="https://www.google.com/maps?q=GoGo+Jutta+Ghar,+Jagatsundar+Marg,+Kathmandu&z=17&output=embed"
                 className="h-[460px] w-full"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
