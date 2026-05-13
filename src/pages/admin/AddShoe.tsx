@@ -327,7 +327,7 @@ const AddShoe: React.FC = () => {
                             </div>
                             <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
                               <div
-                                className={`h-full rounded-full ${upload.progress === -1 ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                                className={`h-full rounded-full ${upload.progress === -1 ? 'bg-destructive' : 'bg-primary'}`}
                                 style={{ width: `${Math.max(0, Math.min(100, upload.progress))}%` }}
                               />
                             </div>

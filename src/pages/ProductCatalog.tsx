@@ -305,50 +305,53 @@ const ProductCatalog = () => {
 
         {/* Results */}
         <section className="space-y-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">
-                {search.trim()
-                  ? `Showing results for "${search.trim()}"`
-                  : category !== 'all'
-                  ? `Showing results for ${category}`
-                  : 'Showing all products'}
-              </p>
-              <h2 className="text-2xl font-bold text-ink">Curated shoe collections for every step.</h2>
-              <p className="mt-2 text-sm text-foreground/70">
-                Compact browsing cards, live filters, and easy ordering for shoppers on the move.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-sm text-foreground">
-                <span className="text-muted-foreground">Sort by</span>
-                <span className="font-semibold">Best Match</span>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
+                  {search.trim()
+                    ? `Showing results for "${search.trim()}"`
+                    : category !== 'all'
+                    ? `Showing results for ${category}`
+                    : 'Showing all products'}
+                </p>
+                <h2 className="mt-3 text-3xl font-black tracking-tight text-ink">
+                  Curated shoe collections for every step.
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-foreground/75">
+                  Compact browsing cards, live filters, and effortless product discovery in a clean storefront layout.
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setViewMode('grid')}
-                className={cn(
-                  'inline-flex h-10 w-10 items-center justify-center rounded-full border transition',
-                  viewMode === 'grid'
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
-                )}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('list')}
-                className={cn(
-                  'inline-flex h-10 w-10 items-center justify-center rounded-full border transition',
-                  viewMode === 'list'
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
-                )}
-              >
-                <LayoutList className="h-4 w-4" />
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground">
+                  <span className="font-semibold">{filteredShoes.length}</span>
+                  <span className="text-muted-foreground">items available</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={cn(
+                    'inline-flex h-10 w-10 items-center justify-center rounded-full border transition',
+                    viewMode === 'grid'
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
+                  )}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={cn(
+                    'inline-flex h-10 w-10 items-center justify-center rounded-full border transition',
+                    viewMode === 'list'
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
+                  )}
+                >
+                  <LayoutList className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -373,49 +376,62 @@ const ProductCatalog = () => {
             )}>
               {paginated.map((shoe, index) => (
                 <ScrollReveal key={shoe._id} delay={index * 100}>
-                  <article className="group overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-                  <div className="relative overflow-hidden rounded-t-[1.75rem] bg-muted">
-                    <div className="aspect-[4/5] bg-[#f5f5f5]">
-                      <img
-                        src={shoe.images?.[0]?.url || "https://via.placeholder.com/600x600?text=No+image"}
-                        alt={shoe.name}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    {shoe.trending && (
-                      <span className="absolute left-4 top-4 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.25em] text-primary-foreground">
-                        Trending
-                      </span>
-                    )}
-                  </div>
-                  <div className="space-y-3 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-base font-semibold text-ink capitalize">{shoe.name}</h3>
-                        <p className="mt-1 text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-                          {shoe.subcategory || 'Other'} · {shoe.gender || 'Unisex'}
-                        </p>
+                  <article className="group overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+                    <div className="relative overflow-hidden rounded-t-[2rem] bg-slate-100">
+                      <div className="aspect-[4/5] bg-[#f5f5f5]">
+                        <img
+                          src={shoe.images?.[0]?.url || "https://via.placeholder.com/600x600?text=No+image"}
+                          alt={shoe.name}
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
                       </div>
-                      {shoe.price != null && (
-                        <div className="rounded-full bg-foreground/5 px-2 py-1 text-xs font-semibold text-foreground">
-                          Rs {shoe.price}
+                      <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                        {shoe.trending && (
+                          <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-primary-foreground">
+                            Trending
+                          </span>
+                        )}
+                        {shoe.branded && (
+                          <span className="rounded-full bg-foreground/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-foreground">
+                            Branded
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-4 p-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-ink capitalize">{shoe.name}</h3>
+                          <p className="mt-1 text-sm text-foreground/70">{shoe.subcategory || 'Other'} · {shoe.gender || 'Unisex'}</p>
                         </div>
-                      )}
+                        {shoe.price != null && (
+                          <div className="rounded-full bg-background px-3 py-1 text-sm font-semibold text-ink shadow-sm">
+                            Rs {shoe.price}
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2 text-sm text-muted-foreground">
+                        <span>{shoe.branded ? shoe.brand || 'Branded' : 'Non-branded'}</span>
+                        <span>{shoe.sizes?.length ? `Sizes ${Math.min(...shoe.sizes)}–${Math.max(...shoe.sizes)}` : 'Size N/A'}</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                          {shoe.gender}
+                        </span>
+                        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                          {shoe.subcategory || 'Collection'}
+                        </span>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Button asChild variant="secondary" className="w-full rounded-full px-3 py-2 text-sm justify-center">
+                          <Link to={`/shoes/${shoe._id}`}>View</Link>
+                        </Button>
+                        <Button asChild className="w-full rounded-full px-3 py-2 text-sm justify-center">
+                          <a href="tel:+9779800000000">Contact</a>
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                      <span>{shoe.branded ? shoe.brand || 'Branded' : 'Non-branded'}</span>
-                      <span>{shoe.sizes?.length ? `Sizes ${Math.min(...shoe.sizes)}–${Math.max(...shoe.sizes)}` : 'Size N/A'}</span>
-                    </div>
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <Button asChild variant="secondary" className="w-full rounded-full px-3 py-2 text-sm justify-center">
-                        <Link to={`/shoes/${shoe._id}`}>View</Link>
-                      </Button>
-                      <Button asChild className="w-full rounded-full px-3 py-2 text-sm justify-center">
-                        <a href="tel:+9779800000000">Contact</a>
-                      </Button>
-                    </div>
-                  </div>
-                </article>
+                  </article>
                 </ScrollReveal>
               ))}
             </div>

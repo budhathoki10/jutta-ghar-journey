@@ -256,6 +256,30 @@ const EditShoe = () => {
         </div>
 
         <div className="space-y-6 rounded-3xl border border-border bg-card p-8 shadow-sm">
+          <div className="rounded-3xl border border-border bg-background p-5">
+            <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Product preview</p>
+            <p className="mt-2 text-sm text-foreground/75">
+              Review existing images and freshly uploaded media before saving changes.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {uploads.length > 0 ? (
+                uploads.slice(0, 4).map((upload, index) => (
+                  <div key={index} className="overflow-hidden rounded-3xl bg-slate-100">
+                    {upload.url ? (
+                      <img src={upload.url} alt={`Preview ${index + 1}`} className="h-28 w-full object-cover" />
+                    ) : (
+                      <div className="flex h-28 items-center justify-center text-sm text-foreground/70">Preparing preview…</div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground">
+                  No images available yet.
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Image gallery</p>
@@ -297,7 +321,7 @@ const EditShoe = () => {
                     </div>
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
                       <div
-                        className={`h-full rounded-full ${upload.progress === -1 ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                        className={`h-full rounded-full ${upload.progress === -1 ? 'bg-destructive' : 'bg-primary'}`}
                         style={{ width: `${Math.max(0, Math.min(100, upload.progress))}%` }}
                       />
                     </div>

@@ -6,18 +6,10 @@ import { cn } from "@/lib/utils";
 import heroLogo from "@/assets/hero-shoes.jpg";
 
 const desktopNavItems = [
-  { label: "Home", to: "/", match: (pathname: string, hash: string) => pathname === "/" && !hash },
+  { label: "Home", to: "/", match: (pathname: string) => pathname === "/" },
   { label: "Product Catalog", to: "/catalog", match: (pathname: string) => pathname === "/catalog" },
-  {
-    label: "About Us",
-    to: "/#story",
-    match: (pathname: string, hash: string) => pathname === "/" && hash === "#story" || pathname === "/about",
-  },
-  {
-    label: "Contact Us",
-    to: "/#contact",
-    match: (pathname: string, hash: string) => pathname === "/" && hash === "#contact" || pathname === "/contact",
-  },
+  { label: "About Us", to: "/about", match: (pathname: string) => pathname === "/about" },
+  { label: "Contact Us", to: "/contact", match: (pathname: string) => pathname === "/contact" },
 ];
 
 const mobileNavItems = [
@@ -67,26 +59,27 @@ const SiteHeader = () => {
           </div>
         </NavLink>
 
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-8 md:flex">
-          {desktopNavItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={() =>
-                cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  isItemActive(item) ? "text-primary" : "text-foreground"
-                )
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        {/* Desktop nav + buttons container - moved to right */}
+        <div className="hidden items-center gap-8 md:flex md:ml-auto">
+          {/* Desktop nav */}
+          <nav className="flex items-center gap-8">
+            {desktopNavItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={() =>
+                  cn(
+                    "text-sm font-medium transition-colors hover:text-primary",
+                    isItemActive(item) ? "text-primary" : "text-foreground"
+                  )
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
 
-        {/* Desktop buttons */}
-        <div className="hidden items-center gap-4 md:flex">
+          {/* Desktop buttons */}
           <Button asChild variant="secondary" className="rounded-full px-4 py-2 text-sm font-semibold">
             <NavLink to="/catalog">Browse Collection</NavLink>
           </Button>
