@@ -7,7 +7,7 @@ import shoeLoafer from "@/assets/shoe-loafer.jpg";
 import shopImage from "@/assets/shop.png";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Clock, Star, ArrowUpRight } from "lucide-react";
+import { MapPin, Phone, Clock, Star, ArrowUpRight, Sparkles, Wrench, Package, Leaf } from "lucide-react";
 import { useReveal } from "@/hooks/use-reveal";
 import { Link } from "react-router-dom";
 
@@ -21,6 +21,33 @@ const collections = [
 ];
 
 const googleMapsUrl = "https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082595,85.3093997,928m/data=!3m2!1e3!4b1!4m6!3m5!1s0x39eb18fe4cf62957:0x3054f9c0f5228fb0!8m2!3d27.7082548!4d85.31198!16s%2Fg%2F11d_d1vhp3?entry=ttu&g_ep=EgoyMDI2MDUwNi4wIKXMDSoASAFQAw%3D%3D";
+
+const services = [
+  {
+    title: "Deep comfort styling",
+    description: "Personalised shoe fitting and everyday comfort advice, tailored for Kathmandu feet.",
+    icon: Sparkles,
+    accent: "bg-emerald-100 text-emerald-700",
+  },
+  {
+    title: "Repair & care",
+    description: "Fast repair, polishing and fitting adjustments for shoes that you wear again and again.",
+    icon: Wrench,
+    accent: "bg-sky-100 text-sky-700",
+  },
+  {
+    title: "Curated collections",
+    description: "Branded releases, seasonal drops and local favourites arranged for easy browsing.",
+    icon: Package,
+    accent: "bg-violet-100 text-violet-700",
+  },
+  {
+    title: "Fresh shop displays",
+    description: "Clean presentation, seasonal looks and polished store styling for a premium visit.",
+    icon: Leaf,
+    accent: "bg-lime-100 text-lime-700",
+  },
+];
 
 const staffContacts = [
   {
@@ -199,6 +226,30 @@ const Index = () => {
                 ))}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-slate-50 py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="rounded-[2rem] bg-slate-50 px-6 py-10 shadow-soft reveal">
+            <p className="text-sm uppercase tracking-[0.35em] text-emerald-700">Signature Offerings</p>
+            <h2 className="mt-4 text-4xl font-black tracking-tight text-ink">Services tailored for Kathmandu homes.</h2>
+            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              {services.map((service) => {
+                const Icon = service.icon;
+                return (
+                  <div key={service.title} className="rounded-[2rem] border border-border bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                    <div className={`inline-flex h-14 w-14 items-center justify-center rounded-3xl ${service.accent}`}>
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-6 text-xl font-semibold text-ink">{service.title}</h3>
+                    <p className="mt-3 text-sm leading-6 text-foreground/70">{service.description}</p>
+                    <div className="mt-6 text-sm font-semibold text-emerald-700">Discuss this service →</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

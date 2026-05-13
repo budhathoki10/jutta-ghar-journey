@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { ArrowLeft, ArrowRight, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 const floors = [
   {
@@ -31,15 +32,18 @@ const ShopFloors = () => {
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-16">
-      <div className="text-center">
-        <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Shop Floors</p>
-        <h1 className="mt-3 text-4xl font-black tracking-tight text-ink sm:text-5xl">Explore each floor of GoGo Jutta Ghar</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-foreground/80">
-          A modern showroom experience with purpose-built floors: women's favourites, daily essentials, and branded collections.
-        </p>
-      </div>
+      <ScrollReveal delay={100}>
+        <div className="text-center">
+          <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Shop Floors</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-ink sm:text-5xl">Explore each floor of GoGo Jutta Ghar</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-foreground/80">
+            A modern showroom experience with purpose-built floors: women's favourites, daily essentials, and branded collections.
+          </p>
+        </div>
+      </ScrollReveal>
 
-      <div className="mt-12 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <ScrollReveal delay={200}>
+        <div className="mt-12 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div className="space-y-3">
           <h2 className="text-2xl font-semibold text-ink">A shop built for discovery.</h2>
           <p className="max-w-xl text-foreground/80">
@@ -54,11 +58,11 @@ const ShopFloors = () => {
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
-      </div>
-
-      <div ref={sliderRef} className="mt-10 flex gap-6 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
-        {floors.map((floor) => (
-          <article key={floor.title} className="min-w-[320px] snap-start rounded-3xl border border-border bg-card p-6 shadow-sm">
+      </div>      </ScrollReveal>
+      <ScrollReveal delay={300}>
+        <div ref={sliderRef} className="mt-10 flex gap-6 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
+          {floors.map((floor, index) => (
+            <article key={floor.title} className="min-w-[320px] snap-start rounded-3xl border border-border bg-card p-6 shadow-sm">
             <div className="mb-6 flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-primary">
               <Layers className="h-4 w-4" />
               <span>{floor.title}</span>
@@ -82,8 +86,9 @@ const ShopFloors = () => {
               </div>
             </div>
           </article>
-        ))}
-      </div>
+          ))}
+        </div>
+      </ScrollReveal>
     </div>
   );
 };

@@ -90,9 +90,6 @@ const SiteHeader = () => {
           <Button asChild variant="secondary" className="rounded-full px-4 py-2 text-sm font-semibold">
             <NavLink to="/catalog">Browse Collection</NavLink>
           </Button>
-          <Button asChild className="rounded-full px-4 py-2 text-sm font-semibold">
-            <NavLink to="/admin/login">Admin Panel</NavLink>
-          </Button>
         </div>
 
         {/* Mobile hamburger + dropdown wrapper */}

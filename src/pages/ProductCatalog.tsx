@@ -13,6 +13,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -230,14 +231,21 @@ const ProductCatalog = () => {
     <div className="mx-auto max-w-7xl px-6 py-16">
 
       {/* Page header */}
-      <div className="mb-12 text-center">
-        <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Product Catalog</p>
-        <h1 className="mt-3 text-4xl font-black tracking-tight text-ink sm:text-5xl">Browse our catalog of shoes</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-foreground/80">
-          Discover doctor chappal, sports shoes, sandals, heels, boots and top branded collections
-          with live search and filters designed for easy browsing.
-        </p>
-      </div>
+      <ScrollReveal delay={100}>
+        <div className="mb-12 text-center">
+          <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Product Catalog</p>
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-ink sm:text-5xl">Browse our catalog of shoes</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-foreground/80">
+            Discover doctor chappal, sports shoes, sandals, heels, boots and top branded collections
+            with live search and filters designed for easy browsing.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button asChild variant="outline" className="rounded-full px-4 py-2 text-sm font-semibold">
+              <Link to="/admin/login">Admin Login</Link>
+            </Button>
+          </div>
+        </div>
+      </ScrollReveal>
 
       {/* Mobile filter toggle button */}
       <div className="mb-4 flex items-center justify-between lg:hidden">
@@ -287,7 +295,8 @@ const ProductCatalog = () => {
       )}
 
       {/* Main grid */}
-      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+      <ScrollReveal delay={200}>
+        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
 
         {/* Desktop sidebar — always visible on lg+ */}
         <aside className="hidden lg:block space-y-6 self-start rounded-3xl border border-border bg-card p-6 shadow-sm sticky top-24">
@@ -362,8 +371,9 @@ const ProductCatalog = () => {
                 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                 : 'grid-cols-1',
             )}>
-              {paginated.map((shoe) => (
-                <article key={shoe._id} className="group overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+              {paginated.map((shoe, index) => (
+                <ScrollReveal key={shoe._id} delay={index * 100}>
+                  <article className="group overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
                   <div className="relative overflow-hidden rounded-t-[1.75rem] bg-muted">
                     <div className="aspect-[4/5] bg-[#f5f5f5]">
                       <img
@@ -406,12 +416,14 @@ const ProductCatalog = () => {
                     </div>
                   </div>
                 </article>
+                </ScrollReveal>
               ))}
             </div>
           )}
 
           {/* Pagination */}
-          <Pagination className="flex flex-col gap-3 rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <ScrollReveal delay={300}>
+            <Pagination className="flex flex-col gap-3 rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <span>
               {filteredShoes.length === 0 ? "0" : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(filteredShoes.length, page * ITEMS_PER_PAGE)} of {filteredShoes.length} shoes
             </span>
@@ -461,8 +473,10 @@ const ProductCatalog = () => {
               </PaginationItem>
             </PaginationContent>
           </Pagination>
+          </ScrollReveal>
         </section>
       </div>
+      </ScrollReveal>
     </div>
   );
 };
