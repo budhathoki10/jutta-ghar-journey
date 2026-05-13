@@ -45,31 +45,31 @@ const SiteHeader = () => {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur-lg">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
 
         {/* Logo */}
         <NavLink
           to="/"
-          className="group inline-flex items-center gap-3 text-2xl font-black tracking-tight text-ink transition-transform duration-300 hover:-translate-y-0.5"
+          className="group inline-flex items-center gap-2 sm:gap-3 text-lg sm:text-2xl font-black tracking-tight text-ink transition-transform duration-300 hover:-translate-y-0.5"
         >
-          <img src={heroLogo} alt="GoGo Jutta Ghar" className="h-11 w-11 rounded-full object-cover shadow-sm" />
+          <img src={heroLogo} alt="GoGo Jutta Ghar" className="h-9 w-9 sm:h-11 sm:w-11 rounded-full object-cover shadow-sm" />
           <div>
-            <span>GoGo</span>
-            <span className="block text-xs uppercase tracking-[0.35em] text-muted-foreground">Jutta Ghar</span>
+            <span className="text-sm sm:text-base">GoGo</span>
+            <span className="block text-[8px] xs:text-[10px] sm:text-xs uppercase tracking-[0.35em] text-muted-foreground">Jutta Ghar</span>
           </div>
         </NavLink>
 
         {/* Desktop nav + buttons container - moved to right */}
-        <div className="hidden items-center gap-8 md:flex md:ml-auto">
+        <div className="hidden items-center gap-6 md:gap-8 md:flex md:ml-auto">
           {/* Desktop nav */}
-          <nav className="flex items-center gap-8">
+          <nav className="flex items-center gap-6 md:gap-8">
             {desktopNavItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={() =>
                   cn(
-                    "text-sm font-medium transition-colors hover:text-primary",
+                    "text-xs sm:text-sm font-medium transition-colors hover:text-primary",
                     isItemActive(item) ? "text-primary" : "text-foreground"
                   )
                 }
@@ -80,7 +80,7 @@ const SiteHeader = () => {
           </nav>
 
           {/* Desktop buttons */}
-          <Button asChild variant="secondary" className="rounded-full px-4 py-2 text-sm font-semibold">
+          <Button asChild variant="secondary" className="rounded-full px-4 py-2 text-xs sm:text-sm font-semibold">
             <NavLink to="/catalog">Browse Collection</NavLink>
           </Button>
         </div>
@@ -89,17 +89,17 @@ const SiteHeader = () => {
         <div className="relative md:hidden" ref={menuRef}>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-ink shadow-sm transition hover:bg-secondary"
+            className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-border bg-background text-ink shadow-sm transition hover:bg-secondary"
             aria-label="Toggle menu"
             onClick={() => setMenuOpen((o) => !o)}
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
           </button>
 
           {/* Floating dropdown */}
           <div
             className={cn(
-              "absolute right-0 top-[calc(100%+8px)] w-56 origin-top-right rounded-2xl border border-border bg-background shadow-xl ring-1 ring-black/5 transition-all duration-200",
+              "absolute right-0 top-[calc(100%+8px)] w-48 sm:w-56 origin-top-right rounded-2xl border border-border bg-background shadow-xl ring-1 ring-black/5 transition-all duration-200",
               menuOpen
                 ? "scale-100 opacity-100 pointer-events-auto"
                 : "scale-95 opacity-0 pointer-events-none"
@@ -116,7 +116,7 @@ const SiteHeader = () => {
                   onClick={() => setMenuOpen(false)}
                   className={() =>
                     cn(
-                      "flex items-center rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
+                      "flex items-center rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-colors",
                       isItemActive(item)
                         ? "bg-primary/10 text-primary"
                         : "text-foreground hover:bg-secondary"
@@ -136,7 +136,7 @@ const SiteHeader = () => {
                 <NavLink
                   to="/catalog"
                   onClick={() => setMenuOpen(false)}
-                  className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-terracotta-deep"
+                  className="flex w-full items-center justify-center rounded-xl bg-primary px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground transition hover:bg-terracotta-deep"
                 >
                   Browse Collection
                 </NavLink>

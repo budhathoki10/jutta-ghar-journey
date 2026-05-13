@@ -228,19 +228,19 @@ const ProductCatalog = () => {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-16">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16">
 
       {/* Page header */}
       <ScrollReveal delay={100}>
-        <div className="mb-12 text-center">
-          <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Product Catalog</p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-ink sm:text-5xl">Browse our catalog of shoes</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-foreground/80">
+        <div className="mb-8 sm:mb-12 text-center">
+          <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-muted-foreground">Product Catalog</p>
+          <h1 className="mt-2 sm:mt-3 text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-ink">Browse our catalog of shoes</h1>
+          <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base leading-6 sm:leading-7 text-foreground/80">
             Discover doctor chappal, sports shoes, sandals, heels, boots and top branded collections
             with live search and filters designed for easy browsing.
           </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button asChild variant="outline" className="rounded-full px-4 py-2 text-sm font-semibold">
+          <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-2 sm:gap-3">
+            <Button asChild variant="outline" className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold">
               <Link to="/admin/login">Admin Login</Link>
             </Button>
           </div>
@@ -248,14 +248,14 @@ const ProductCatalog = () => {
       </ScrollReveal>
 
       {/* Mobile filter toggle button */}
-      <div className="mb-4 flex items-center justify-between lg:hidden">
-        <p className="text-sm text-muted-foreground">{filteredShoes.length} items found</p>
+      <div className="mb-3 sm:mb-4 flex items-center justify-between lg:hidden">
+        <p className="text-xs sm:text-sm text-muted-foreground">{filteredShoes.length} items found</p>
         <button
           onClick={() => setFiltersOpen(true)}
-          className="relative inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold shadow-sm transition hover:border-primary hover:text-primary"
+          className="relative inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition hover:border-primary hover:text-primary"
         >
-          <SlidersHorizontal className="h-4 w-4" />
-          Filters
+          <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline">Filters</span>
           {activeFilterCount > 0 && (
             <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
               {activeFilterCount}
@@ -273,9 +273,9 @@ const ProductCatalog = () => {
             onClick={() => setFiltersOpen(false)}
           />
           {/* Drawer */}
-          <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-3xl border-t border-border bg-background p-6 shadow-2xl">
+          <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-3xl border-t border-border bg-background p-4 sm:p-6 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-ink">Filter Shoes</h3>
+              <h3 className="text-base sm:text-lg font-bold text-ink">Filter Shoes</h3>
               <button
                 onClick={() => setFiltersOpen(false)}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-secondary"
@@ -285,7 +285,7 @@ const ProductCatalog = () => {
             </div>
             <FilterPanel />
             <Button
-              className="mt-6 w-full rounded-full"
+              className="mt-4 sm:mt-6 w-full rounded-full text-xs sm:text-sm"
               onClick={() => setFiltersOpen(false)}
             >
               Show {filteredShoes.length} results
@@ -296,82 +296,83 @@ const ProductCatalog = () => {
 
       {/* Main grid */}
       <ScrollReveal delay={200}>
-        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr]">
+
 
         {/* Desktop sidebar — always visible on lg+ */}
-        <aside className="hidden lg:block space-y-6 self-start rounded-3xl border border-border bg-card p-6 shadow-sm sticky top-24">
+        <aside className="hidden lg:block space-y-4 sm:space-y-6 self-start rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-sm sticky top-24">
           <FilterPanel />
         </aside>
 
         {/* Results */}
-        <section className="space-y-8">
-          <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <section className="space-y-4 sm:space-y-8">
+          <div className="rounded-[2rem] border border-border bg-card p-3 sm:p-6 shadow-sm">
+            <div className="flex flex-col gap-3 sm:gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl">
-                <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
+                <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-muted-foreground">
                   {search.trim()
                     ? `Showing results for "${search.trim()}"`
                     : category !== 'all'
                     ? `Showing results for ${category}`
                     : 'Showing all products'}
                 </p>
-                <h2 className="mt-3 text-3xl font-black tracking-tight text-ink">
+                <h2 className="mt-2 sm:mt-3 text-2xl sm:text-3xl font-black tracking-tight text-ink">
                   Curated shoe collections for every step.
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-foreground/75">
+                <p className="mt-2 sm:mt-3 text-xs sm:text-sm leading-5 sm:leading-6 text-foreground/75">
                   Compact browsing cards, live filters, and effortless product discovery in a clean storefront layout.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground">
                   <span className="font-semibold">{filteredShoes.length}</span>
-                  <span className="text-muted-foreground">items available</span>
+                  <span className="text-muted-foreground hidden xs:inline">items available</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setViewMode('grid')}
                   className={cn(
-                    'inline-flex h-10 w-10 items-center justify-center rounded-full border transition',
+                    'inline-flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-full border transition',
                     viewMode === 'grid'
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
                   )}
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
                   className={cn(
-                    'inline-flex h-10 w-10 items-center justify-center rounded-full border transition',
+                    'inline-flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-full border transition',
                     viewMode === 'list'
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
                   )}
                 >
-                  <LayoutList className="h-4 w-4" />
+                  <LayoutList className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </button>
               </div>
             </div>
           </div>
 
           {loading ? (
-            <div className="rounded-3xl border border-border bg-card p-10 text-center text-sm text-muted-foreground">
+            <div className="rounded-3xl border border-border bg-card p-6 sm:p-10 text-center text-xs sm:text-sm text-muted-foreground">
               Loading shoes…
             </div>
           ) : paginated.length === 0 ? (
-            <div className="rounded-3xl border border-border bg-card p-10 text-center">
-              <p className="text-lg font-semibold text-ink">No shoes found</p>
-              <p className="mt-2 text-sm text-muted-foreground">Try adjusting your filters or search term.</p>
-              <button onClick={resetFilters} className="mt-4 text-sm font-semibold text-primary hover:underline">
+            <div className="rounded-3xl border border-border bg-card p-6 sm:p-10 text-center">
+              <p className="text-base sm:text-lg font-semibold text-ink">No shoes found</p>
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">Try adjusting your filters or search term.</p>
+              <button onClick={resetFilters} className="mt-3 sm:mt-4 text-xs sm:text-sm font-semibold text-primary hover:underline">
                 Reset all filters
               </button>
             </div>
           ) : (
             <div className={cn(
-              'grid gap-5',
+              'grid gap-3 sm:gap-5',
               viewMode === 'grid'
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                ? 'grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                 : 'grid-cols-1',
             )}>
               {paginated.map((shoe, index) => (
@@ -385,14 +386,14 @@ const ProductCatalog = () => {
                           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
                       </div>
-                      <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                      <div className="absolute left-2 sm:left-4 top-2 sm:top-4 flex flex-wrap gap-1.5 sm:gap-2">
                         {shoe.trending && (
-                          <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-primary-foreground">
+                          <span className="rounded-full bg-primary px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.25em] text-primary-foreground">
                             Trending
                           </span>
                         )}
                         {shoe.branded && (
-                          <span className="rounded-full bg-foreground/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-foreground">
+                          <span className="rounded-full bg-foreground/10 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.25em] text-foreground">
                             Branded
                           </span>
                         )}

@@ -5,27 +5,36 @@ const SiteFooter = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-b from-ink/5 to-terracotta/10 backdrop-blur-sm">
+    <footer className="relative border-t border-border/50 bg-gradient-to-b from-background via-ink/3 to-terracotta/5 backdrop-blur-sm">
+      {/* Decorative background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-mustard/5 rounded-full blur-3xl"></div>
+      </div>
+
       {/* Main footer content */}
-      <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 md:py-24 relative z-10">
+        <div className="grid gap-12 sm:gap-8 md:gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {/* Quick Links */}
-          <div>
-            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-ink">Shop</h3>
-            <ul className="space-y-3">
+          <div className="group">
+            <h3 className="mb-6 text-xs font-bold uppercase tracking-[0.2em] text-ink group-hover:text-primary transition">§ Shop</h3>
+            <ul className="space-y-3.5">
               <li>
-                <Link to="/catalog" className="text-sm text-foreground/70 transition hover:text-primary hover:translate-x-0.5">
-                  → Product Catalog
+                <Link to="/catalog" className="text-xs sm:text-sm text-foreground/70 transition-all hover:text-primary hover:translate-x-1 inline-flex items-center gap-2">
+                  <span className="text-primary/0 group-hover:text-primary/100">→</span>
+                  <span>Product Catalog</span>
                 </Link>
               </li>
               <li>
-                <Link to="/shop-floors" className="text-sm text-foreground/70 transition hover:text-terracotta hover:translate-x-0.5">
-                  → Shop Floors
+                <Link to="/shop-floors" className="text-xs sm:text-sm text-foreground/70 transition-all hover:text-terracotta hover:translate-x-1 inline-flex items-center gap-2">
+                  <span className="text-terracotta/0 group-hover:text-terracotta/100">→</span>
+                  <span>Shop Floors</span>
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="text-sm text-foreground/70 transition hover:text-primary hover:translate-x-0.5">
-                  → About Us
+                <Link to="/about" className="text-xs sm:text-sm text-foreground/70 transition-all hover:text-primary hover:translate-x-1 inline-flex items-center gap-2">
+                  <span className="text-primary/0 group-hover:text-primary/100">→</span>
+                  <span>About Us</span>
                 </Link>
               </li>
             </ul>
