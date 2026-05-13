@@ -1,228 +1,280 @@
-import { useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Trash2, Edit3, Star, StarOff, PlusCircle } from "lucide-react";
-import { fetchShoes, deleteShoe, updateShoe } from "@/api/shoeApi";
-import { AuthContext } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+  BadgeCheck,
+  Edit3,
+  ImageIcon,
+  Plus,
+  Search,
+  Sparkles,
+  Trash2,
+} from 'lucide-react';
+import { deleteShoe, fetchShoes, updateShoe } from '../../api/shoeApi';
+import AuthContext from '../../context/AuthContext';
+import { Button } from '../../components/ui/button';
 
-const AdminShoes = () => {
+type Shoe = {
+  _id: string;
+  name: string;
+  gender: string;
+  subcategory: string;
+  brand?: string;
+  branded?: boolean;
+  trending?: boolean;
+  price?: number;
+  images?: Array<{ url: string; publicId?: string }>;
+  sizes?: number[];
+  description?: string;
+};
+
+const Shoes: React.FC = () => {
   const { admin } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [shoes, setShoes] = useState<any[]>([]);
+  const [shoes, setShoes] = useState<Shoe[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 9;
+  const [search, setSearch] = useState('');
 
-  const pageCount = Math.max(1, Math.ceil(shoes.length / ITEMS_PER_PAGE));
-  const paginatedShoes = shoes.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
-  const trendingCount = shoes.filter((shoe) => shoe.trending).length;
-
-  const paginationRange = useMemo(() => {
-    const range: Array<number | string> = [];
-    const start = Math.max(1, page - 1);
-    const end = Math.min(pageCount, page + 1);
-
-    if (start > 1) range.push(1);
-    if (start > 2) range.push("start-ellipsis");
-    for (let i = start; i <= end; i += 1) range.push(i);
-    if (end < pageCount - 1) range.push("end-ellipsis");
-    if (end < pageCount) range.push(pageCount);
-
-    return range;
-  }, [page, pageCount]);
-
-  useEffect(() => {
-    if (page > pageCount) {
-      setPage(pageCount);
-    }
-  }, [page, pageCount]);
-
-  useEffect(() => {
-    if (!admin) {
-      navigate("/admin/login");
-      return;
-    }
-    fetchShoes()
-      .then((res) => setShoes(res.data.data || []))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [admin, navigate]);
-
-  const refresh = () => {
+  const loadShoes = async () => {
     setLoading(true);
-    fetchShoes()
-      .then((res) => setShoes(res.data.data || []))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+
+    try {
+      const res = await fetchShoes();
+      setShoes(res.data?.data || res.data || []);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to load products.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const removeShoe = async (id: string) => {
-    if (!confirm("Delete this product permanently?")) return;
-    await deleteShoe(id);
-    refresh();
+  useEffect(() => {
+    loadShoes();
+  }, []);
+
+  const filteredShoes = useMemo(() => {
+    const text = search.trim().toLowerCase();
+
+    if (!text) return shoes;
+
+    return shoes.filter((shoe) =>
+      [shoe.name, shoe.brand, shoe.subcategory, shoe.gender]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(text))
+    );
+  }, [search, shoes]);
+
+  const stats = useMemo(
+    () => ({
+      total: shoes.length,
+      withImages: shoes.filter((shoe) => shoe.images?.length).length,
+      trending: shoes.filter((shoe) => shoe.trending).length,
+    }),
+    [shoes]
+  );
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this product?')) return;
+
+    try {
+      await deleteShoe(id);
+      setShoes((items) => items.filter((shoe) => shoe._id !== id));
+    } catch (error) {
+      console.error(error);
+      alert('Failed to delete product.');
+    }
   };
 
-  const toggleTrending = async (shoe: any) => {
-    await updateShoe(shoe._id, { trending: !shoe.trending });
-    refresh();
+  const toggleTrending = async (shoe: Shoe) => {
+    try {
+      const updated = {
+        ...shoe,
+        trending: !shoe.trending,
+        images: shoe.images || [],
+      };
+
+      const res = await updateShoe(shoe._id, updated);
+
+      setShoes((items) =>
+        items.map((item) => (item._id === shoe._id ? { ...item, ...res.data } : item))
+      );
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update trending status.');
+    }
   };
+
+  if (!admin) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-16 text-center">
+        Please log in to access the admin dashboard.
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-16">
-      <div className="mb-8 grid gap-4 lg:grid-cols-[1.6fr_1fr] lg:items-end">
-        <div>
-          <p className="text-sm uppercase tracking-[0.25em] text-muted-foreground">Admin panel</p>
-          <h1 className="mt-3 text-3xl font-black text-ink">Manage products</h1>
-          <p className="mt-2 max-w-2xl text-sm text-foreground/70">
-            Review inventory, update trending items, and keep the product catalog polished for your store.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 justify-start lg:justify-end">
-          <Button asChild className="rounded-full px-4 py-3" variant="secondary">
-            <Link to="/admin/add-shoe"><PlusCircle className="mr-2 h-4 w-4" /> Add Shoe</Link>
-          </Button>
-          <Button onClick={refresh} variant="outline" className="rounded-full px-4 py-3">Refresh</Button>
-        </div>
-      </div>
+    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <section className="overflow-hidden rounded-[2rem] bg-zinc-950 text-white shadow-2xl">
+          <div className="grid gap-8 p-8 lg:grid-cols-[1.2fr_0.8fr] lg:p-10">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-400">
+                Admin products
+              </p>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
+                Manage Jutta Ghar inventory
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-300">
+                Review product photos, prices, categories, and trending status from one clean
+                professional dashboard.
+              </p>
+            </div>
 
-      <div className="mb-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Total products</p>
-          <p className="mt-3 text-3xl font-bold text-ink">{shoes.length}</p>
-        </div>
-        <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Trending now</p>
-          <p className="mt-3 text-3xl font-bold text-ink">{trendingCount}</p>
-        </div>
-        <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Showing page</p>
-          <p className="mt-3 text-3xl font-bold text-ink">{page} / {pageCount}</p>
-        </div>
-      </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-zinc-400">Total</p>
+                <p className="mt-2 text-3xl font-bold">{stats.total}</p>
+              </div>
 
-      {loading ? (
-        <div className="rounded-3xl border border-border bg-card p-10 text-center text-muted-foreground">Loading products…</div>
-      ) : (
-        <>
-          <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-            <table className="min-w-full border-separate border-spacing-0">
-              <thead className="bg-background">
-                <tr>
-                  <th className="p-4 text-left text-xs uppercase tracking-[0.3em] text-muted-foreground">Product</th>
-                  <th className="p-4 text-left text-xs uppercase tracking-[0.3em] text-muted-foreground">Category</th>
-                  <th className="p-4 text-left text-xs uppercase tracking-[0.3em] text-muted-foreground">Price</th>
-                  <th className="p-4 text-left text-xs uppercase tracking-[0.3em] text-muted-foreground">Trending</th>
-                  <th className="p-4 text-left text-xs uppercase tracking-[0.3em] text-muted-foreground">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border bg-card">
-                {paginatedShoes.map((shoe) => (
-                  <tr key={shoe._id} className="transition hover:bg-muted/50">
-                    <td className="p-4">
-                      <div className="flex items-center gap-4">
-                        <div className="h-16 w-16 overflow-hidden rounded-3xl bg-[#f5f5f5]">
-                          <img
-                            src={shoe.images?.[0]?.url || "https://via.placeholder.com/240x240?text=No+image"}
-                            alt={shoe.name}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-foreground">{shoe.name}</p>
-                          <p className="text-xs text-muted-foreground">{shoe.branded ? shoe.brand || "Branded" : "Non-branded"}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <p className="text-sm text-foreground">{shoe.subcategory || 'Other'}</p>
-                      <p className="text-xs text-muted-foreground">{shoe.gender || 'Unisex'}</p>
-                    </td>
-                    <td className="p-4 text-sm font-semibold text-foreground">Rs {shoe.price ?? 'N/A'}</td>
-                    <td className="p-4 text-sm text-foreground">{shoe.trending ? 'Yes' : 'No'}</td>
-                    <td className="p-4">
-                      <div className="flex flex-wrap gap-2">
-                        <Button onClick={() => toggleTrending(shoe)} variant={shoe.trending ? "secondary" : "outline"} className="rounded-full px-3 py-2 text-sm">
-                          {shoe.trending ? <><Star className="mr-2 h-4 w-4" />Trending</> : <><StarOff className="mr-2 h-4 w-4" />Mark</>}
-                        </Button>
-                        <Button asChild variant="outline" className="rounded-full px-3 py-2 text-sm">
-                          <Link to={`/admin/edit-shoe/${shoe._id}`}>Edit</Link>
-                        </Button>
-                        <Button onClick={() => removeShoe(shoe._id)} variant="destructive" className="rounded-full px-3 py-2 text-sm">
-                          Delete
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-zinc-400">Images</p>
+                <p className="mt-2 text-3xl font-bold">{stats.withImages}</p>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-zinc-400">Trending</p>
+                <p className="mt-2 text-3xl font-bold">{stats.trending}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-4 rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, brand, category, gender..."
+              className="w-full rounded-full border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-zinc-900 focus:bg-white focus:ring-4 focus:ring-zinc-900/10"
+            />
           </div>
 
-          {shoes.length > 0 && (
-            <Pagination className="mt-6 flex flex-col gap-3 rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-              <span>
-                Showing {Math.min(shoes.length, (page - 1) * ITEMS_PER_PAGE + 1)}–{Math.min(shoes.length, page * ITEMS_PER_PAGE)} of {shoes.length} products
-              </span>
-              <PaginationContent className="justify-center">
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    aria-disabled={page <= 1}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (page <= 1) return;
-                      setPage((p) => Math.max(1, p - 1));
-                    }}
-                  />
-                </PaginationItem>
-                {paginationRange.map((item) =>
-                  typeof item === "number" ? (
-                    <PaginationItem key={item}>
-                      <PaginationLink
-                        href="#"
-                        isActive={item === page}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setPage(item as number);
-                        }}
-                        size="default"
+          <Button asChild className="rounded-full bg-zinc-950 px-6 hover:bg-zinc-800">
+            <Link to="/admin/add-shoe">
+              <Plus className="mr-2 h-4 w-4" />
+              Add product
+            </Link>
+          </Button>
+        </section>
+
+        {loading ? (
+          <div className="rounded-[2rem] bg-white p-10 text-center text-slate-500 shadow-sm">
+            Loading products...
+          </div>
+        ) : filteredShoes.length === 0 ? (
+          <div className="rounded-[2rem] bg-white p-10 text-center shadow-sm">
+            <ImageIcon className="mx-auto h-12 w-12 text-slate-300" />
+            <p className="mt-4 text-lg font-semibold text-slate-950">No products found</p>
+            <p className="mt-2 text-sm text-slate-500">Try another search or add a new product.</p>
+          </div>
+        ) : (
+          <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {filteredShoes.map((shoe) => {
+              const mainImage = shoe.images?.[0]?.url;
+
+              return (
+                <article
+                  key={shoe._id}
+                  className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div className="relative aspect-[4/3] bg-slate-100">
+                    {mainImage ? (
+                      <img src={mainImage} alt={shoe.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-slate-400">
+                        <ImageIcon className="h-12 w-12" />
+                      </div>
+                    )}
+
+                    <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                      {shoe.trending && (
+                        <span className="rounded-full bg-zinc-950 px-3 py-1 text-xs font-semibold text-white shadow">
+                          Trending
+                        </span>
+                      )}
+
+                      {shoe.branded && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700 shadow">
+                          <BadgeCheck className="h-3.5 w-3.5" />
+                          Branded
+                        </span>
+                      )}
+                    </div>
+
+                    <span className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 shadow">
+                      {shoe.images?.length || 0} images
+                    </span>
+                  </div>
+
+                  <div className="space-y-4 p-5">
+                    <div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h2 className="line-clamp-1 text-lg font-bold text-slate-950">
+                            {shoe.name}
+                          </h2>
+                          <p className="mt-1 text-sm text-slate-500">
+                            {shoe.brand || 'Local craft'} • {shoe.subcategory}
+                          </p>
+                        </div>
+
+                        <p className="whitespace-nowrap text-lg font-bold text-slate-950">
+                          Rs. {shoe.price?.toLocaleString() ?? '—'}
+                        </p>
+                      </div>
+
+                      <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
+                        {shoe.gender}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant={shoe.trending ? 'default' : 'outline'}
+                        className="rounded-full"
+                        onClick={() => toggleTrending(shoe)}
                       >
-                        {item}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ) : (
-                    <PaginationItem key={item}>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  ),
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    aria-disabled={page >= pageCount}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (page >= pageCount) return;
-                      setPage((p) => Math.min(pageCount, p + 1));
-                    }}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
-        </>
-      )}
-    </div>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        {shoe.trending ? 'Trending' : 'Mark trending'}
+                      </Button>
+
+                      <Button asChild variant="outline" className="rounded-full">
+                        <Link to={`/admin/shoes/${shoe._id}/edit`}>
+                          <Edit3 className="mr-2 h-4 w-4" />
+                          Edit
+                        </Link>
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-full text-red-600 hover:bg-red-50 hover:text-red-700"
+                        onClick={() => handleDelete(shoe._id)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        )}
+      </div>
+    </main>
   );
 };
 
-export default AdminShoes;
+export default Shoes;

@@ -16,8 +16,8 @@ const shoeRoutes = require('./routes/shoeRoutes');
 app.use('/api/admin', adminRoutes);
 app.use('/api/shoes', shoeRoutes);
 
-const DEFAULT_ADMIN_EMAIL =  'a';
-const DEFAULT_ADMIN_PASSWORD ='1';
+const DEFAULT_ADMIN_EMAIL =  'apple';
+const DEFAULT_ADMIN_PASSWORD ='ball';
 
 const createDefaultAdmin = async () => {
   try {

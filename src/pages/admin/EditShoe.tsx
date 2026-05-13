@@ -1,356 +1,468 @@
-﻿import { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { fetchShoe, updateShoe } from '@/api/shoeApi';
-import { uploadToCloudinary } from '@/lib/cloudinary';
-import { parseSizesInput } from '@/lib/utils';
-import { AuthContext } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
+﻿import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, ImagePlus, Loader2, Save, Trash2, X } from 'lucide-react';
+import { fetchShoe, updateShoe } from '../../api/shoeApi';
+import { uploadToCloudinary } from '../../lib/cloudinary';
+import { parseSizesInput } from '../../lib/utils';
+import AuthContext from '../../context/AuthContext';
+import { Button } from '../../components/ui/button';
 
-const CATEGORY_OPTIONS: Record<string, string[]> = {
-  male: ['Doctor Chappal', 'Sports Shoes', 'Closed Shoes', 'Sandals', 'Boots', 'Casual', 'Formal'],
-  female: ['Doctor Chappal', 'Sports Shoes', 'Closed Shoes', 'Sandals', 'Heels', 'Boots', 'Casual'],
+type Gender = 'male' | 'female' | 'kids';
+type ImageItem = { url?: string; publicId?: string; progress?: number; name?: string };
+
+type ShoeForm = {
+  name: string;
+  gender: Gender;
+  subcategory: string;
+  brand: string;
+  branded: boolean;
+  trending: boolean;
+  description: string;
+  price: string;
+  sizes: string;
+  images: ImageItem[];
 };
 
-const EditShoe = () => {
-  const { admin } = useContext(AuthContext);
+const SUBCATS: Record<Gender, string[]> = {
+  male: ['Doctor Chappal', 'Sports Shoes', 'Closed Shoes', 'Sandals', 'Boots', 'Casual', 'Formal'],
+  female: ['Doctor Chappal', 'Sports Shoes', 'Closed Shoes', 'Sandals', 'Heels', 'Boots', 'Casual'],
+  kids: ['Sports Shoes', 'School Shoes', 'Sandals', 'Casual'],
+};
+
+const inputClass =
+  'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/10';
+
+const EditShoe: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [shoe, setShoe] = useState<any | null>(null);
-  const [name, setName] = useState('');
-  const [gender, setGender] = useState<'male' | 'female'>('male');
-  const [subcategory, setSubcategory] = useState('Doctor Chappal');
-  const [brand, setBrand] = useState('');
-  const [branded, setBranded] = useState(false);
-  const [trending, setTrending] = useState(false);
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState<string>('');
-  const [sizes, setSizes] = useState('');
-  const [files, setFiles] = useState<File[]>([]);
-  const [uploads, setUploads] = useState<Array<{ url?: string; publicId?: string; progress: number }>>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { admin } = useContext(AuthContext);
+  const [form, setForm] = useState<ShoeForm | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!admin) {
-      navigate('/admin/login');
-      return;
-    }
     if (!id) return;
 
     fetchShoe(id)
       .then((res) => {
-        const data = res.data;
-        setShoe(data);
-        setName(data.name || '');
-        setGender(data.gender || 'male');
-        setSubcategory(data.subcategory || CATEGORY_OPTIONS['male'][0]);
-        setBrand(data.brand || '');
-        setBranded(Boolean(data.branded));
-        setTrending(Boolean(data.trending));
-        setDescription(data.description || '');
-        setPrice(data.price?.toString() || '');
-        setSizes((data.sizes || []).join(', '));
-        setUploads((data.images || []).map((image: any) => ({ url: image.url, publicId: image.publicId, progress: 100 })));
+        const shoe = res.data;
+        setForm({
+          name: shoe.name || '',
+          gender: shoe.gender || 'male',
+          subcategory: shoe.subcategory || SUBCATS.male[0],
+          brand: shoe.brand || '',
+          branded: Boolean(shoe.branded),
+          trending: Boolean(shoe.trending),
+          description: shoe.description || '',
+          price: shoe.price?.toString() || '',
+          sizes: Array.isArray(shoe.sizes) ? shoe.sizes.join(', ') : '',
+          images: Array.isArray(shoe.images) ? shoe.images : [],
+        });
       })
-      .catch((err) => {
-        console.error('Failed to load product:', err);
-      });
-  }, [admin, id, navigate]);
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const list = e.target.files ? Array.from(e.target.files) : [];
-    if (!list.length) return;
-    setFiles(list);
-    setUploads(list.map(() => ({ progress: 0 })));
-    list.forEach((file, idx) => doUpload(file, idx));
+  const updateField = <K extends keyof ShoeForm>(field: K, value: ShoeForm[K]) => {
+    setForm((current) => (current ? { ...current, [field]: value } : current));
+  };
+
+  const imageCount = useMemo(() => form?.images.filter((image) => image.url).length || 0, [form]);
+
+  const uploadFile = async (file: File, index: number) => {
+    try {
+      const result = await uploadToCloudinary(file, (progress) => {
+        setForm((current) => {
+          if (!current) return current;
+          const images = [...current.images];
+          images[index] = { ...images[index], progress };
+          return { ...current, images };
+        });
+      });
+
+      setForm((current) => {
+        if (!current) return current;
+        const images = [...current.images];
+        images[index] = {
+          ...images[index],
+          ...result,
+          progress: 100,
+          name: file.name,
+        };
+        return { ...current, images };
+      });
+    } catch (error) {
+      setForm((current) => {
+        if (!current) return current;
+        const images = [...current.images];
+        images[index] = { ...images[index], progress: -1, name: file.name };
+        return { ...current, images };
+      });
+
+      console.error(error);
+    }
+  };
+
+  const handleFiles = (files: FileList | null) => {
+    if (!form) return;
+
+    const selected = files
+      ? Array.from(files).filter((file) => file.type.startsWith('image/'))
+      : [];
+
+    if (!selected.length) return;
+
+    const startIndex = form.images.length;
+
+    setForm((current) =>
+      current
+        ? {
+            ...current,
+            images: [
+              ...current.images,
+              ...selected.map((file) => ({
+                progress: 0,
+                name: file.name,
+              })),
+            ],
+          }
+        : current
+    );
+
+    selected.forEach((file, index) => uploadFile(file, startIndex + index));
   };
 
   const removeImage = (index: number) => {
-    setFiles((prev) => prev.filter((_, idx) => idx !== index));
-    setUploads((prev) => prev.filter((_, idx) => idx !== index));
+    setForm((current) =>
+      current
+        ? {
+            ...current,
+            images: current.images.filter((_, imageIndex) => imageIndex !== index),
+          }
+        : current
+    );
   };
 
-  const doUpload = async (file: File, idx: number) => {
-    try {
-      const res = await uploadToCloudinary(file, (progress) => {
-        setUploads((current) => {
-          const updated = [...current];
-          updated[idx] = { ...updated[idx], progress };
-          return updated;
-        });
-      });
-      setUploads((current) => {
-        const updated = [...current];
-        updated[idx] = { ...updated[idx], url: res.url, publicId: res.publicId, progress: 100 };
-        return updated;
-      });
-    } catch (err) {
-      setUploads((current) => {
-        const updated = [...current];
-        updated[idx] = { ...updated[idx], progress: -1 };
-        return updated;
-      });
-      console.error('Upload failed', err);
-    }
-  };
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    if (!name.trim()) {
-      alert('Please enter the product name.');
-      return;
+    if (!id || !form) return;
+
+    if (!form.name.trim()) return alert('Product name is required.');
+    if (!form.images.some((image) => image.url)) {
+      return alert('Please keep or upload at least one product image.');
     }
 
-    const images = uploads.filter((upload) => upload.url).map((upload) => ({ url: upload.url!, publicId: upload.publicId }));
-    const payload = {
-      name: name.trim(),
-      gender,
-      subcategory,
-      brand: brand.trim(),
-      branded,
-      trending,
-      description: description.trim(),
-      sizes: sizes ? parseSizesInput(sizes) : [],
-      images,
-    };
+    setSaving(true);
 
-    setIsSubmitting(true);
     try {
-      await updateShoe(id, payload);
+      await updateShoe(id, {
+        name: form.name.trim(),
+        gender: form.gender,
+        subcategory: form.subcategory,
+        brand: form.brand.trim(),
+        branded: form.branded,
+        trending: form.trending,
+        description: form.description.trim(),
+        price: form.price ? Number(form.price) : undefined,
+        sizes: form.sizes ? parseSizesInput(form.sizes) : [],
+        images: form.images
+          .filter((image) => image.url)
+          .map((image) => ({
+            url: image.url,
+            publicId: image.publicId,
+          })),
+      });
+
       alert('Product updated successfully.');
       navigate('/admin/shoes');
-    } catch (err) {
-      console.error('Update failed:', err);
-      alert('Failed to update product. See console for details.');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update product.');
     } finally {
-      setIsSubmitting(false);
+      setSaving(false);
     }
   };
 
   if (!admin) {
     return (
-      <div className="mx-auto max-w-4xl px-6 py-16 text-center text-foreground/80">
-        <p>Please log in to access the admin dashboard.</p>
+      <div className="mx-auto max-w-3xl px-6 py-16 text-center">
+        Please log in to access the admin dashboard.
       </div>
     );
   }
 
-  if (!shoe) {
+  if (loading) {
     return (
-      <div className="mx-auto max-w-4xl px-6 py-16 text-center text-foreground/80">
-        <p>Loading product details…</p>
-      </div>
+      <main className="flex min-h-screen items-center justify-center bg-slate-50">
+        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+      </main>
     );
   }
 
-  const categories = CATEGORY_OPTIONS[gender];
+  if (!form) {
+    return (
+      <main className="mx-auto max-w-3xl px-6 py-16 text-center">
+        <p className="text-lg font-semibold">Product not found.</p>
+        <Button asChild className="mt-5 rounded-full">
+          <Link to="/admin/shoes">Back to products</Link>
+        </Button>
+      </main>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
-      <div className="mb-8 rounded-3xl border border-border bg-card p-8 shadow-sm">
-        <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Admin product update</p>
-        <h1 className="mt-3 text-4xl font-black text-ink">Edit product: {shoe.name}</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-foreground/80">
-          Update product details, pricing, and images with confidence. Uploaded images remain stored in Cloudinary and can be refreshed as needed.
-        </p>
-      </div>
+    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+      <form onSubmit={submit} className="mx-auto max-w-7xl space-y-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <Button asChild variant="outline" className="rounded-full">
+            <Link to="/admin/shoes">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Link>
+          </Button>
 
-      <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
-        <div className="space-y-6 rounded-3xl border border-border bg-card p-8 shadow-sm">
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-foreground">Product name</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Classic Leather Heel"
-              className="w-full rounded-3xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              required
-            />
-          </div>
+          <Button
+            type="submit"
+            disabled={saving}
+            className="rounded-full bg-zinc-950 px-8 hover:bg-zinc-800"
+          >
+            {saving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            Save changes
+          </Button>
+        </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-foreground">Product category</label>
-              <select
-                value={gender}
-                onChange={(e) => setGender(e.target.value as 'male' | 'female')}
-                className="w-full rounded-3xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              >
-                <option value="male">Men</option>
-                <option value="female">Women</option>
-              </select>
+        <section className="overflow-hidden rounded-[2rem] bg-zinc-950 text-white shadow-2xl">
+          <div className="grid gap-6 p-8 lg:grid-cols-[1.4fr_0.6fr] lg:p-10">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-400">
+                Edit product
+              </p>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
+                Polish product details
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-300">
+                Update product information, price, brand, images, and visibility badges from one
+                clean admin screen.
+              </p>
             </div>
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-foreground">Subcategory</label>
-              <select
-                value={subcategory}
-                onChange={(e) => setSubcategory(e.target.value)}
-                className="w-full rounded-3xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              >
-                {categories.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
+
+            <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
+              <p className="text-sm text-zinc-300">Live images</p>
+              <p className="mt-3 text-5xl font-bold">{imageCount}</p>
+              <p className="mt-3 text-xs text-zinc-400">At least one image is required.</p>
             </div>
           </div>
+        </section>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-foreground">Brand</label>
-              <input
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
-                placeholder="Brand name"
-                className="w-full rounded-3xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
-            <div className="flex flex-col justify-between gap-3 sm:col-span-1">
-              <label className="block text-sm font-semibold text-foreground">Product flags</label>
-              <div className="grid gap-3">
-                <label className="flex items-center gap-3 rounded-3xl border border-border bg-background px-4 py-3 text-sm">
-                  <input type="checkbox" checked={branded} onChange={(e) => setBranded(e.target.checked)} className="h-4 w-4 rounded border-border text-primary accent-primary" />
-                  Branded product
+        <section className="grid gap-6 lg:grid-cols-[1fr_420px]">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+            <h2 className="text-2xl font-bold text-slate-950">Product information</h2>
+
+            <div className="mt-6 grid gap-5 md:grid-cols-2">
+              <label className="space-y-2 md:col-span-2">
+                <span className="text-sm font-semibold text-slate-800">Product name</span>
+                <input
+                  className={inputClass}
+                  value={form.name}
+                  onChange={(e) => updateField('name', e.target.value)}
+                  required
+                />
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-slate-800">Customer group</span>
+                <select
+                  className={inputClass}
+                  value={form.gender}
+                  onChange={(e) => {
+                    const selected = e.target.value as Gender;
+                    updateField('gender', selected);
+                    updateField('subcategory', SUBCATS[selected][0]);
+                  }}
+                >
+                  <option value="male">Men</option>
+                  <option value="female">Women</option>
+                  <option value="kids">Kids</option>
+                </select>
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-slate-800">Subcategory</span>
+                <select
+                  className={inputClass}
+                  value={form.subcategory}
+                  onChange={(e) => updateField('subcategory', e.target.value)}
+                >
+                  {SUBCATS[form.gender].map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-slate-800">Brand</span>
+                <input
+                  className={inputClass}
+                  value={form.brand}
+                  onChange={(e) => updateField('brand', e.target.value)}
+                />
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-slate-800">Price</span>
+                <input
+                  className={inputClass}
+                  type="number"
+                  min="0"
+                  value={form.price}
+                  onChange={(e) => updateField('price', e.target.value)}
+                />
+              </label>
+
+              <label className="space-y-2 md:col-span-2">
+                <span className="text-sm font-semibold text-slate-800">Sizes</span>
+                <input
+                  className={inputClass}
+                  value={form.sizes}
+                  onChange={(e) => updateField('sizes', e.target.value)}
+                  placeholder="Example: 38, 39, 40, 41"
+                />
+              </label>
+
+              <label className="space-y-2 md:col-span-2">
+                <span className="text-sm font-semibold text-slate-800">Description</span>
+                <textarea
+                  className={`${inputClass} min-h-32 resize-y`}
+                  value={form.description}
+                  onChange={(e) => updateField('description', e.target.value)}
+                />
+              </label>
+
+              <div className="grid gap-3 md:col-span-2 sm:grid-cols-2">
+                <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <span>
+                    <span className="block text-sm font-semibold text-slate-800">Branded</span>
+                    <span className="text-xs text-slate-500">Show branded badge</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={form.branded}
+                    onChange={(e) => updateField('branded', e.target.checked)}
+                    className="h-5 w-5 accent-zinc-950"
+                  />
                 </label>
-                <label className="flex items-center gap-3 rounded-3xl border border-border bg-background px-4 py-3 text-sm">
-                  <input type="checkbox" checked={trending} onChange={(e) => setTrending(e.target.checked)} className="h-4 w-4 rounded border-border text-primary accent-primary" />
-                  Featured as trending
+
+                <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <span>
+                    <span className="block text-sm font-semibold text-slate-800">Trending</span>
+                    <span className="text-xs text-slate-500">Show in trending area</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={form.trending}
+                    onChange={(e) => updateField('trending', e.target.checked)}
+                    className="h-5 w-5 accent-zinc-950"
+                  />
                 </label>
               </div>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-foreground">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={5}
-              placeholder="Write a short product description"
-              className="w-full rounded-3xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-foreground">Price</label>
-              <input
-                type="number"
-                min="0"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                placeholder="e.g. 2499"
-                className="w-full rounded-3xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
+          <aside className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-bold text-slate-950">Images</h3>
+                <p className="mt-1 text-sm text-slate-500">Add, preview, or remove images.</p>
+              </div>
+              <ImagePlus className="h-6 w-6 text-slate-400" />
             </div>
-            <div className="space-y-3">
-              <label className="block text-sm font-semibold text-foreground">Available sizes</label>
-              <input
-                value={sizes}
-                onChange={(e) => setSizes(e.target.value)}
-                placeholder="38-42 or 38, 39, 40"
-                className="w-full rounded-3xl border border-border bg-background px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
-              <p className="mt-2 text-xs text-muted-foreground">Use a range like <span className="font-semibold">39-42</span> or comma-separated values.</p>
-            </div>
-          </div>
-        </div>
 
-        <div className="space-y-6 rounded-3xl border border-border bg-card p-8 shadow-sm">
-          <div className="rounded-3xl border border-border bg-background p-5">
-            <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Product preview</p>
-            <p className="mt-2 text-sm text-foreground/75">
-              Review existing images and freshly uploaded media before saving changes.
-            </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {uploads.length > 0 ? (
-                uploads.slice(0, 4).map((upload, index) => (
-                  <div key={index} className="overflow-hidden rounded-3xl bg-slate-100">
-                    {upload.url ? (
-                      <img src={upload.url} alt={`Preview ${index + 1}`} className="h-28 w-full object-cover" />
-                    ) : (
-                      <div className="flex h-28 items-center justify-center text-sm text-foreground/70">Preparing preview…</div>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground">
-                  No images available yet.
-                </div>
+            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center transition hover:border-zinc-900 hover:bg-white">
+              <ImagePlus className="h-8 w-8 text-slate-400" />
+              <span className="mt-3 text-sm font-semibold text-slate-900">Upload more images</span>
+              <span className="mt-1 text-xs text-slate-500">PNG, JPG, WEBP accepted</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => handleFiles(e.target.files)}
+              />
+            </label>
+
+            <div className="mt-5 space-y-3">
+              {form.images.length === 0 && (
+                <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  No images available.
+                </p>
               )}
-            </div>
-          </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">Image gallery</p>
-              <h2 className="mt-2 text-xl font-semibold text-ink">Manage product images</h2>
-            </div>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary">JPEG / PNG</span>
-          </div>
-
-          <label className="block rounded-3xl border border-dashed border-border bg-background px-4 py-6 text-center transition hover:border-primary/80 hover:bg-primary/5">
-            <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
-            <div className="space-y-3">
-              <p className="text-lg font-semibold">Choose replacement images</p>
-              <p className="text-sm text-foreground/70">Add more product photos or replace existing ones.</p>
-            </div>
-          </label>
-
-          {uploads.length > 0 && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {uploads.map((upload, index) => (
-                <div key={index} className="overflow-hidden rounded-3xl border border-border bg-background shadow-sm max-w-sm">
-                  <div className="relative aspect-square bg-slate-100">
-                    {upload.url ? (
-                      <img src={upload.url} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-foreground/70">Preparing preview…</div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-foreground shadow-sm"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="border-t border-border px-4 py-3">
-                    <div className="flex items-center justify-between text-sm text-foreground/80">
-                      <span>{files[index]?.name || `Image ${index + 1}`}</span>
-                      <span>{upload.progress === 100 ? 'Done' : upload.progress === -1 ? 'Failed' : `${upload.progress}%`}</span>
-                    </div>
-                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
-                      <div
-                        className={`h-full rounded-full ${upload.progress === -1 ? 'bg-destructive' : 'bg-primary'}`}
-                        style={{ width: `${Math.max(0, Math.min(100, upload.progress))}%` }}
+              {form.images.map((image, index) => (
+                <div
+                  key={`${image.url || image.name}-${index}`}
+                  className="flex gap-3 rounded-2xl border border-slate-200 p-3"
+                >
+                  <div className="h-20 w-20 overflow-hidden rounded-xl bg-slate-100">
+                    {image.url ? (
+                      <img
+                        src={image.url}
+                        alt={image.name || 'Product'}
+                        className="h-full w-full object-cover"
                       />
-                    </div>
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        {image.progress === -1 ? (
+                          <X className="h-5 w-5 text-red-500" />
+                        ) : (
+                          <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                        )}
+                      </div>
+                    )}
                   </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-slate-800">
+                      {image.name || `Image ${index + 1}`}
+                    </p>
+
+                    {typeof image.progress === 'number' &&
+                      image.progress >= 0 &&
+                      image.progress < 100 && (
+                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className="h-full rounded-full bg-zinc-950 transition-all"
+                            style={{ width: `${image.progress}%` }}
+                          />
+                        </div>
+                      )}
+
+                    {image.progress === 100 && (
+                      <p className="mt-2 text-xs font-medium text-emerald-600">Uploaded</p>
+                    )}
+
+                    {image.progress === -1 && (
+                      <p className="mt-2 text-xs font-medium text-red-600">Upload failed</p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="rounded-full p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
               ))}
             </div>
-          )}
-
-          <div className="space-y-2 rounded-3xl border border-border bg-slate-50 p-4 text-sm text-foreground/80">
-            <p className="font-semibold text-foreground">Editor notes</p>
-            <ul className="list-disc space-y-2 pl-5">
-              <li>Existing images are displayed above; use Remove to clear them.</li>
-              <li>New uploads will replace or add to the gallery.</li>
-              <li>Make sure the product has at least one image before saving.</li>
-            </ul>
-          </div>
-
-          <div className="space-y-3">
-            <Button type="submit" disabled={isSubmitting} className="w-full rounded-full px-6 py-3">
-              {isSubmitting ? 'Saving changes…' : 'Save changes'}
-            </Button>
-            <Button type="button" variant="outline" className="w-full rounded-full px-6 py-3" onClick={() => navigate('/admin/shoes')}>
-              Cancel
-            </Button>
-          </div>
-        </div>
+          </aside>
+        </section>
       </form>
-    </div>
+    </main>
   );
 };
 
