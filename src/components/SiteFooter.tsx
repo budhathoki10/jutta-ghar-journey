@@ -1,109 +1,112 @@
-import { Link } from "react-router-dom";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, X, Linkedin, Instagram, Facebook, ArrowUp } from "lucide-react";
 
 const SiteFooter = () => {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="relative border-t border-border/50 bg-gradient-to-b from-background via-ink/3 to-terracotta/5 backdrop-blur-sm">
-      {/* Decorative background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-mustard/5 rounded-full blur-3xl"></div>
+    <footer className="border-t border-slate-700 bg-slate-950 text-slate-100">
+      <div className="mx-auto max-w-7xl px-6 py-14 lg:px-8">
+        <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr] xl:grid-cols-[1.2fr_0.85fr_0.85fr]">
+          <div className="space-y-6">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold tracking-[0.18em] text-amber-300">
+                <span className="text-lg">Δ</span>
+                ATARAXIS
+              </span>
+            </div>
+
+            <p className="max-w-xl text-sm leading-7 text-slate-300">
+              Empowering physicians with advanced multi-modal tools to improve treatment selection and patient outcomes.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3 text-slate-400">
+              <a href="#" aria-label="X" className="rounded-full border border-slate-800 p-2 transition hover:border-amber-400 hover:text-amber-300">
+                <X className="h-4 w-4" />
+              </a>
+              <a href="#" aria-label="LinkedIn" className="rounded-full border border-slate-800 p-2 transition hover:border-amber-400 hover:text-amber-300">
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a href="#" aria-label="Instagram" className="rounded-full border border-slate-800 p-2 transition hover:border-amber-400 hover:text-amber-300">
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a href="#" aria-label="Facebook" className="rounded-full border border-slate-800 p-2 transition hover:border-amber-400 hover:text-amber-300">
+                <Facebook className="h-4 w-4" />
+              </a>
+            </div>
+
+            <a
+              href="#top"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold uppercase tracking-[0.25em] text-amber-300 transition hover:bg-slate-800"
+            >
+              <ArrowUp className="h-4 w-4" />
+              Back to top
+            </a>
+          </div>
+
+          <div>
+            <h3 className="mb-6 text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Site Map</h3>
+            <ul className="space-y-3 text-sm text-slate-300">
+              <li>
+                <a href="/" className="transition hover:text-white hover:underline">
+                  Homepage
+                </a>
+              </li>
+              <li>
+                <a href="/technology" className="transition hover:text-white hover:underline">
+                  Technology
+                </a>
+              </li>
+              <li>
+                <a href="/ataraxis-breast" className="transition hover:text-white hover:underline">
+                  Ataraxis Breast
+                </a>
+              </li>
+              <li>
+                <a href="/resources" className="transition hover:text-white hover:underline">
+                  Resources & news
+                </a>
+              </li>
+              <li>
+                <a href="/careers" className="transition hover:text-white hover:underline">
+                  Careers
+                </a>
+              </li>
+              <li>
+                <a href="/contact" className="transition hover:text-white hover:underline">
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <a href="/portal" className="transition hover:text-white hover:underline">
+                  Portal
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-6 text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Legal</h3>
+            <ul className="space-y-3 text-sm text-slate-300">
+              <li>
+                <a href="/privacy" className="transition hover:text-white hover:underline">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="/terms" className="transition hover:text-white hover:underline">
+                  Terms of Services
+                </a>
+              </li>
+              <li>
+                <a href="/lawyers-corner" className="transition hover:text-white hover:underline">
+                  Lawyer&apos;s Corners
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
 
-      {/* Main footer content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 md:py-24 relative z-10">
-        <div className="grid gap-12 sm:gap-8 md:gap-12 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Quick Links */}
-          <div className="group">
-            <h3 className="mb-6 text-xs font-bold uppercase tracking-[0.2em] text-ink group-hover:text-primary transition">§ Shop</h3>
-            <ul className="space-y-3.5">
-              <li>
-                <Link to="/catalog" className="text-xs sm:text-sm text-foreground/70 transition-all hover:text-primary hover:translate-x-1 inline-flex items-center gap-2">
-                  <span className="text-primary/0 group-hover:text-primary/100">→</span>
-                  <span>Product Catalog</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop-floors" className="text-xs sm:text-sm text-foreground/70 transition-all hover:text-terracotta hover:translate-x-1 inline-flex items-center gap-2">
-                  <span className="text-terracotta/0 group-hover:text-terracotta/100">→</span>
-                  <span>Shop Floors</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-xs sm:text-sm text-foreground/70 transition-all hover:text-primary hover:translate-x-1 inline-flex items-center gap-2">
-                  <span className="text-primary/0 group-hover:text-primary/100">→</span>
-                  <span>About Us</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Support Links */}
-          <div>
-            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-ink">Support</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/contact" className="text-sm text-foreground/70 transition hover:text-primary hover:translate-x-0.5">
-                  → Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="text-sm text-foreground/70 transition hover:text-terracotta hover:translate-x-0.5">
-                  → Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-sm text-foreground/70 transition hover:text-primary hover:translate-x-0.5">
-                  → Terms & Conditions
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact Info */}
-          <div>
-            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-ink">Contact</h3>
-            <ul className="space-y-3.5">
-              <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-terracotta" />
-                <span className="text-sm text-foreground/70">Jagatsundar Marg, Kathmandu, Nepal</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="h-4 w-4 flex-shrink-0 text-primary" />
-                <a href="tel:+97714XXXXXXX" className="text-sm text-foreground/70 transition hover:text-primary">
-                  +977-1-4XXXXXXX
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-4 w-4 flex-shrink-0 text-mustard" />
-                <a href="mailto:info@gogojuttghar.com" className="text-sm text-foreground/70 transition hover:text-primary">
-                  info@gogo.local
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="my-10 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-        {/* Bottom bar */}
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-xs text-foreground/60">
-            © {currentYear} GoGo Jutta Ghar
-          </p>
-          <div className="flex items-center gap-6">
-            <Link to="/privacy" className="text-xs text-foreground/60 transition hover:text-primary">
-              Privacy
-            </Link>
-            <div className="h-4 w-px bg-border/50" />
-            <Link to="/terms" className="text-xs text-foreground/60 transition hover:text-primary">
-              Terms
-            </Link>
-          </div>
-        </div>
+      <div className="border-t border-slate-800 bg-amber-500/10 px-6 py-4 text-center text-xs text-slate-300 sm:px-8">
+        © 2024, ataraxis.ai. All Rights Reserved.
       </div>
     </footer>
   );

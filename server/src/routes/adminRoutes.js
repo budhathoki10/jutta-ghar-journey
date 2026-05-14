@@ -10,6 +10,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.post('/register', adminController.register);
 router.post('/login', adminController.login);
 router.post('/upload-image', protect, upload.single('file'), adminController.uploadImage);
+router.get('/image/:id', adminController.getImage);
 
 // Example protected endpoint to get current admin
 router.get('/me', protect, (req, res) => {

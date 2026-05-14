@@ -7,7 +7,7 @@ import { parseSizesInput } from '../../lib/utils';
 import AuthContext from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 
-type Gender = 'male' | 'female' | 'kids';
+type Gender = 'male' | 'female' | 'unisex';
 type ImageItem = { url?: string; publicId?: string; progress?: number; name?: string };
 
 type ShoeForm = {
@@ -24,9 +24,9 @@ type ShoeForm = {
 };
 
 const SUBCATS: Record<Gender, string[]> = {
-  male: ['Doctor Chappal', 'Sports Shoes', 'Closed Shoes', 'Sandals', 'Boots', 'Casual', 'Formal'],
-  female: ['Doctor Chappal', 'Sports Shoes', 'Closed Shoes', 'Sandals', 'Heels', 'Boots', 'Casual'],
-  kids: ['Sports Shoes', 'School Shoes', 'Sandals', 'Casual'],
+  male: ['Slippers', 'Boots', 'Shoes', 'Branded'],
+  female: ['Doctor Chappal', 'Slippers', 'Sport Shoes', 'Branded', 'Boots', 'Hills', 'Close Shoes'],
+  unisex: ['Branded Shoes'],
 };
 
 const inputClass =
@@ -46,10 +46,14 @@ const EditShoe: React.FC = () => {
     fetchShoe(id)
       .then((res) => {
         const shoe = res.data;
+        const gender = shoe.gender === 'kids' ? 'unisex' : shoe.gender || 'male';
         setForm({
           name: shoe.name || '',
-          gender: shoe.gender || 'male',
-          subcategory: shoe.subcategory || SUBCATS.male[0],
+          gender: gender as Gender,
+          subcategory:
+            shoe.subcategory && SUBCATS[gender as Gender].includes(shoe.subcategory)
+              ? shoe.subcategory
+              : SUBCATS[gender as Gender][0],
           brand: shoe.brand || '',
           branded: Boolean(shoe.branded),
           trending: Boolean(shoe.trending),
@@ -286,7 +290,7 @@ const EditShoe: React.FC = () => {
                 >
                   <option value="male">Men</option>
                   <option value="female">Women</option>
-                  <option value="kids">Kids</option>
+                  <option value="unisex">Unisex</option>
                 </select>
               </label>
 

@@ -9,6 +9,7 @@ interface Shoe {
   subcategory?: string;
   gender?: string;
   price?: number;
+  trending?: boolean;
 }
 
 export const TrendingShoes: React.FC = () => {
@@ -21,9 +22,8 @@ export const TrendingShoes: React.FC = () => {
   useEffect(() => {
     fetchShoes()
       .then((res) => {
-        // Get trending shoes (first 8)
-        const trendingShoes = (res.data.data || []).slice(0, 8);
-        setShoes(trendingShoes);
+        const trendingShoes = (res.data.data || []).filter((shoe: any) => shoe.trending === true);
+        setShoes(trendingShoes.slice(0, 8));
       })
       .catch((err) => {
         console.error('Error fetching shoes:', err);
@@ -95,9 +95,9 @@ export const TrendingShoes: React.FC = () => {
                 className="flex-shrink-0 w-72 group/card animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card hover:shadow-lg transition-all duration-300 group-hover/card:border-primary group-hover/card:scale-105">
+                <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card hover:shadow-xl transition-all duration-300 group-hover/card:border-primary/20 group-hover/card:scale-[1.02]">
                   {/* Image Container */}
-                  <div className="relative h-64 bg-muted overflow-hidden">
+                  <div className="relative aspect-square bg-muted overflow-hidden">
                     {shoe.images?.[0]?.url ? (
                       <img
                         src={shoe.images[0].url}
@@ -106,35 +106,57 @@ export const TrendingShoes: React.FC = () => {
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/20 flex items-center justify-center">
-                        <span className="text-muted-foreground text-sm">No image</span>
+                        <span className="text-muted-foreground text-sm font-medium">No image</span>
                       </div>
                     )}
 
-                    {/* Badge */}
-                    <div className="absolute top-3 right-3 px-3 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full backdrop-blur-sm bg-opacity-90">
-                      Trending
-                    </div>
-
-                    {/* Overlay on Hover */}
-                    <div className="absolute inset-0 bg-black/0 group-hover/card:bg-black/20 transition-colors duration-300" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-4">
-                    <h3 className="font-semibold text-foreground line-clamp-2 group-hover/card:text-primary transition-colors">
-                      {shoe.name}
-                    </h3>
-                    <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
-                      <span className="capitalize">{shoe.subcategory}</span>
-                      {shoe.gender && (
-                        <span className="capitalize px-2 py-1 bg-muted rounded text-xs">
-                          {shoe.gender}
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-2">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-500 text-white shadow-sm">
+                        🔥 Trending
+                      </span>
+                      {shoe.branded && (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm">
+                          ⭐ Branded
                         </span>
                       )}
                     </div>
+
+                    {/* Price */}
                     {shoe.price && (
-                      <div className="mt-3 text-lg font-bold text-primary">
+                      <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-sm font-bold bg-white/95 backdrop-blur-sm text-slate-900 shadow-sm">
                         रु {shoe.price.toLocaleString()}
+                      </div>
+                    )}
+
+                    {/* Overlay on Hover */}
+                    <div className="absolute inset-0 bg-black/0 group-hover/card:bg-black/10 transition-colors duration-300" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-4 space-y-2">
+                    <h3 className="font-semibold text-foreground line-clamp-2 text-sm group-hover/card:text-primary transition-colors">
+                      {shoe.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {shoe.subcategory || 'Shoe'} • {shoe.gender || 'Unisex'}
+                    </p>
+                    {shoe.brand && shoe.branded && (
+                      <p className="text-xs font-medium text-slate-600">{shoe.brand}</p>
+                    )}
+                    {shoe.sizes?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        <span className="text-xs text-muted-foreground">Sizes:</span>
+                        {shoe.sizes.slice(0, 3).map((size) => (
+                          <span key={size} className="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">
+                            {size}
+                          </span>
+                        ))}
+                        {shoe.sizes.length > 3 && (
+                          <span className="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">
+                            +{shoe.sizes.length - 3}
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>

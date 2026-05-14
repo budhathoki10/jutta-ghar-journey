@@ -16,8 +16,8 @@ const shoeRoutes = require('./routes/shoeRoutes');
 app.use('/api/admin', adminRoutes);
 app.use('/api/shoes', shoeRoutes);
 
-const DEFAULT_ADMIN_EMAIL =  'apple';
-const DEFAULT_ADMIN_PASSWORD ='ball';
+const DEFAULT_ADMIN_EMAIL =  'budhathokikushal170@gmail.com';
+const DEFAULT_ADMIN_PASSWORD ='kushal123';
 
 const createDefaultAdmin = async () => {
   try {
@@ -40,3 +40,4 @@ app.get('/', (req, res) => res.send({status: 'shoe-shop server running'}));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+ 

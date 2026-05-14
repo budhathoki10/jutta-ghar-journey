@@ -1,8 +1,17 @@
 const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const { Readable } = require('stream');
-const cloudinary = require('../config/cloudinary');
+
+// Create GridFS bucket
+let gfs;
+const conn = mongoose.connection;
+conn.once('open', () => {
+  gfs = new mongoose.mongo.GridFSBucket(conn.db, {
+    bucketName: 'uploads'
+  });
+});
 
 exports.register = async (req, res) => {
   try {
@@ -24,15 +33,45 @@ exports.uploadImage = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No image file uploaded' });
 
-    const bufferStream = Readable.from([req.file.buffer]);
-    const uploadStream = cloudinary.uploader.upload_stream({ folder: 'shoe-shop/shoes', resource_type: 'image' }, (error, result) => {
-      if (error) {
-        return res.status(500).json({ message: 'Cloudinary upload failed', error: error.message });
-      }
-      res.json({ url: result.secure_url, publicId: result.public_id });
+    if (!gfs) return res.status(500).json({ message: 'GridFS not initialized' });
+
+    const filename = `shoe-${Date.now()}-${req.file.originalname}`;
+    const uploadStream = gfs.openUploadStream(filename, {
+      contentType: req.file.mimetype,
     });
 
+    const bufferStream = Readable.from([req.file.buffer]);
     bufferStream.pipe(uploadStream);
+
+    uploadStream.on('finish', () => {
+      res.json({
+        url: `/api/admin/image/${uploadStream.id}`,
+        publicId: uploadStream.id.toString(),
+        filename: filename
+      });
+    });
+
+    uploadStream.on('error', (error) => {
+      res.status(500).json({ message: 'Upload failed', error: error.message });
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getImage = async (req, res) => {
+  try {
+    if (!gfs) return res.status(500).json({ message: 'GridFS not initialized' });
+
+    const fileId = new mongoose.Types.ObjectId(req.params.id);
+    const downloadStream = gfs.openDownloadStream(fileId);
+
+    downloadStream.on('error', () => {
+      res.status(404).json({ message: 'Image not found' });
+    });
+
+    downloadStream.pipe(res);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

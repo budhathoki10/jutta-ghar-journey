@@ -11,7 +11,7 @@ const ImageSchema = new mongoose.Schema(
 const ShoeSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    gender: { type: String, enum: ['male', 'female', 'kids'], required: true },
+    gender: { type: String, enum: ['male', 'female', 'unisex'], required: true },
     subcategory: { type: String, required: true, trim: true },
 
     brand: { type: String, trim: true, default: '' },

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Sparkles, Phone, SlidersHorizontal, X, LayoutGrid, LayoutList, ChevronDown } from "lucide-react";
+import { Search, Sparkles, SlidersHorizontal, X, LayoutGrid, LayoutList } from "lucide-react";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,19 +17,25 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 
 const ITEMS_PER_PAGE = 12;
 
+const GENDER_CATEGORIES: Record<string, string[]> = {
+  male: ['Slippers', 'Boots', 'Shoes', 'Branded'],
+  female: ['Doctor Chappal', 'Slippers', 'Sport Shoes', 'Branded', 'Boots', 'Hills', 'Close Shoes'],
+  unisex: ['Branded Shoes'],
+};
+
 const ProductCatalog = () => {
   const [shoes, setShoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState("all");
   const [category, setCategory] = useState("all");
-  const [branded, setBranded] = useState("all");
   const [brand, setBrand] = useState("all");
   const [size, setSize] = useState("all");
   const [trendingOnly, setTrendingOnly] = useState(false);
+  const [sort, setSort] = useState("best-match");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
-  const [filtersOpen, setFiltersOpen] = useState(false); // ← NEW
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     fetchShoes()
@@ -38,10 +44,20 @@ const ProductCatalog = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const categories = useMemo(
-    () => ["all", ...Array.from(new Set(shoes.map((shoe) => shoe.subcategory?.toString() || "Other"))).sort()],
-    [shoes],
-  );
+  const categories = useMemo(() => {
+    if (gender === 'male') return ['all', ...GENDER_CATEGORIES.male];
+    if (gender === 'female') return ['all', ...GENDER_CATEGORIES.female];
+    if (gender === 'unisex') return ['all', ...GENDER_CATEGORIES.unisex];
+    return [
+      'all',
+      ...new Set(
+        shoes
+          .map((shoe) => shoe.subcategory?.toString() || '')
+          .filter(Boolean)
+          .map((item) => item.trim())
+      ),
+    ];
+  }, [gender, shoes]);
 
   const brands = useMemo(
     () => ["all", ...Array.from(new Set(shoes.map((shoe) => shoe.brand?.trim() || "Non-branded").filter(Boolean))).sort()],
@@ -69,11 +85,10 @@ const ProductCatalog = () => {
 
       if (!matchesSearch) return false;
       if (gender !== "all" && shoe.gender !== gender) return false;
-      if (category !== "all" && shoe.subcategory !== category) return false;
-      if (branded !== "all") {
-        const isBranded = Boolean(shoe.branded);
-        if (branded === "branded" && !isBranded) return false;
-        if (branded === "non-branded" && isBranded) return false;
+      if (category !== "all") {
+        const selectedCategory = category.toString().toLowerCase();
+        const shoeCategory = shoe.subcategory?.toString().toLowerCase() || '';
+        if (shoeCategory !== selectedCategory) return false;
       }
       if (brand !== "all") {
         const normalizedBrand = shoe.brand?.toString() || "Non-branded";
@@ -83,10 +98,26 @@ const ProductCatalog = () => {
       if (trendingOnly && !shoe.trending) return false;
       return true;
     });
-  }, [shoes, search, gender, category, branded, brand, size, trendingOnly]);
+  }, [shoes, search, gender, category, brand, size, trendingOnly]);
 
-  const pageCount = Math.max(1, Math.ceil(filteredShoes.length / ITEMS_PER_PAGE));
-  const paginated = filteredShoes.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const sortedShoes = useMemo(() => {
+    const sorted = [...filteredShoes];
+    switch (sort) {
+      case 'newest':
+        return sorted.sort((a, b) => (new Date(b.createdAt).getTime() || 0) - (new Date(a.createdAt).getTime() || 0));
+      case 'popular':
+        return sorted.sort((a, b) => (b.sold || 0) - (a.sold || 0));
+      case 'name-asc':
+        return sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      case 'name-desc':
+        return sorted.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+      default:
+        return sorted;
+    }
+  }, [filteredShoes, sort]);
+
+  const pageCount = Math.max(1, Math.ceil(sortedShoes.length / ITEMS_PER_PAGE));
+  const paginated = sortedShoes.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const paginationRange = useMemo(() => {
     const range: Array<number | string> = [];
@@ -104,13 +135,12 @@ const ProductCatalog = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [search, gender, category, branded, brand, size, trendingOnly]);
+  }, [search, gender, category, brand, size, trendingOnly, sort]);
 
   // Count active filters for badge
   const activeFilterCount = [
     gender !== "all",
     category !== "all",
-    branded !== "all",
     brand !== "all",
     size !== "all",
     trendingOnly,
@@ -121,7 +151,6 @@ const ProductCatalog = () => {
     setSearch("");
     setGender("all");
     setCategory("all");
-    setBranded("all");
     setBrand("all");
     setSize("all");
     setTrendingOnly(false);
@@ -131,13 +160,13 @@ const ProductCatalog = () => {
   const FilterPanel = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.25em] text-muted-foreground">
+        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-muted-foreground">
           <Sparkles className="h-4 w-4 text-primary" /> Filters
         </div>
         {activeFilterCount > 0 && (
           <button
             onClick={resetFilters}
-            className="text-xs font-semibold text-primary hover:underline"
+            className="text-[10px] font-semibold text-primary hover:underline"
           >
             Reset all ({activeFilterCount})
           </button>
@@ -146,62 +175,69 @@ const ProductCatalog = () => {
 
       {/* Search */}
       <div className="space-y-2">
-        <label className="block text-xs uppercase tracking-[0.25em] text-muted-foreground">Search</label>
+        <label className="block text-[10px] uppercase tracking-[0.32em] text-slate-500">Search</label>
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Name, brand, type, gender…"
-            className="w-full rounded-full border border-border py-3 pl-10 pr-4 text-sm shadow-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
           />
         </div>
       </div>
 
       {/* Gender */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-foreground">Gender</label>
-        <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full rounded-xl border border-border px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
-          <option value="all">All</option>
-          <option value="male">Men</option>
-          <option value="female">Women</option>
-        </select>
+        <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground">Gender</label>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: 'All', value: 'all' },
+            { label: 'Men', value: 'male' },
+            { label: 'Women', value: 'female' },
+            { label: 'Unisex', value: 'unisex' },
+          ].map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setGender(option.value)}
+              className={cn(
+                'rounded-2xl border px-3 py-2 text-sm font-medium transition',
+                gender === option.value
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-background text-foreground hover:border-primary'
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Shoe type */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-foreground">Shoe type</label>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-xl border border-border px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+        <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground">Shoe type</label>
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-xl border border-border px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           {categories.map((item) => (
-            <option key={item} value={item}>{item === "all" ? "All" : item}</option>
+            <option key={item} value={item}>{item === "all" ? "All categories" : item}</option>
           ))}
         </select>
       </div>
 
-      {/* Brand toggle */}
+      {/* Brand */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-foreground">Brand</label>
-        <select value={branded} onChange={(e) => setBranded(e.target.value)} className="w-full rounded-xl border border-border px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
-          <option value="all">All</option>
-          <option value="branded">Branded</option>
-          <option value="non-branded">Non-branded</option>
-        </select>
-      </div>
-
-      {/* Brand name */}
-      <div className="space-y-2">
-        <label className="block text-sm font-semibold text-foreground">Brand name</label>
-        <select value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full rounded-xl border border-border px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+        <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground">Brand</label>
+        <select value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full rounded-xl border border-border px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           {brands.map((item) => (
-            <option key={item} value={item}>{item === "all" ? "All" : item}</option>
+            <option key={item} value={item}>{item === "all" ? "All brands" : item}</option>
           ))}
         </select>
       </div>
 
       {/* Size */}
       <div className="space-y-2">
-        <label className="block text-sm font-semibold text-foreground">Available size</label>
-        <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full rounded-xl border border-border px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+        <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground">Available size</label>
+        <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full rounded-xl border border-border px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           {sizes.map((item) => (
             <option key={item} value={item}>{item === "all" ? "All sizes" : item}</option>
           ))}
@@ -228,19 +264,20 @@ const ProductCatalog = () => {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-14 bg-slate-50 text-slate-900">
 
       {/* Page header */}
       <ScrollReveal delay={100}>
-        <div className="mb-8 sm:mb-12 text-center">
-          <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-muted-foreground">Product Catalog</p>
-          <h1 className="mt-2 sm:mt-3 text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-ink">Browse our catalog of shoes</h1>
-          <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base leading-6 sm:leading-7 text-foreground/80">
-            Discover doctor chappal, sports shoes, sandals, heels, boots and top branded collections
-            with live search and filters designed for easy browsing.
-          </p>
-          <div className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-2 sm:gap-3">
-            <Button asChild variant="outline" className="rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold">
+        <div className="mb-8 sm:mb-12 grid gap-5 lg:grid-cols-[1.6fr_auto] items-start">
+          <div className="text-center lg:text-left">
+            <p className="text-[11px] uppercase tracking-[0.35em] text-slate-500">Product Catalog</p>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">Browse our catalog of shoes</h1>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600 lg:max-w-none">
+              Discover doctor chappal, sports shoes, sandals, heels, boots and top branded collections with a clean and compact browsing experience.
+            </p>
+          </div>
+          <div className="flex items-center justify-center lg:justify-end">
+            <Button asChild variant="outline" className="rounded-full px-4 py-2 text-xs sm:text-sm font-semibold">
               <Link to="/admin/login">Admin Login</Link>
             </Button>
           </div>
@@ -324,9 +361,23 @@ const ProductCatalog = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-foreground">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] text-foreground">
                   <span className="font-semibold">{filteredShoes.length}</span>
-                  <span className="text-muted-foreground hidden xs:inline">items available</span>
+                  <span className="text-muted-foreground hidden xs:inline">items</span>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] text-foreground">
+                  <span>Sort:</span>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    className="rounded-full border border-border bg-white py-1 px-2 text-[11px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="best-match">Best Match</option>
+                    <option value="newest">Newest</option>
+                    <option value="popular">Popular</option>
+                    <option value="name-asc">Name A–Z</option>
+                    <option value="name-desc">Name Z–A</option>
+                  </select>
                 </div>
                 <button
                   type="button"
@@ -377,59 +428,65 @@ const ProductCatalog = () => {
             )}>
               {paginated.map((shoe, index) => (
                 <ScrollReveal key={shoe._id} delay={index * 100}>
-                  <article className="group overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-                    <div className="relative overflow-hidden rounded-t-[2rem] bg-slate-100">
-                      <div className="aspect-[4/5] bg-[#f5f5f5]">
+                  <article className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/20">
+                    <div className="relative overflow-hidden rounded-t-2xl bg-slate-50">
+                      <div className="aspect-square bg-[#f5f5f5]">
                         <img
                           src={shoe.images?.[0]?.url || "https://via.placeholder.com/600x600?text=No+image"}
                           alt={shoe.name}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                          className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
                         />
                       </div>
-                      <div className="absolute left-2 sm:left-4 top-2 sm:top-4 flex flex-wrap gap-1.5 sm:gap-2">
+                      <div className="absolute left-3 top-3 flex flex-col gap-2">
                         {shoe.trending && (
-                          <span className="rounded-full bg-primary px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.25em] text-primary-foreground">
-                            Trending
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-500 text-white shadow-sm">
+                            🔥 Trending
                           </span>
                         )}
                         {shoe.branded && (
-                          <span className="rounded-full bg-foreground/10 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.25em] text-foreground">
-                            Branded
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm">
+                            ⭐ Branded
                           </span>
                         )}
                       </div>
-                    </div>
-                    <div className="space-y-4 p-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-ink capitalize">{shoe.name}</h3>
-                          <p className="mt-1 text-sm text-foreground/70">{shoe.subcategory || 'Other'} · {shoe.gender || 'Unisex'}</p>
+                      {shoe.price && (
+                        <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-sm font-bold bg-white/95 backdrop-blur-sm text-slate-900 shadow-sm">
+                          रु {shoe.price.toLocaleString()}
                         </div>
-                        {shoe.price != null && (
-                          <div className="rounded-full bg-background px-3 py-1 text-sm font-semibold text-ink shadow-sm">
-                            Rs {shoe.price}
+                      )}
+                    </div>
+                    <div className="space-y-3 p-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-ink capitalize line-clamp-2 group-hover:text-primary transition-colors">{shoe.name}</h3>
+                        <p className="mt-1 text-xs text-muted-foreground">{shoe.subcategory || 'Other'} · {shoe.gender || 'Unisex'}</p>
+                      </div>
+                      {shoe.brand && shoe.branded && (
+                        <p className="text-xs font-medium text-slate-600">{shoe.brand}</p>
+                      )}
+                      <div className="grid gap-2 text-xs text-muted-foreground">
+                        {shoe.sizes?.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            <span>Sizes:</span>
+                            {shoe.sizes.slice(0, 3).map((size) => (
+                              <span key={size} className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+                                {size}
+                              </span>
+                            ))}
+                            {shoe.sizes.length > 3 && (
+                              <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+                                +{shoe.sizes.length - 3}
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>
-                      <div className="grid gap-3 sm:grid-cols-2 text-sm text-muted-foreground">
-                        <span>{shoe.branded ? shoe.brand || 'Branded' : 'Non-branded'}</span>
-                        <span>{shoe.sizes?.length ? `Sizes ${Math.min(...shoe.sizes)}–${Math.max(...shoe.sizes)}` : 'Size N/A'}</span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-2 pt-2">
+                        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.22em] text-muted-foreground">
                           {shoe.gender}
                         </span>
-                        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                        <span className="rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.22em] text-muted-foreground">
                           {shoe.subcategory || 'Collection'}
                         </span>
-                      </div>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <Button asChild variant="secondary" className="w-full rounded-full px-3 py-2 text-sm justify-center">
-                          <Link to={`/shoes/${shoe._id}`}>View</Link>
-                        </Button>
-                        <Button asChild className="w-full rounded-full px-3 py-2 text-sm justify-center">
-                          <a href="tel:+9779800000000">Contact</a>
-                        </Button>
                       </div>
                     </div>
                   </article>

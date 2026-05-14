@@ -7,7 +7,7 @@ import { parseSizesInput } from '../../lib/utils';
 import AuthContext from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
 
-type Gender = 'male' | 'female' | 'kids';
+type Gender = 'male' | 'female' | 'unisex';
 type UploadItem = { url?: string; publicId?: string; progress: number; name?: string };
 
 type ShoeForm = {
@@ -24,9 +24,9 @@ type ShoeForm = {
 };
 
 const SUBCATS: Record<Gender, string[]> = {
-  male: ['Doctor Chappal', 'Sports Shoes', 'Closed Shoes', 'Sandals', 'Boots', 'Casual', 'Formal'],
-  female: ['Doctor Chappal', 'Sports Shoes', 'Closed Shoes', 'Sandals', 'Heels', 'Boots', 'Casual'],
-  kids: ['Sports Shoes', 'School Shoes', 'Sandals', 'Casual'],
+  male: ['Slippers', 'Boots', 'Shoes', 'Branded'],
+  female: ['Doctor Chappal', 'Slippers', 'Sport Shoes', 'Branded', 'Boots', 'Hills', 'Close Shoes'],
+  unisex: ['Branded Shoes'],
 };
 
 const emptyForm = (): ShoeForm => ({
@@ -47,6 +47,7 @@ const inputClass =
 
 const AddShoe: React.FC = () => {
   const [forms, setForms] = useState<ShoeForm[]>([emptyForm()]);
+  const [expandedIndex, setExpandedIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { admin } = useContext(AuthContext);
@@ -136,6 +137,27 @@ const AddShoe: React.FC = () => {
     );
   };
 
+  const addProduct = () => {
+    setForms((items) => {
+      const next = [...items, emptyForm()];
+      setExpandedIndex(next.length - 1);
+      return next;
+    });
+  };
+
+  const removeProduct = (index: number) => {
+    setForms((items) => {
+      const next = items.filter((_, idx) => idx !== index);
+      setExpandedIndex((current) => {
+        if (next.length === 0) return 0;
+        if (index === current) return Math.max(0, current - 1);
+        if (index < current) return current - 1;
+        return current;
+      });
+      return next.length ? next : [emptyForm()];
+    });
+  };
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -220,25 +242,30 @@ const AddShoe: React.FC = () => {
           </div>
         </section>
 
-        {forms.map((form, formIndex) => (
-          <section key={formIndex} className="grid gap-6 lg:grid-cols-[1fr_420px]">
+        {forms.map((form, formIndex) => {
+          const isExpanded = formIndex === expandedIndex;
+
+          return (
+            <section key={formIndex} className="grid gap-6 lg:grid-cols-[1fr_420px]">
             <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
-                <div>
+                <button
+                  type="button"
+                  onClick={() => setExpandedIndex(formIndex)}
+                  className="text-left"
+                >
                   <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
                     Product {formIndex + 1}
                   </p>
                   <h2 className="mt-2 text-2xl font-bold text-slate-950">Product details</h2>
-                </div>
+                </button>
 
                 {forms.length > 1 && (
                   <Button
                     type="button"
                     variant="outline"
                     className="rounded-full"
-                    onClick={() =>
-                      setForms((items) => items.filter((_, idx) => idx !== formIndex))
-                    }
+                    onClick={() => removeProduct(formIndex)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Remove
@@ -246,121 +273,150 @@ const AddShoe: React.FC = () => {
                 )}
               </div>
 
-              <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <label className="space-y-2 md:col-span-2">
-                  <span className="text-sm font-semibold text-slate-800">Product name</span>
-                  <input
-                    className={inputClass}
-                    value={form.name}
-                    onChange={(e) => updateForm(formIndex, 'name', e.target.value)}
-                    placeholder="e.g. Classic Leather Sandal"
-                    required
-                  />
-                </label>
+              {!isExpanded && (
+                <button
+                  type="button"
+                  className="mt-6 w-full rounded-3xl border border-slate-200 bg-slate-50 p-6 text-left text-slate-700 transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  onClick={() => setExpandedIndex(formIndex)}
+                >
+                  <p className="text-sm font-semibold text-slate-950">Product summary</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Name</p>
+                      <p className="mt-1 font-medium">{form.name || `Product ${formIndex + 1}`}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Group</p>
+                      <p className="mt-1 capitalize">{form.gender}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Subcategory</p>
+                      <p className="mt-1">{form.subcategory}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Brand</p>
+                      <p className="mt-1">{form.brand || 'Not set'}</p>
+                    </div>
+                  </div>
+                  <p className="mt-4 text-xs text-slate-500">Click anywhere here to open and edit this product.</p>
+                </button>
+              )}
 
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-800">Customer group</span>
-                  <select
-                    className={inputClass}
-                    value={form.gender}
-                    onChange={(e) => {
-                      const selected = e.target.value as Gender;
-                      updateForm(formIndex, 'gender', selected);
-                      updateForm(formIndex, 'subcategory', SUBCATS[selected][0]);
-                    }}
-                  >
-                    <option value="male">Men</option>
-                    <option value="female">Women</option>
-                    <option value="kids">Kids</option>
-                  </select>
-                </label>
+              <div className={isExpanded ? 'mt-6 grid gap-5 md:grid-cols-2' : 'hidden'}>
+                    <label className="space-y-2 md:col-span-2">
+                      <span className="text-sm font-semibold text-slate-800">Product name</span>
+                      <input
+                        className={inputClass}
+                        value={form.name}
+                        onChange={(e) => updateForm(formIndex, 'name', e.target.value)}
+                        placeholder="e.g. Classic Leather Sandal"
+                        required
+                      />
+                    </label>
 
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-800">Subcategory</span>
-                  <select
-                    className={inputClass}
-                    value={form.subcategory}
-                    onChange={(e) => updateForm(formIndex, 'subcategory', e.target.value)}
-                  >
-                    {SUBCATS[form.gender].map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
+                    <label className="space-y-2">
+                      <span className="text-sm font-semibold text-slate-800">Customer group</span>
+                      <select
+                        className={inputClass}
+                        value={form.gender}
+                        onChange={(e) => {
+                          const selected = e.target.value as Gender;
+                          updateForm(formIndex, 'gender', selected);
+                          updateForm(formIndex, 'subcategory', SUBCATS[selected][0]);
+                        }}
+                      >
+                        <option value="male">Men</option>
+                        <option value="female">Women</option>
+                        <option value="unisex">Unisex</option>
+                      </select>
+                    </label>
 
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-800">Brand</span>
-                  <input
-                    className={inputClass}
-                    value={form.brand}
-                    onChange={(e) => updateForm(formIndex, 'brand', e.target.value)}
-                    placeholder="e.g. Nike, Goldstar, Local craft"
-                  />
-                </label>
+                    <label className="space-y-2">
+                      <span className="text-sm font-semibold text-slate-800">Subcategory</span>
+                      <select
+                        className={inputClass}
+                        value={form.subcategory}
+                        onChange={(e) => updateForm(formIndex, 'subcategory', e.target.value)}
+                      >
+                        {SUBCATS[form.gender].map((option) => (
+                          <option key={option}>{option}</option>
+                        ))}
+                      </select>
+                    </label>
 
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-800">Price</span>
-                  <input
-                    className={inputClass}
-                    type="number"
-                    min="0"
-                    value={form.price}
-                    onChange={(e) => updateForm(formIndex, 'price', e.target.value)}
-                    placeholder="e.g. 2500"
-                  />
-                </label>
+                    <label className="space-y-2">
+                      <span className="text-sm font-semibold text-slate-800">Brand</span>
+                      <input
+                        className={inputClass}
+                        value={form.brand}
+                        onChange={(e) => updateForm(formIndex, 'brand', e.target.value)}
+                        placeholder="e.g. Nike, Goldstar, Local craft"
+                      />
+                    </label>
 
-                <label className="space-y-2 md:col-span-2">
-                  <span className="text-sm font-semibold text-slate-800">Sizes</span>
-                  <input
-                    className={inputClass}
-                    value={form.sizes}
-                    onChange={(e) => updateForm(formIndex, 'sizes', e.target.value)}
-                    placeholder="Example: 38, 39, 40, 41"
-                  />
-                </label>
+                    <label className="space-y-2">
+                      <span className="text-sm font-semibold text-slate-800">Price</span>
+                      <input
+                        className={inputClass}
+                        type="number"
+                        min="0"
+                        value={form.price}
+                        onChange={(e) => updateForm(formIndex, 'price', e.target.value)}
+                        placeholder="e.g. 2500"
+                      />
+                    </label>
 
-                <label className="space-y-2 md:col-span-2">
-                  <span className="text-sm font-semibold text-slate-800">Description</span>
-                  <textarea
-                    className={`${inputClass} min-h-32 resize-y`}
-                    value={form.description}
-                    onChange={(e) => updateForm(formIndex, 'description', e.target.value)}
-                    placeholder="Write comfort, material, use case, and selling points."
-                  />
-                </label>
+                    <label className="space-y-2 md:col-span-2">
+                      <span className="text-sm font-semibold text-slate-800">Sizes</span>
+                      <input
+                        className={inputClass}
+                        value={form.sizes}
+                        onChange={(e) => updateForm(formIndex, 'sizes', e.target.value)}
+                        placeholder="Example: 38, 39, 40, 41"
+                      />
+                    </label>
 
-                <div className="md:col-span-2 grid gap-3 sm:grid-cols-2">
-                  <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <span>
-                      <span className="block text-sm font-semibold text-slate-800">Branded</span>
-                      <span className="text-xs text-slate-500">Show as branded product</span>
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={form.branded}
-                      onChange={(e) => updateForm(formIndex, 'branded', e.target.checked)}
-                      className="h-5 w-5 accent-zinc-950"
-                    />
-                  </label>
+                    <label className="space-y-2 md:col-span-2">
+                      <span className="text-sm font-semibold text-slate-800">Description</span>
+                      <textarea
+                        className={`${inputClass} min-h-32 resize-y`}
+                        value={form.description}
+                        onChange={(e) => updateForm(formIndex, 'description', e.target.value)}
+                        placeholder="Write comfort, material, use case, and selling points."
+                      />
+                    </label>
 
-                  <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <span>
-                      <span className="block text-sm font-semibold text-slate-800">Trending</span>
-                      <span className="text-xs text-slate-500">Feature on trending list</span>
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={form.trending}
-                      onChange={(e) => updateForm(formIndex, 'trending', e.target.checked)}
-                      className="h-5 w-5 accent-zinc-950"
-                    />
-                  </label>
+                    <div className="md:col-span-2 grid gap-3 sm:grid-cols-2">
+                      <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <span>
+                          <span className="block text-sm font-semibold text-slate-800">Branded</span>
+                          <span className="text-xs text-slate-500">Show as branded product</span>
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={form.branded}
+                          onChange={(e) => updateForm(formIndex, 'branded', e.target.checked)}
+                          className="h-5 w-5 accent-zinc-950"
+                        />
+                      </label>
+
+                      <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <span>
+                          <span className="block text-sm font-semibold text-slate-800">Trending</span>
+                          <span className="text-xs text-slate-500">Feature on trending list</span>
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={form.trending}
+                          onChange={(e) => updateForm(formIndex, 'trending', e.target.checked)}
+                          className="h-5 w-5 accent-zinc-950"
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <aside className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                  <aside className={isExpanded ? 'rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm' : 'hidden'}>
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h3 className="text-lg font-bold text-slate-950">Product images</h3>
@@ -451,14 +507,15 @@ const AddShoe: React.FC = () => {
               </div>
             </aside>
           </section>
-        ))}
+          );
+        })}
 
         <div className="flex flex-col-reverse gap-3 rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <Button
             type="button"
             variant="outline"
             className="rounded-full"
-            onClick={() => setForms((items) => [...items, emptyForm()])}
+            onClick={addProduct}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add another product

@@ -1,47 +1,64 @@
-import React, { useEffect } from 'react';
-import { ScrollReveal } from '@/components/ScrollReveal';
-import { useReveal } from '@/hooks/use-reveal';
-import ContactSection from '@/components/ContactSection';
+import { Link } from "react-router-dom";
+import { Clock3, MapPin, Phone } from "lucide-react";
+import { ContactForm } from "@/components/ContactForm";
+import { businessName, email, fullAddress, mapSrc, phoneHref, phoneNumber, whatsappLink } from "@/content/site";
+import { useParallax } from "@/hooks/use-parallax";
 
-const Contact: React.FC = () => {
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
-  useReveal();
+const Contact = () => {
+  const { ref: parallaxRef, offsetY } = useParallax(0.4);
 
   return (
-    <div className="space-y-12 sm:space-y-16">
-      <section className="hero relative min-h-[90vh] md:min-h-screen bg-gradient-to-br from-ink/5 via-background to-terracotta/5 flex items-center justify-center px-4 sm:px-6 py-16 md:py-20">
-        <div className="mx-auto max-w-4xl w-full text-center space-y-4 sm:space-y-6">
-          <ScrollReveal>
-            <p className="text-xs uppercase tracking-[0.3em] text-terracotta">§ 05 — सम्पर्क · Contact</p>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-ink leading-tight">Talk directly with the team.</h1>
-          </ScrollReveal>
-          <ScrollReveal delay={200}>
-            <p className="text-base sm:text-lg md:text-xl text-foreground/70 max-w-3xl mx-auto">
-              For direct orders, Instagram enquiries, and WhatsApp support — these are the people ready to help.
+    <main id="main-content" className="bg-background px-6 pb-24 pt-20 text-foreground sm:px-10">
+      <div className="mx-auto max-w-7xl">
+        <section ref={parallaxRef} className="grid gap-12 lg:grid-cols-[0.9fr_0.6fr]">
+          <div>
+            <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Contact</p>
+            <h1 className="mt-4 text-4xl font-black tracking-tight sm:text-5xl">Schedule your visit or ask the shop a question.</h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
+              Call {phoneNumber}, send a WhatsApp note, or use the form below. We reply during shop hours and hold reserved fitting slots for confirmed requests.
             </p>
-          </ScrollReveal>
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
-            <ScrollReveal delay={300}>
-              <a href="tel:+9779841898731" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-primary-foreground transition hover:bg-primary/90">
-                Call Store Line
-              </a>
-            </ScrollReveal>
-            <ScrollReveal delay={400}>
-              <a href="https://wa.me/9779865481109" className="inline-flex items-center gap-2 rounded-full border border-primary/50 px-6 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-primary transition hover:bg-primary/5">
-                WhatsApp Support
-              </a>
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
+            <div className="mt-10 grid gap-4 rounded-[32px] border border-border bg-surface p-6 shadow-card sm:grid-cols-2">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Phone</p>
+                <a href={phoneHref} className="mt-3 block text-lg font-semibold text-foreground">{phoneNumber}</a>
+                <a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-2 block text-sm text-primary underline">Message on WhatsApp</a>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Shop</p>
+                <p className="mt-3 text-base text-foreground">{businessName}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{fullAddress}</p>
+                <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock3 className="h-4 w-4" /> Open Monday – Saturday, 9:00 AM – 8:00 PM
+                </div>
+              </div>
+            </div>
 
-      <ContactSection id="contact" />
-    </div>
+            <div className="mt-10 grid gap-4 rounded-[32px] border border-border bg-background/90 p-6 shadow-card">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <MapPin className="h-5 w-5 text-primary" />
+                <span>Street-level entry with easy drop-off for taxi or tuk-tuk.</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <Phone className="h-5 w-5 text-primary" />
+                <span>No spam. Your details are used only to confirm your appointment.</span>
+              </div>
+            </div>
+          </div>
+
+          <aside>
+            <ContactForm />
+          </aside>
+        </section>
+
+        <section className="mt-16 overflow-hidden rounded-[32px] border border-border bg-surface shadow-card">
+          <iframe title="GoGo Jutta Ghar contact map" src={mapSrc} className="h-[420px] w-full border-0" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+        </section>
+
+        <div className="mt-12 border-t border-border pt-8 text-sm text-muted-foreground">
+          <p>Need a privacy summary? See our <Link to="/privacy" className="text-primary underline">Privacy policy</Link>.</p>
+        </div>
+      </div>
+    </main>
   );
 };
 
