@@ -20,31 +20,31 @@ const AllShoes: React.FC = () => {
   );
 
   return (
-    <main id="main-content" className="bg-slate-50">
+    <main id="main-content" className="bg-background">
       {/* Hero */}
-      <section className="px-6 sm:px-10 py-10 md:py-14 bg-slate-100 border-b border-slate-200">
+      <section className="px-6 sm:px-10 py-10 md:py-14 bg-gradient-to-b from-cream/30 to-background border-b border-border">
         <div className="mx-auto max-w-7xl">
-          <p className="text-[11px] uppercase tracking-[0.35em] text-slate-500 mb-2">Collection</p>
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 mb-3">
+          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground mb-2">Collection</p>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground mb-3">
             All Shoes
           </h1>
-          <p className="text-sm md:text-base text-slate-600 max-w-2xl">
-            Browse our complete collection of premium footwear in a calm, neat presentation.
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl">
+            Browse our complete collection of premium footwear
           </p>
         </div>
       </section>
 
       {/* Search & Filter */}
-      <section className="sticky top-16 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-6 sm:px-10 py-3">
+      <section className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border px-6 sm:px-10 py-3">
         <div className="mx-auto max-w-7xl">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
             <input
               type="text"
               placeholder="Search by name or category..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-2 rounded-full border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-300 transition-all text-sm"
+              className="w-full pl-12 pr-4 py-2 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm"
             />
           </div>
         </div>
@@ -66,82 +66,49 @@ const AllShoes: React.FC = () => {
               ))}
             </div>
           ) : filteredShoes.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredShoes.map((shoe) => (
-                <div key={shoe._id} className="group rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-slate-300">
+                <div key={shoe._id} className="group rounded-lg overflow-hidden border border-border bg-card shadow-card hover:shadow-lg hover:border-primary transition-all duration-200 hover:-translate-y-0.5">
                   {/* Image Container */}
-                  <div className="relative aspect-square bg-slate-50 overflow-hidden">
+                  <div className="relative h-40 bg-muted overflow-hidden">
                     {shoe.images?.[0]?.url ? (
                       <img
                         src={shoe.images[0].url}
                         alt={shoe.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                        <span className="text-slate-400 text-sm font-medium">No image</span>
-                      </div>
-                    )}
-                    
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2">
-                      {shoe.trending && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-orange-500 text-white shadow-sm">
-                          🔥 Trending
-                        </span>
-                      )}
-                      {shoe.branded && (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm">
-                          ⭐ Branded
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Price badge */}
-                    {shoe.price && (
-                      <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-sm font-bold bg-white/90 backdrop-blur-sm text-slate-900 shadow-sm">
-                        रु {shoe.price.toLocaleString()}
+                      <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/10 flex items-center justify-center">
+                        <span className="text-muted-foreground text-xs">No image</span>
                       </div>
                     )}
                   </div>
 
                   {/* Content */}
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <h3 className="font-semibold text-slate-900 line-clamp-2 text-sm leading-tight group-hover:text-slate-700 transition-colors">
-                        {shoe.name}
-                      </h3>
-                      <p className="mt-1 text-xs text-slate-500 capitalize">
-                        {shoe.subcategory || 'Shoe'} • {shoe.gender || 'Unisex'}
-                      </p>
+                  <div className="p-3">
+                    <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors text-sm">
+                      {shoe.name}
+                    </h3>
+
+                    <div className="mt-2 flex items-center justify-between text-xs">
+                      <span className="capitalize text-muted-foreground">
+                        {shoe.subcategory || 'Shoe'}
+                      </span>
+                      {shoe.gender && (
+                        <span className="capitalize px-1.5 py-0.5 bg-muted text-muted-foreground rounded font-medium">
+                          {shoe.gender}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Brand */}
-                    {shoe.brand && shoe.branded && (
-                      <p className="text-xs font-medium text-slate-600">
-                        {shoe.brand}
-                      </p>
-                    )}
-
-                    {/* Sizes */}
-                    {shoe.sizes?.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        <span className="text-xs text-slate-500">Sizes:</span>
-                        {shoe.sizes.slice(0, 4).map((size) => (
-                          <span key={size} className="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">
-                            {size}
-                          </span>
-                        ))}
-                        {shoe.sizes.length > 4 && (
-                          <span className="px-2 py-0.5 text-xs bg-slate-100 text-slate-600 rounded">
-                            +{shoe.sizes.length - 4}
-                          </span>
-                        )}
+                    {shoe.price && (
+                      <div className="mt-2 text-sm font-bold text-primary">
+                        रु {shoe.price.toLocaleString()}
                       </div>
                     )}
 
-                    <button className="w-full mt-4 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-sm transition-all hover:bg-slate-800 hover:shadow-md active:scale-95">
+                    <button className="w-full mt-2 py-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground rounded-md font-semibold transition-colors duration-200 text-xs">
                       View Details
                     </button>
                   </div>
