@@ -17,6 +17,7 @@ const ShoeSchema = new mongoose.Schema(
     brand: { type: String, trim: true, default: '' },
     branded: { type: Boolean, default: false },
     trending: { type: Boolean, default: false },
+    trendingUntil: { type: Date },
 
     description: { type: String, trim: true, default: '' },
     price: { type: Number, min: 0 },
@@ -31,5 +32,6 @@ const ShoeSchema = new mongoose.Schema(
 
 ShoeSchema.index({ name: 'text', brand: 'text', subcategory: 'text' });
 ShoeSchema.index({ gender: 1, subcategory: 1, createdAt: -1 });
+ShoeSchema.index({ trending: 1, trendingUntil: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Shoe', ShoeSchema);

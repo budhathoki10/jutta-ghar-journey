@@ -1,112 +1,57 @@
-import { Mail, MapPin, Phone, X, Linkedin, Instagram, Facebook, ArrowUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Facebook, Instagram, KeyRound, MessageCircle, Phone, Youtube } from "lucide-react";
+import { businessName, fullAddress, instagramLink, phoneHref, phoneNumber, tiktokLink, whatsappLink,youtubeChannelLink } from "@/content/site";
 
 const SiteFooter = () => {
   return (
-    <footer className="border-t border-slate-700 bg-slate-950 text-slate-100">
-      <div className="mx-auto max-w-7xl px-6 py-14 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr_1fr] xl:grid-cols-[1.2fr_0.85fr_0.85fr]">
-          <div className="space-y-6">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold tracking-[0.18em] text-amber-300">
-                <span className="text-lg">Δ</span>
-                ATARAXIS
-              </span>
-            </div>
+    <footer className="border-t border-ink/20 bg-ink text-ink-foreground">
+      <div className="mx-auto grid max-w-7xl gap-5 px-4 py-7 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-end gap-x-4 gap-y-1">
+            <p className="font-serif text-2xl font-black tracking-tight">{businessName}</p>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-mustard">Kathmandu Shoe House</p>
+          </div>
 
-            <p className="max-w-xl text-sm leading-7 text-slate-300">
-              Empowering physicians with advanced multi-modal tools to improve treatment selection and patient outcomes.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 text-slate-400">
-              <a href="#" aria-label="X" className="rounded-full border border-slate-800 p-2 transition hover:border-amber-400 hover:text-amber-300">
-                <X className="h-4 w-4" />
-              </a>
-              <a href="#" aria-label="LinkedIn" className="rounded-full border border-slate-800 p-2 transition hover:border-amber-400 hover:text-amber-300">
-                <Linkedin className="h-4 w-4" />
-              </a>
-              <a href="#" aria-label="Instagram" className="rounded-full border border-slate-800 p-2 transition hover:border-amber-400 hover:text-amber-300">
-                <Instagram className="h-4 w-4" />
-              </a>
-              <a href="#" aria-label="Facebook" className="rounded-full border border-slate-800 p-2 transition hover:border-amber-400 hover:text-amber-300">
-                <Facebook className="h-4 w-4" />
-              </a>
-            </div>
-
-            <a
-              href="#top"
-              className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold uppercase tracking-[0.25em] text-amber-300 transition hover:bg-slate-800"
-            >
-              <ArrowUp className="h-4 w-4" />
-              Back to top
+          <div className="mt-4 grid gap-2 text-sm text-ink-foreground/75 xs:grid-cols-2 lg:max-w-3xl">
+            <a href={phoneHref} className="flex items-center gap-2 transition hover:text-mustard">
+                <Phone className="h-4 w-4 shrink-0 text-mustard" />
+                {phoneNumber}
             </a>
+            <p>{fullAddress}</p>
           </div>
+        </div>
 
-          <div>
-            <h3 className="mb-6 text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Site Map</h3>
-            <ul className="space-y-3 text-sm text-slate-300">
-              <li>
-                <a href="/" className="transition hover:text-white hover:underline">
-                  Homepage
-                </a>
-              </li>
-              <li>
-                <a href="/technology" className="transition hover:text-white hover:underline">
-                  Technology
-                </a>
-              </li>
-              <li>
-                <a href="/ataraxis-breast" className="transition hover:text-white hover:underline">
-                  Ataraxis Breast
-                </a>
-              </li>
-              <li>
-                <a href="/resources" className="transition hover:text-white hover:underline">
-                  Resources & news
-                </a>
-              </li>
-              <li>
-                <a href="/careers" className="transition hover:text-white hover:underline">
-                  Careers
-                </a>
-              </li>
-              <li>
-                <a href="/contact" className="transition hover:text-white hover:underline">
-                  Contact Us
-                </a>
-              </li>
-              <li>
-                <a href="/portal" className="transition hover:text-white hover:underline">
-                  Portal
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-6 text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Legal</h3>
-            <ul className="space-y-3 text-sm text-slate-300">
-              <li>
-                <a href="/privacy" className="transition hover:text-white hover:underline">
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href="/terms" className="transition hover:text-white hover:underline">
-                  Terms of Services
-                </a>
-              </li>
-              <li>
-                <a href="/lawyers-corner" className="transition hover:text-white hover:underline">
-                  Lawyer&apos;s Corners
-                </a>
-              </li>
-            </ul>
-          </div>
+        <div className="flex flex-wrap items-center gap-3 text-ink-foreground/70 lg:justify-end">
+          <a href={instagramLink} target="_blank" rel="noreferrer" aria-label="Instagram" className="rounded-full border border-ink-foreground/15 p-2 transition hover:border-mustard hover:text-mustard">
+            <Instagram className="h-4 w-4" />
+          </a>
+          <a href={whatsappLink} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="rounded-full border border-ink-foreground/15 p-2 transition hover:border-mustard hover:text-mustard">
+            <MessageCircle className="h-4 w-4" />
+          </a>
+          <a href={tiktokLink} target="_blank" rel="noreferrer" aria-label="TikTok" className="rounded-full border border-ink-foreground/15 px-3 py-2 text-xs font-bold transition hover:border-mustard hover:text-mustard">
+            TT
+          </a>
+          <a href={youtubeChannelLink} target="_blank" rel="noreferrer" aria-label="YouTube" className="rounded-full border border-ink-foreground/15 p-2 transition hover:border-mustard hover:text-mustard">
+            <Youtube className="h-4 w-4" />
+          </a>
+          <a href="https://www.facebook.com/" target="_blank" rel="noreferrer" aria-label="Facebook" className="rounded-full border border-ink-foreground/15 p-2 transition hover:border-mustard hover:text-mustard">
+            <Facebook className="h-4 w-4" />
+          </a>
         </div>
       </div>
 
-      <div className="border-t border-slate-800 bg-amber-500/10 px-6 py-4 text-center text-xs text-slate-300 sm:px-8">
-        © 2024, ataraxis.ai. All Rights Reserved.
+      <div className="border-t border-ink-foreground/10 px-4 py-3 text-xs text-ink-foreground/60 sm:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2">
+          <p>© 2026, GoGo Jutta Ghar.</p>
+          <div className="flex items-center gap-4">
+            <Link to="/privacy" className="transition hover:text-white hover:underline">Privacy</Link>
+            <Link to="/terms" className="transition hover:text-white hover:underline">Terms</Link>
+            <Link to="/admin/login" className="inline-flex items-center gap-1 transition hover:text-white hover:underline">
+              <KeyRound className="h-3.5 w-3.5" />
+              Admin
+            </Link>
+          </div>
+        </div>
       </div>
     </footer>
   );

@@ -7,8 +7,8 @@ import shoeLoafer from "@/assets/shoe-loafer.jpg";
 import shopImage from "@/assets/shop.png";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Clock, Star, ArrowUpRight, Sparkles, Wrench, Package, Leaf } from "lucide-react";
 import { useReveal } from "@/hooks/use-reveal";
+import { MapPin, Phone, Clock, Star, ArrowUpRight, Sparkles, Wrench, Package, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const collections = [
@@ -85,13 +85,13 @@ const staffContacts = [
 ];
 
 const Index = () => {
+  useReveal([]);
+
   const [playing, setPlaying] = useState(false);
   const videoId = "SZMr39NJ76A";
-  const [activeSlide, setActiveSlide] = useState(0);
   const [trendingImage, setTrendingImage] = useState<string>(heroShoes);
+  const [activeSlide, setActiveSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement | null>(null);
-
-  useReveal();
 
   useEffect(() => {
     fetchShoes()
@@ -108,7 +108,8 @@ const Index = () => {
   useEffect(() => {
     const interval = window.setInterval(() => {
       setActiveSlide((current) => (current + 1) % collections.length);
-    }, 2000);
+    }, 3000);
+
     return () => window.clearInterval(interval);
   }, []);
 
@@ -116,7 +117,7 @@ const Index = () => {
     const slider = sliderRef.current;
     const card = slider?.children[activeSlide] as HTMLElement | undefined;
     if (card) {
-      slider.scrollTo({ left: card.offsetLeft, behavior: "smooth" });
+      slider.scrollTo({ left: card.offsetLeft - 16, behavior: "smooth" });
     }
   }, [activeSlide]);
 
@@ -130,53 +131,79 @@ const Index = () => {
           <div className="hero-shape hero-shape-1" />
           <div className="hero-shape hero-shape-2" />
           <div className="hero-shape hero-shape-3" />
-          <div className="bubble bubble-1" style={{ left: "5%", top: "10%", background: "radial-gradient(circle at 30% 30%, rgba(0, 120, 200, 0.15), rgba(0, 120, 200, 0.05))" }}></div>
-          <div className="bubble bubble-2" style={{ right: "10%", top: "5%", background: "radial-gradient(circle at 30% 30%, rgba(255, 100, 50, 0.1), rgba(255, 100, 50, 0.02))" }}></div>
-          <div className="bubble bubble-3" style={{ left: "20%", bottom: "15%", background: "radial-gradient(circle at 30% 30%, rgba(255, 180, 0, 0.12), rgba(255, 180, 0, 0.03))" }}></div>
-          <div className="bubble bubble-4" style={{ right: "5%", bottom: "20%", background: "radial-gradient(circle at 30% 30%, rgba(200, 50, 50, 0.08), rgba(200, 50, 50, 0.02))" }}></div>
-          <div className="bubble bubble-5" style={{ left: "50%", top: "20%", background: "radial-gradient(circle at 30% 30%, rgba(100, 200, 100, 0.1), rgba(100, 200, 100, 0.03))" }}></div>
+          <div className="bubble bubble-1 bg-primary/10" style={{ left: "5%", top: "10%" }}></div>
+          <div className="bubble bubble-2 bg-mustard/10" style={{ right: "10%", top: "5%" }}></div>
+          <div className="bubble bubble-3 bg-primary/10" style={{ left: "20%", bottom: "15%" }}></div>
+          <div className="bubble bubble-4 bg-mustard/10" style={{ right: "5%", bottom: "20%" }}></div>
+          <div className="bubble bubble-5 bg-primary/10" style={{ left: "50%", top: "20%" }}></div>
         </div>
 
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-5 py-14 sm:px-6 md:grid-cols-12 md:py-24 relative z-10">
-          <div className="md:col-span-6 md:pr-6">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_minmax(150px,44vw)] items-start gap-4 px-4 py-10 xs:px-5 sm:gap-8 sm:px-6 sm:py-14 md:grid-cols-12 md:items-center md:py-24">
+          <div className="min-w-0 md:col-span-6 md:pr-6">
             <div className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground reveal-left" style={{ transitionDelay: "0.05s" }}>
               <span className="h-px w-8 bg-foreground/40" />
               Vol. 01 · A Kathmandu Shoe House
             </div>
-            <h1 className="font-serif text-[clamp(2rem,6vw,4.5rem)] font-black leading-[0.92] tracking-tight text-balance reveal-left" style={{ transitionDelay: "0.15s" }}>
+            <h1 className="font-serif text-[1.65rem] font-black leading-[1.04] tracking-tight text-balance xs:text-[1.9rem] sm:text-5xl md:text-6xl lg:text-7xl reveal-left" style={{ transitionDelay: "0.15s" }}>
               Shoes that <em className="not-italic text-primary">walk</em> the city,
               <br />
               <span className="text-foreground/80">made for Nepali feet.</span>
             </h1>
+          </div>
+
+          <div className="relative min-w-0 md:col-span-6 md:row-span-2 reveal-right" style={{ transitionDelay: "0.25s" }}>
+            <div className="group relative mx-auto aspect-square w-full max-w-[14.5rem] overflow-hidden rounded-2xl bg-card shadow-soft sm:max-w-[24rem] md:aspect-[4/5] md:max-w-[520px] md:rounded-[2rem]">
+              <img
+                src={heroShoes}
+                alt="Premium leather oxford and tan loafer on warm terracotta backdrop"
+                className="h-full w-full rounded-2xl object-cover transition-transform duration-700 group-hover:scale-[1.04] md:rounded-xl"
+                width={1600}
+                height={2000}
+              />
+              <div className="absolute bottom-3 left-3 right-3 hidden items-end justify-between text-ink-foreground sm:flex">
+                <div className="rounded-2xl bg-ink/80 px-2 py-1.5 text-[9px] uppercase tracking-[0.16em] backdrop-blur transition-transform duration-500 group-hover:-translate-y-1 sm:px-3 sm:py-2 sm:text-xs">
+                  Featured · Heritage Line
+                </div>
+                <div className="hidden rounded-2xl bg-mustard px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-ink transition-transform duration-500 group-hover:-translate-y-1 sm:block">
+                  New In
+                </div>
+              </div>
+            </div>
+            <div className="absolute -left-6 -top-6 hidden h-24 w-24 rotate-[-8deg] items-center justify-center rounded-full bg-primary/10 text-center text-[18px] font-bold uppercase leading-tight tracking-widest text-primary shadow-card md:flex animate-float">
+              20 %<br />off<br />
+            </div>
+          </div>
+
+          <div className="col-span-2 md:col-span-6 md:col-start-1">
             <div className="mt-6 flex flex-wrap gap-3 reveal-left" style={{ transitionDelay: "0.25s" }}>
-              {["Oxfords", "Heels", "Sneakers", "Loafers", "Casuals"].map((type) => (
-                <span key={type} className="rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary border border-primary/30">
+              {["Doctor shoes", "Heels", "Sports", "Boots", "High copy shoes"].map((type) => (
+                <span key={type} className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary xs:px-4 xs:py-2 xs:text-sm">
                   {type}
                 </span>
               ))}
             </div>
-            <p className="mt-8 max-w-md text-lg leading-relaxed text-muted-foreground reveal-left" style={{ transitionDelay: "0.35s" }}>
+            <p className="mt-6 max-w-md text-sm leading-6 text-muted-foreground sm:mt-8 sm:text-lg sm:leading-relaxed reveal-left" style={{ transitionDelay: "0.35s" }}>
               गोगो जुत्ता घर — the original shoe destination on Jagatsundar Marg, Kathmandu.
               Quality you can feel. Soles that survive monsoon. Service that remembers your name.
             </p>
-            <div className="mt-8 grid gap-3 text-sm sm:grid-cols-2 sm:gap-4 reveal-left" style={{ transitionDelay: "0.4s" }}>
-              <div className="rounded-3xl border border-border bg-card p-4">
+            <div className="mt-8 grid grid-cols-2 gap-2 text-xs xs:gap-3 xs:text-sm sm:gap-4 reveal-left" style={{ transitionDelay: "0.4s" }}>
+              <div className="rounded-2xl border border-border bg-card p-3 xs:p-4 sm:rounded-3xl">
                 <div className="flex items-center gap-2 text-primary"><MapPin className="h-4 w-4" /> GoGo Jutta Ghar</div>
                 <div className="mt-2 text-foreground/80">Jagatsundar Marg, Kathmandu 44600</div>
               </div>
-              <div className="rounded-3xl border border-border bg-card p-4">
+              <div className="rounded-2xl border border-border bg-card p-3 xs:p-4 sm:rounded-3xl">
                 <div className="flex items-center gap-2 text-primary"><Clock className="h-4 w-4" /> Open daily</div>
                 <div className="mt-2 text-foreground/80">9:00 AM – 8:00 PM</div>
               </div>
             </div>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center reveal-left" style={{ transitionDelay: "0.5s" }}>
-              <Button asChild size="lg" className="group h-12 w-full rounded-full bg-primary px-7 text-primary-foreground hover:bg-terracotta-deep transition-all duration-300 hover:scale-[1.03] hover:shadow-soft sm:w-auto">
-                <a className="w-full text-center" href="#collection">Browse the Collection <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>
+            <div className="mt-6 grid gap-3 xs:grid-cols-2 sm:flex sm:flex-wrap sm:items-center reveal-left" style={{ transitionDelay: "0.5s" }}>
+              <Button asChild size="lg" className="group h-12 w-full rounded-full bg-primary px-4 text-xs text-primary-foreground hover:bg-terracotta-deep transition-all duration-300 hover:scale-[1.03] hover:shadow-soft xs:text-sm sm:w-auto sm:px-7">
+                <a className="w-full text-center" href="#collection">Browse Shoes <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>
               </Button>
-              <Button asChild variant="outline" size="lg" className="group h-12 w-full rounded-full border border-ink bg-background text-ink hover:border-primary hover:text-primary transition-all duration-300 hover:shadow-soft sm:w-auto">
+              <Button asChild variant="outline" size="lg" className="group h-12 w-full rounded-full border border-ink bg-background px-4 text-xs text-ink hover:border-primary hover:text-primary transition-all duration-300 hover:shadow-soft xs:text-sm sm:w-auto sm:px-7">
                 <Link className="w-full text-center" to="/shop-floors">Tour Shop Floors</Link>
               </Button>
-              <Button asChild size="lg" className="group h-12 w-full rounded-full bg-ink text-ink-foreground hover:bg-ink/90 transition-all duration-300 hover:scale-[1.02] sm:w-auto">
+              <Button asChild size="lg" className="group h-12 w-full rounded-full bg-ink px-5 text-ink-foreground hover:bg-ink/90 transition-all duration-300 hover:scale-[1.02] xs:col-span-2 sm:w-auto sm:px-7">
                 <a className="w-full text-center" href={googleMapsUrl} target="_blank" rel="noreferrer">View on Google Maps <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>
               </Button>
             </div>
@@ -187,29 +214,6 @@ const Index = () => {
               </div>
               <span className="font-medium">4.3 on Google</span>
               <span className="text-muted-foreground">· loved by locals</span>
-            </div>
-          </div>
-
-          <div className="relative md:col-span-6 reveal-right" style={{ transitionDelay: "0.25s" }}>
-            <div className="group relative mx-auto aspect-[4/5] w-full max-w-[520px] overflow-hidden rounded-sm shadow-soft">
-              <img
-                src={heroShoes}
-                alt="Premium leather oxford and tan loafer on warm terracotta backdrop"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04] rounded-xl"
-                width={1600}
-                height={2000}
-              />
-              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between text-ink-foreground">
-                <div className="rounded-sm bg-ink/80 px-3 py-2 text-xs uppercase tracking-[0.2em] backdrop-blur transition-transform duration-500 group-hover:-translate-y-1">
-                  Featured · Heritage Line
-                </div>
-                <div className="rounded-sm bg-mustard px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-ink transition-transform duration-500 group-hover:-translate-y-1 ">
-                  New In
-                </div>
-              </div>
-            </div>
-            <div className="absolute -left-6 -top-6 hidden h-24 w-24 rotate-[-8deg] items-center justify-center rounded-full bg-primary/10 text-center text-[18px] font-bold uppercase leading-tight tracking-widest text-primary shadow-card md:flex animate-float">
-              20 %<br />off<br />
             </div>
           </div>
         </div>
@@ -230,22 +234,22 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="bg-background py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="rounded-[2rem] bg-card px-6 py-10 shadow-soft reveal">
-            <p className="text-sm uppercase tracking-[0.35em] text-primary">Signature Offerings</p>
-            <h2 className="mt-4 text-4xl font-black tracking-tight text-ink">Services tailored for Kathmandu homes.</h2>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <section className="bg-background py-12 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 xs:px-5 sm:px-6">
+          <div className="rounded-2xl bg-card px-4 py-7 shadow-soft xs:px-5 xs:py-8 sm:rounded-[2rem] sm:px-6 sm:py-10 reveal">
+            <p className="text-xs uppercase tracking-[0.22em] text-primary sm:text-sm sm:tracking-[0.35em]">Signature Offerings</p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-ink xs:text-4xl">Services tailored for Kathmandu homes.</h2>
+            <div className="mt-7 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
               {services.map((service) => {
                 const Icon = service.icon;
                 return (
-                  <div key={service.title} className="rounded-[2rem] border border-border bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                    <div className={`inline-flex h-14 w-14 items-center justify-center rounded-3xl ${service.accent}`}>
-                      <Icon className="h-6 w-6" />
+                  <div key={service.title} className="rounded-2xl border border-border bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:rounded-[2rem] sm:p-8">
+                    <div className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl xs:h-11 xs:w-11 sm:h-14 sm:w-14 sm:rounded-3xl ${service.accent}`}>
+                      <Icon className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6" />
                     </div>
-                    <h3 className="mt-6 text-xl font-semibold text-ink">{service.title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-foreground/70">{service.description}</p>
-                    <div className="mt-6 text-sm font-semibold text-primary">Discuss this service →</div>
+                    <h3 className="mt-4 text-sm font-semibold leading-tight text-ink xs:text-base sm:mt-6 sm:text-xl">{service.title}</h3>
+                    <p className="mt-2 line-clamp-5 text-[11px] leading-5 text-foreground/70 xs:text-xs sm:mt-3 sm:text-sm sm:leading-6">{service.description}</p>
+                    <div className="mt-4 text-xs font-semibold text-primary xs:text-sm sm:mt-6">Discuss service →</div>
                   </div>
                 );
               })}
@@ -255,17 +259,17 @@ const Index = () => {
       </section>
 
       {/* ── Collection ── */}
-      <section id="collection" className="relative mx-auto max-w-7xl px-6 py-24">
+      <section id="collection" className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:py-24">
         {/* Subtle background animation */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
           <div className="absolute -right-40 -top-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -left-40 -bottom-40 w-80 h-80 bg-mustard/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
         </div>
 
-        <div className="mb-12 flex items-end justify-between gap-6 reveal">
+        <div className="mb-8 flex items-end justify-between gap-6 sm:mb-12 reveal">
           <div>
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 02 — The Shelf</p>
-            <h2 className="font-serif text-5xl font-black tracking-tight md:text-6xl">This week, in store.</h2>
+            <p className="mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.25em]">§ 02 — The Shelf</p>
+            <h2 className="font-serif text-3xl font-black tracking-tight sm:text-5xl md:text-6xl">This week, in store.</h2>
           </div>
           <p className="hidden max-w-xs text-sm text-muted-foreground md:block">
             A rotating selection of what just came in. Try them on — there's chai while you wait.
@@ -273,12 +277,12 @@ const Index = () => {
         </div>
 
         <div className="overflow-hidden rounded-xl">
-          <div ref={sliderRef} className="flex gap-6 overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory rounded-xl">
+          <div ref={sliderRef} className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-6 xl:pb-8">
             {collections.map((item, i) => (
               <article
                 key={item.name}
-                className="snap-start flex-none w-full sm:w-[min(38vw,32rem)] lg:w-[24rem] group reveal relative overflow-hidden rounded-sm bg-card shadow-card transition-all duration-500 hover:-translate-y-2 hover:shadow-soft"
-                style={{ transitionDelay: `${i * 90}ms` }}
+                className="snap-start flex-none w-[80vw] sm:w-[60vw] lg:w-[42vw] xl:w-[32rem] group relative overflow-hidden rounded-[1.5rem] bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
+                style={{ transitionDelay: `${i * 80}ms` }}
               >
                 <div className="aspect-[11/14] overflow-hidden bg-muted">
                   <img
@@ -287,33 +291,41 @@ const Index = () => {
                     loading="lazy"
                     width={800}
                     height={1000}
-                    className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110 group-hover:rotate-[0.5deg]"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                 </div>
-                <div className="flex items-center justify-between p-5 transition-colors duration-300 group-hover:bg-secondary/40">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{item.category}</p>
-                    <h3 className="mt-1 font-serif text-xl font-bold transition-colors duration-300 group-hover:text-primary">{item.name}</h3>
+                <div className="space-y-2 p-5">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px]">
+                      {item.category}
+                    </p>
+                    <span className="rounded-full bg-background/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-ink shadow-sm">
+                      № {String(i + 1).padStart(2, "0")}
+                    </span>
                   </div>
+                  <h3 className="font-serif text-lg font-bold text-foreground sm:text-xl">
+                    {item.name}
+                  </h3>
+                  {item.trending && (
+                    <p className="text-sm text-muted-foreground">
+                      Trending right now — the most requested pair in store.
+                    </p>
+                  )}
                 </div>
-                <div className="absolute left-3 top-3 rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur transition-all duration-500 group-hover:bg-mustard group-hover:text-ink">
-                  №&nbsp;{String(i + 1).padStart(2, "0")}
-                </div>
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-0 bg-gradient-to-t from-ink/20 to-transparent transition-all duration-500 group-hover:h-1/3" />
               </article>
             ))}
           </div>
-          <div className="mt-4 flex justify-center gap-2">
-            {collections.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => setActiveSlide(index)}
-                className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${index === activeSlide ? "bg-primary" : "bg-muted-foreground/70 hover:bg-primary"}`}
-                aria-label={`Slide ${index + 1}`}
-              />
-            ))}
-          </div>
+        </div>
+        <div className="mt-6 flex justify-center gap-2">
+          {collections.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => setActiveSlide(index)}
+              className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${index === activeSlide ? "bg-primary" : "bg-muted-foreground/70 hover:bg-primary"}`}
+              aria-label={`Slide ${index + 1}`}
+            />
+          ))}
         </div>
         <div className="mt-10 flex justify-center">
           <Button asChild size="lg" className="h-12 rounded-full bg-primary px-7 text-primary-foreground hover:bg-terracotta-deep">
@@ -332,14 +344,14 @@ const Index = () => {
           <div className="absolute -left-50 bottom-1/4 w-96 h-96 bg-mustard/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "3s" }}></div>
         </div>
 
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 py-24 md:grid-cols-12 relative z-10">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-9 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-12 md:gap-16 lg:py-24">
           <div className="md:col-span-5 reveal-left">
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 03 — Our Story</p>
-            <h2 className="font-serif text-5xl font-black leading-[1.05] tracking-tight md:text-6xl">
+            <p className="mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.25em]">§ 03 — Our Story</p>
+            <h2 className="font-serif text-3xl font-black leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
               A shoe shop that <em className="text-primary not-italic">remembers</em> who you are.
             </h2>
           </div>
-          <div className="space-y-6 text-lg leading-relaxed text-foreground/80 md:col-span-7 md:pl-10 reveal-right">
+          <div className="space-y-5 text-base leading-7 text-foreground/80 sm:text-lg sm:leading-relaxed md:col-span-7 md:pl-10 reveal-right">
             <p>
               We opened on Jagatsundar Marg with a single shelf, a stool, and a radio that
               only played old Nepali songs. Two decades later — the radio is the same, the shelves
@@ -350,15 +362,15 @@ const Index = () => {
               from Patan to Boudha and back. Every pair on the shelf passed through hands
               that know what a sole should feel like.
             </p>
-            <div className="mt-8 grid grid-cols-3 gap-6 border-t border-border pt-8">
+            <div className="mt-8 grid grid-cols-3 gap-3 border-t border-border pt-7 sm:gap-6 sm:pt-8">
               {[
                 { n: "20+", l: "Years on the street" },
                 { n: "11k", l: "Pairs fitted" },
                 { n: "4.3", l: "Stars, and rising" },
               ].map((s, i) => (
                 <div key={s.l} className="reveal" style={{ transitionDelay: `${i * 120}ms` }}>
-                  <div className="font-serif text-4xl font-black text-primary transition-transform duration-300 hover:scale-110 inline-block">{s.n}</div>
-                  <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.l}</div>
+                  <div className="inline-block font-serif text-3xl font-black text-primary transition-transform duration-300 hover:scale-110 sm:text-4xl">{s.n}</div>
+                  <div className="mt-1 text-[10px] uppercase leading-4 tracking-[0.08em] text-muted-foreground sm:text-xs sm:tracking-widest">{s.l}</div>
                 </div>
               ))}
             </div>
@@ -367,80 +379,81 @@ const Index = () => {
       </section>
 
       {/* ── Craft ── */}
-      <section id="craft" className="relative mx-auto max-w-7xl px-6 py-24">
+      <section id="craft" className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:py-24">
         {/* Background animation */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
           <div className="absolute -right-40 -top-40 w-80 h-80 bg-accent/8 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -left-40 -bottom-40 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1.5s" }}></div>
         </div>
 
-        <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground reveal">§ 04 — The Craft</p>
-        <h2 className="mb-14 max-w-3xl font-serif text-5xl font-black tracking-tight md:text-6xl reveal">
+        <p className="mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.25em] reveal">§ 04 — The Craft</p>
+        <h2 className="mb-8 max-w-3xl font-serif text-3xl font-black tracking-tight sm:mb-12 sm:text-5xl md:text-6xl reveal">
           Three things we refuse to compromise on.
         </h2>
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-sm bg-border md:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {[
-         { t: "Genuine Quality", d: "Sourced, conditioned and stitched to last more than a season. We'd rather sell less than sell rubbish." },
-            { t: "Honest Fit", d: "We measure both feet. We'll tell you when a shoe doesn't suit you — even the ones we love." },
-            { t: "Open Door", d: "Browse for an hour, sit with a cup of tea, bring the whole family. The shop belongs to the street." },
+            { t: "Genuine Quality", m: "Built to last.", d: "Sourced, conditioned and stitched to last more than a season. We'd rather sell less than sell rubbish." },
+            { t: "Honest Fit", m: "Measured properly.", d: "We measure both feet. We'll tell you when a shoe doesn't suit you — even the ones we love." },
+            { t: "Open Door", m: "Walk in anytime.", d: "Browse for an hour, sit with a cup of tea, bring the whole family. The shop belongs to the street." },
           ].map((c, i) => (
-            <div key={c.t} className="group bg-card p-10 reveal transition-colors duration-500 hover:bg-secondary/60" style={{ transitionDelay: `${i * 140}ms` }}>
-              <div className="font-serif text-6xl font-black text-mustard transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105">0{i + 1}</div>
-              <h3 className="mt-6 font-serif text-2xl font-bold transition-colors duration-300 group-hover:text-primary">{c.t}</h3>
-              <p className="mt-3 text-muted-foreground">{c.d}</p>
+            <div key={c.t} className="group aspect-square overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:bg-secondary/60 hover:shadow-soft sm:aspect-auto sm:rounded-[1.75rem] sm:p-8 lg:p-10 reveal" style={{ transitionDelay: `${i * 140}ms` }}>
+              <div className="font-serif text-3xl font-black leading-none text-mustard transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105 sm:text-6xl">0{i + 1}</div>
+              <h3 className="mt-3 font-serif text-[13px] font-bold leading-tight transition-colors duration-300 group-hover:text-primary sm:mt-6 sm:text-2xl">{c.t}</h3>
+              <p className="mt-1 text-[10px] leading-4 text-muted-foreground sm:hidden">{c.m}</p>
+              <p className="mt-3 hidden text-base leading-7 text-muted-foreground sm:block">{c.d}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Contact ── */}
-      <section id="contact" className="bg-secondary/30 py-24 relative">
+      <section id="contact" className="relative bg-secondary/30 py-14 sm:py-20 lg:py-24">
         {/* Background animation */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
           <div className="absolute right-0 top-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute left-0 bottom-0 w-96 h-96 bg-mustard/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2.5s" }}></div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-6 relative z-10">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
 
           {/* Header */}
-          <div className="mb-12 text-center reveal">
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 05 — सम्पर्क · Contact</p>
-            <h2 className="font-serif text-5xl font-black tracking-tight md:text-6xl">Talk directly with the team.</h2>
+          <div className="mb-10 text-center sm:mb-12 reveal">
+            <p className="mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.25em]">§ 05 — सम्पर्क · Contact</p>
+            <h2 className="font-serif text-3xl font-black tracking-tight sm:text-5xl md:text-6xl">Talk directly with the team.</h2>
             <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
               For direct orders, Instagram enquiries, and WhatsApp support — these are the people ready to help.
             </p>
           </div>
 
           {/* Store info cards */}
-          <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-2 max-w-2xl mx-auto reveal">
-            <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
-              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Store Line</p>
-              <p className="mt-3 text-2xl font-semibold text-ink">+977 9841 898 731</p>
-              <p className="mt-2 text-sm text-foreground/70">Immediate orders & enquiries</p>
+          <div className="mx-auto mb-10 grid max-w-2xl grid-cols-2 gap-3 sm:mb-12 sm:gap-4 lg:grid-cols-2 reveal">
+            <div className="rounded-2xl border border-border bg-card p-4 text-center shadow-soft sm:rounded-3xl sm:p-6">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:text-xs sm:tracking-[0.25em]">Store Line</p>
+              <p className="mt-3 text-base font-semibold text-ink sm:text-2xl">+977 9841 898 731</p>
+              <p className="mt-2 text-xs leading-5 text-foreground/70 sm:text-sm">Immediate orders & enquiries</p>
             </div>
-            <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-soft">
-              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Visit</p>
-              <p className="mt-3 text-2xl font-semibold text-ink">Jagatsundar Marg</p>
-              <p className="mt-2 text-sm text-foreground/70">Open daily · Walk-ins welcome</p>
+            <div className="rounded-2xl border border-border bg-card p-4 text-center shadow-soft sm:rounded-3xl sm:p-6">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:text-xs sm:tracking-[0.25em]">Visit</p>
+              <p className="mt-3 text-base font-semibold text-ink sm:text-2xl">Jagatsundar Marg</p>
+              <p className="mt-2 text-xs leading-5 text-foreground/70 sm:text-sm">Open daily · Walk-ins welcome</p>
             </div>
           </div>
 
           {/* Staff cards — 3 column grid */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 xs:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {staffContacts.map((contact, i) => (
               <div
-   
-                className="group reveal rounded-[2rem] border border-border bg-card shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-lg p-6 space-y-4"
+                key={contact.role}
+                className="group space-y-3 rounded-2xl border border-border bg-card p-4 shadow-soft transition-all duration-500 hover:-translate-y-2 hover:shadow-lg sm:space-y-4 sm:rounded-[2rem] sm:p-6 reveal"
                 style={{ transitionDelay: `${i * 100}ms` }}
               >
                 {/* Content */}
                 <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">{contact.role}</p>
+                  <p className="text-[10px] uppercase leading-4 tracking-[0.08em] text-muted-foreground sm:text-xs sm:tracking-[0.25em]">{contact.role}</p>
 
                 </div>
-                <p className="text-sm text-foreground/70">{contact.note}</p>
-                <div className="space-y-2 text-sm border-t border-border pt-4">
+                <p className="text-xs leading-5 text-foreground/70 sm:text-sm">{contact.note}</p>
+                <div className="space-y-2 border-t border-border pt-4 text-xs sm:text-sm">
                   <p className="text-muted-foreground">{contact.purpose}</p>
                   <p>
                     <span className="font-semibold">Phone: </span>
@@ -453,7 +466,7 @@ const Index = () => {
                 <a href={contact.actionHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex w-full items-center justify-center rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-all duration-300 hover:bg-terracotta-deep hover:scale-[1.02]"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground transition-all duration-300 hover:bg-terracotta-deep hover:scale-[1.02] sm:px-4 sm:py-3 sm:text-sm"
                 >
                   {contact.actionLabel}
                 </a>
@@ -464,21 +477,21 @@ const Index = () => {
       </section>
 
       {/* ── Video Short ── */}
-      <section id="video" className="relative mx-auto max-w-7xl px-6 py-24">
+      <section id="video" className="relative mx-auto max-w-7xl px-4 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-20 lg:pb-16 lg:pt-24">
         {/* Background animation */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
           <div className="absolute -right-40 -top-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -left-40 -bottom-40 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
         </div>
 
-        <div className="flex flex-col items-center gap-12 md:flex-row md:items-center md:gap-20 relative z-10">
+        <div className="relative z-10 grid grid-cols-[minmax(0,1fr)_minmax(150px,46vw)] items-center gap-4 sm:gap-10 md:grid-cols-12 md:gap-20">
 
-          <div className="flex-1 space-y-5 reveal-left">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">§ 06 — See the Shop</p>
-            <h2 className="font-serif text-5xl font-black tracking-tight md:text-6xl">
+          <div className="min-w-0 space-y-3 sm:space-y-5 md:col-span-7 reveal-left">
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground sm:text-xs sm:tracking-[0.25em]">§ 06 — See the Shop</p>
+            <h2 className="font-serif text-2xl font-black tracking-tight xs:text-3xl sm:text-5xl md:text-6xl">
               Step inside <em className="not-italic text-primary">GoGo</em> before you arrive.
             </h2>
-            <p className="max-w-md text-lg leading-relaxed text-muted-foreground">
+            <p className="max-w-md text-xs leading-5 text-muted-foreground xs:text-sm sm:text-lg sm:leading-relaxed">
               A quick look at the shop, the shelves, and the people behind the counter — straight from our social media.
             </p>
             
@@ -492,8 +505,8 @@ const Index = () => {
           </div>
 
           {/* Video player */}
-          <div className="w-full max-w-[300px] mx-auto md:mx-0 reveal-right">
-            <div className="aspect-[9/16] overflow-hidden rounded-[2rem] bg-black shadow-soft ring-1 ring-border">
+          <div className="mx-auto w-full max-w-[15.5rem] sm:max-w-[20rem] md:col-span-5 md:mx-0 md:max-w-[360px] reveal-right">
+            <div className="aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-black shadow-soft ring-1 ring-border md:aspect-[9/16] md:rounded-[2rem]">
               {playing ? (
                 <iframe
                   src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
@@ -513,14 +526,14 @@ const Index = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                   {/* Play button */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary shadow-2xl ring-4 ring-white/20 transition-transform duration-300 hover:scale-110">
-                      <svg className="h-8 w-8 translate-x-1 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary shadow-2xl ring-4 ring-white/20 transition-transform duration-300 hover:scale-110 sm:h-20 sm:w-20">
+                      <svg className="h-5 w-5 translate-x-0.5 text-white sm:h-8 sm:w-8 sm:translate-x-1" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </div>
                   </div>
                   {/* Bottom label */}
-                  <div className="absolute bottom-5 left-4 right-4 rounded-2xl bg-black/60 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-widest text-white backdrop-blur">
+                  <div className="absolute bottom-3 left-3 right-3 hidden rounded-2xl bg-black/60 px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-widest text-white backdrop-blur xs:block">
                     Watch the Shop Tour ▶
                   </div>
                 </div>
@@ -532,61 +545,77 @@ const Index = () => {
       </section>
 
       {/* ── Visit ── */}
-      <section id="visit" className="bg-ink text-ink-foreground relative">
-        {/* Background animation */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-          <div className="absolute -right-50 top-1/4 w-96 h-96 bg-mustard/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -left-50 bottom-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "3s" }}></div>
+      <section id="visit" className="relative border-t border-border/80 bg-secondary/35 py-14 sm:py-20 lg:py-24">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -right-32 top-8 h-72 w-72 rounded-full bg-mustard/10 blur-3xl animate-pulse"></div>
+          <div className="absolute -left-32 bottom-4 h-72 w-72 rounded-full bg-primary/5 blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
         </div>
 
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 py-24 md:grid-cols-12 relative z-10">
-          <div className="md:col-span-5 reveal-left">
-            <p className="mb-3 text-xs uppercase tracking-[0.25em] text-mustard">§ 07 — Visit</p>
-            <h2 className="font-serif text-5xl font-black leading-[1.05] tracking-tight md:text-6xl">
-              Come in. <br /><em className="not-italic text-mustard">Try a pair.</em>
+        <div className="relative z-10 mx-auto mb-10 flex max-w-7xl items-center gap-4 px-4 sm:px-6">
+          <span className="h-px flex-1 bg-border" />
+          <span className="rounded-full border border-border bg-background px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+           Find us
+          </span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_minmax(150px,46vw)] items-center gap-4 px-4 sm:gap-10 sm:px-6 md:grid-cols-12 md:gap-20">
+          <div className="min-w-0 space-y-4 md:col-span-7">
+            <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground sm:text-xs sm:tracking-[0.25em]">§ 07 — Visit</p>
+            <h2 className="font-serif text-2xl font-black leading-[1.08] tracking-tight xs:text-3xl sm:text-5xl md:text-6xl">
+              Come in. <br /><em className="not-italic text-primary">Try a pair.</em>
             </h2>
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-ink-foreground/70">
+            <p className="max-w-md text-xs leading-5 text-muted-foreground xs:text-sm sm:text-lg sm:leading-relaxed">
               We're easiest to find on foot. Look for the wooden door and the shoes drying outside.
             </p>
-            <ul className="mt-10 space-y-5 text-base">
+            <ul className="space-y-3 text-xs xs:text-sm sm:space-y-5 sm:text-base">
               <li className="group flex gap-4 transition-transform duration-300 hover:translate-x-1">
-                <MapPin className="mt-1 h-5 w-5 text-mustard transition-transform duration-300 group-hover:scale-125" />
-                <div>
-                  <div className="font-medium">Jagatsundar Marg</div>
-                  <div className="text-ink-foreground/60">P856+3Q9, Kathmandu 44600, Nepal</div>
+                <MapPin className="mt-1 h-4 w-4 shrink-0 text-primary transition-transform duration-300 group-hover:scale-125 sm:h-5 sm:w-5" />
+                <div className="min-w-0">
+                  <div className="font-medium text-ink">Jagatsundar Marg</div>
+                  <div className="text-muted-foreground">P856+3Q9, Kathmandu 44600</div>
                 </div>
               </li>
               <li className="group flex gap-4 transition-transform duration-300 hover:translate-x-1">
-                <Clock className="mt-1 h-5 w-5 text-mustard transition-transform duration-300 group-hover:rotate-12" />
-                <div>
-                  <div className="font-medium">Open every day</div>
-                  <div className="text-ink-foreground/60">9:00 AM – 8:00 PM</div>
+                <Clock className="mt-1 h-4 w-4 shrink-0 text-primary transition-transform duration-300 group-hover:rotate-12 sm:h-5 sm:w-5" />
+                <div className="min-w-0">
+                  <div className="font-medium text-ink">Open every day</div>
+                  <div className="text-muted-foreground">9:00 AM - 8:00 PM</div>
                 </div>
               </li>
-              <li className="group flex gap-4 transition-transform duration-300 hover:translate-x-1">
-                <Phone className="mt-1 h-5 w-5 text-mustard transition-transform duration-300 group-hover:scale-125" />
-                <div>
-                  <div className="font-medium">Walk in or message</div>
-                  <div className="text-ink-foreground/60">No appointment needed</div>
+              <li className="hidden gap-4 transition-transform duration-300 hover:translate-x-1 sm:flex">
+                <Phone className="mt-1 h-5 w-5 shrink-0 text-primary transition-transform duration-300 group-hover:scale-125" />
+                <div className="min-w-0">
+                  <div className="font-medium text-ink">Walk in or message</div>
+                  <div className="text-muted-foreground">No appointment needed</div>
                 </div>
               </li>
             </ul>
-            <Button asChild size="lg" className="group mt-10 h-12 rounded-full bg-mustard px-7 text-ink hover:bg-mustard/90 transition-all duration-300 hover:scale-105 hover:shadow-soft">
+            <Button asChild size="lg" className="group h-11 rounded-full bg-primary px-5 text-xs text-primary-foreground hover:bg-terracotta-deep sm:h-12 sm:px-7 sm:text-sm">
               <a href={googleMapsUrl} target="_blank" rel="noreferrer">
                 Get Directions <ArrowUpRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
             </Button>
           </div>
 
-          <div className="md:col-span-7 reveal-right">
-            <div className="overflow-hidden rounded-sm border border-ink-foreground/10 shadow-soft transition-transform duration-500 hover:scale-[1.01]">
-              <iframe
-                title="GoGo Jutta Ghar location"
-                src="https://www.google.com/maps?q=GoGo+Jutta+Ghar,+Jagatsundar+Marg,+Kathmandu&z=17&output=embed"
-                className="h-[460px] w-full"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+          <div className="mx-auto w-full max-w-[16rem] sm:max-w-[22rem] md:col-span-5 md:mx-0 md:max-w-[480px]">
+            <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card p-2 shadow-soft ring-1 ring-border sm:p-3 md:rounded-[2rem]">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[1.25rem] bg-[#f5efe6] md:rounded-[1.5rem]">
+                <iframe
+                  title="GoGo Jutta Ghar map"
+                  src="https://maps.google.com/maps?q=Jagatsundar%20Marg%20Kathmandu%20Nepal&z=17&output=embed"
+                  className="h-full w-full border-0"
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+              <div className="flex items-center justify-between gap-3 px-2 py-3 text-xs sm:px-3 sm:text-sm">
+                <span className="font-semibold text-ink">GoGo Jutta Ghar location</span>
+                <a href={googleMapsUrl} target="_blank" rel="noreferrer" className="shrink-0 font-semibold text-primary hover:underline">
+                  Open map
+                </a>
+              </div>
             </div>
           </div>
         </div>

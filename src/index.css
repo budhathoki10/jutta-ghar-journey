@@ -1,9 +1,9 @@
+/* GoGo Jutta Ghar — warm editorial Nepali shoe boutique design system */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800;9..144,900&family=Inter:wght@300;400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* GoGo Jutta Ghar — warm editorial Nepali shoe boutique design system */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800;9..144,900&family=Inter:wght@300;400;500;600&display=swap');
 
 @layer base {
   :root {
@@ -88,7 +88,9 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "ss01", "ss02";
+    overflow-x: hidden;
   }
+  img, video, iframe { max-width: 100%; }
   h1, h2, h3, h4 { @apply font-serif tracking-tight; }
 }
 
@@ -130,8 +132,8 @@
   .bubble {
     position: absolute;
     border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.12), hsl(var(--mustard) / 0.04));
+    border: 1px solid hsl(var(--border) / 0.45);
     pointer-events: none;
   }
 
@@ -181,7 +183,7 @@
   .hero-shape-1 {
     width: 20rem;
     height: 20rem;
-    background: radial-gradient(circle, rgba(59,130,246,0.22), transparent 58%);
+    background: radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 58%);
     left: -4rem;
     top: 3rem;
     animation: drift 18s ease-in-out infinite;
@@ -190,7 +192,7 @@
   .hero-shape-2 {
     width: 18rem;
     height: 18rem;
-    background: radial-gradient(circle, rgba(251,191,36,0.18), transparent 56%);
+    background: radial-gradient(circle, hsl(var(--mustard) / 0.14), transparent 56%);
     right: -5rem;
     top: 10rem;
     animation: drift-slow 22s ease-in-out infinite;
@@ -199,7 +201,7 @@
   .hero-shape-3 {
     width: 24rem;
     height: 24rem;
-    background: radial-gradient(circle, rgba(249,115,22,0.12), transparent 64%);
+    background: radial-gradient(circle, hsl(var(--primary) / 0.08), transparent 64%);
     left: 10%;
     bottom: -5rem;
     animation: drift 20s ease-in-out infinite reverse;
@@ -256,6 +258,16 @@
     .hero-shape-3 { width: 14rem; height: 14rem; left: 6%; bottom: -3rem; }
 
     .marquee { font-size: 1rem; }
+
+    .reveal-left,
+    .reveal-right {
+      transform: translateY(28px);
+    }
+
+    .reveal-left.in-view,
+    .reveal-right.in-view {
+      transform: translateY(0);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

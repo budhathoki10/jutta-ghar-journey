@@ -3,17 +3,9 @@ import { Link } from "react-router-dom";
 import { Search, Sparkles, SlidersHorizontal, X, LayoutGrid, LayoutList } from "lucide-react";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { useReveal } from "@/hooks/use-reveal";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -26,6 +18,7 @@ const GENDER_CATEGORIES: Record<string, string[]> = {
 const ProductCatalog = () => {
   const [shoes, setShoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [search, setSearch] = useState("");
   const [gender, setGender] = useState("all");
   const [category, setCategory] = useState("all");
@@ -39,8 +32,14 @@ const ProductCatalog = () => {
 
   useEffect(() => {
     fetchShoes()
-      .then((res) => setShoes(res.data.data || []))
-      .catch(console.error)
+      .then((res) => {
+        setShoes(res.data.data || []);
+        setLoadError("");
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoadError("We couldn't load the live catalog. Please call or message the shop for current stock.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -118,6 +117,7 @@ const ProductCatalog = () => {
 
   const pageCount = Math.max(1, Math.ceil(sortedShoes.length / ITEMS_PER_PAGE));
   const paginated = sortedShoes.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const showPagination = pageCount > 1;
 
   const paginationRange = useMemo(() => {
     const range: Array<number | string> = [];
@@ -136,6 +136,8 @@ const ProductCatalog = () => {
   useEffect(() => {
     setPage(1);
   }, [search, gender, category, brand, size, trendingOnly, sort]);
+
+  useReveal([loading, paginated.length, page, viewMode]);
 
   // Count active filters for badge
   const activeFilterCount = [
@@ -175,22 +177,22 @@ const ProductCatalog = () => {
 
       {/* Search */}
       <div className="space-y-2">
-        <label className="block text-[10px] uppercase tracking-[0.32em] text-slate-500">Search</label>
+        <label className="block text-[10px] uppercase tracking-[0.24em] text-slate-500">Search</label>
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Name, brand, type, gender…"
-            className="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-xs text-slate-900 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+            placeholder="Search shoes, brand, type"
+            className="w-full rounded-full border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm text-slate-900 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
           />
         </div>
       </div>
 
       {/* Gender */}
       <div className="space-y-2">
-        <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground">Gender</label>
-        <div className="grid grid-cols-3 gap-2">
+        <label className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-foreground">Gender</label>
+        <div className="grid grid-cols-2 gap-2">
           {[
             { label: 'All', value: 'all' },
             { label: 'Men', value: 'male' },
@@ -202,7 +204,7 @@ const ProductCatalog = () => {
               type="button"
               onClick={() => setGender(option.value)}
               className={cn(
-                'rounded-2xl border px-3 py-2 text-sm font-medium transition',
+                'rounded-2xl border px-3 py-2.5 text-sm font-medium transition',
                 gender === option.value
                   ? 'border-primary bg-primary/10 text-primary'
                   : 'border-border bg-background text-foreground hover:border-primary'
@@ -216,8 +218,8 @@ const ProductCatalog = () => {
 
       {/* Shoe type */}
       <div className="space-y-2">
-        <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground">Shoe type</label>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-xl border border-border px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+        <label className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-foreground">Shoe type</label>
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full rounded-2xl border border-border bg-white px-3 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           {categories.map((item) => (
             <option key={item} value={item}>{item === "all" ? "All categories" : item}</option>
           ))}
@@ -226,8 +228,8 @@ const ProductCatalog = () => {
 
       {/* Brand */}
       <div className="space-y-2">
-        <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground">Brand</label>
-        <select value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full rounded-xl border border-border px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+        <label className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-foreground">Brand</label>
+        <select value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full rounded-2xl border border-border bg-white px-3 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           {brands.map((item) => (
             <option key={item} value={item}>{item === "all" ? "All brands" : item}</option>
           ))}
@@ -236,8 +238,8 @@ const ProductCatalog = () => {
 
       {/* Size */}
       <div className="space-y-2">
-        <label className="block text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground">Available size</label>
-        <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full rounded-xl border border-border px-3 py-2 text-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+        <label className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-foreground">Available size</label>
+        <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full rounded-2xl border border-border bg-white px-3 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           {sizes.map((item) => (
             <option key={item} value={item}>{item === "all" ? "All sizes" : item}</option>
           ))}
@@ -245,7 +247,7 @@ const ProductCatalog = () => {
       </div>
 
       {/* Trending toggle */}
-      <div className="flex items-center justify-between gap-3 rounded-3xl border border-border bg-background p-4">
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-background p-4">
         <div>
           <p className="text-sm font-semibold">Trending</p>
           <p className="text-xs text-muted-foreground">Show only trending shoes</p>
@@ -264,29 +266,33 @@ const ProductCatalog = () => {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-14 bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-14 lg:pt-16">
 
       {/* Page header */}
       <ScrollReveal delay={100}>
-        <div className="mb-8 sm:mb-12 grid gap-5 lg:grid-cols-[1.6fr_auto] items-start">
-          <div className="text-center lg:text-left">
-            <p className="text-[11px] uppercase tracking-[0.35em] text-slate-500">Product Catalog</p>
-            <h1 className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">Browse our catalog of shoes</h1>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600 lg:max-w-none">
-              Discover doctor chappal, sports shoes, sandals, heels, boots and top branded collections with a clean and compact browsing experience.
-            </p>
-          </div>
-          <div className="flex items-center justify-center lg:justify-end">
-            <Button asChild variant="outline" className="rounded-full px-4 py-2 text-xs sm:text-sm font-semibold">
-              <Link to="/admin/login">Admin Login</Link>
-            </Button>
+        <div className="mb-8 rounded-[1.75rem] bg-secondary/35 px-4 py-8 shadow-soft sm:mb-12 sm:px-8 sm:py-10 lg:px-10">
+          <div className="mx-auto max-w-3xl text-center lg:mx-0 lg:text-left">
+            <p className="text-[11px] uppercase tracking-[0.35em] text-primary">Product Catalog</p>
+            <h1 className="mt-2 text-2xl font-black tracking-tight text-ink xs:text-3xl sm:text-4xl">Browse shoes at GoGo Jutta Ghar</h1>
+            <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:items-center lg:items-start">
+              <p className="mx-auto max-w-2xl text-sm leading-6 text-muted-foreground lg:mx-0 lg:max-w-none">
+                Discover doctor chappal, sports shoes, sandals, heels, boots and branded collections with quick filters made for mobile browsing.
+              </p>
+              <Link
+                to="/admin/login"
+                className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-primary"
+              >
+                Admin login
+              </Link>
+            </div>
           </div>
         </div>
       </ScrollReveal>
 
       {/* Mobile filter toggle button */}
       <div className="mb-3 sm:mb-4 flex items-center justify-between lg:hidden">
-        <p className="text-xs sm:text-sm text-muted-foreground">{filteredShoes.length} items found</p>
+        <p className="text-xs sm:text-sm text-muted-foreground">{filteredShoes.length} shoes found</p>
         <button
           onClick={() => setFiltersOpen(true)}
           className="relative inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold shadow-sm transition hover:border-primary hover:text-primary"
@@ -310,9 +316,9 @@ const ProductCatalog = () => {
             onClick={() => setFiltersOpen(false)}
           />
           {/* Drawer */}
-          <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-3xl border-t border-border bg-background p-4 sm:p-6 shadow-2xl">
+          <div className="absolute bottom-0 left-0 right-0 max-h-[88svh] overflow-y-auto rounded-t-3xl border-t border-border bg-background p-4 shadow-2xl sm:p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base sm:text-lg font-bold text-ink">Filter Shoes</h3>
+              <h3 className="text-base sm:text-lg font-bold text-ink">Filter shoes</h3>
               <button
                 onClick={() => setFiltersOpen(false)}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-secondary"
@@ -322,7 +328,7 @@ const ProductCatalog = () => {
             </div>
             <FilterPanel />
             <Button
-              className="mt-4 sm:mt-6 w-full rounded-full text-xs sm:text-sm"
+              className="sticky bottom-0 mt-4 sm:mt-6 w-full rounded-full text-sm"
               onClick={() => setFiltersOpen(false)}
             >
               Show {filteredShoes.length} results
@@ -333,44 +339,44 @@ const ProductCatalog = () => {
 
       {/* Main grid */}
       <ScrollReveal delay={200}>
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_1fr]">
+        <div className="grid gap-5 sm:gap-7 lg:grid-cols-[280px_1fr]">
 
 
         {/* Desktop sidebar — always visible on lg+ */}
-        <aside className="hidden lg:block space-y-4 sm:space-y-6 self-start rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-sm sticky top-24">
+        <aside className="sticky top-24 hidden self-start rounded-[1.75rem] border border-border bg-card p-5 shadow-soft lg:block">
           <FilterPanel />
         </aside>
 
         {/* Results */}
         <section className="space-y-4 sm:space-y-8">
-          <div className="rounded-[2rem] border border-border bg-card p-3 sm:p-6 shadow-sm">
-            <div className="flex flex-col gap-3 sm:gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="rounded-[1.75rem] border border-border bg-card p-4 shadow-card sm:p-6 lg:p-8">
+            <div className="flex flex-col gap-4 sm:gap-5 xl:flex-row xl:items-center xl:justify-between">
               <div className="max-w-2xl">
-                <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-muted-foreground">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground sm:text-xs">
                   {search.trim()
                     ? `Showing results for "${search.trim()}"`
                     : category !== 'all'
                     ? `Showing results for ${category}`
                     : 'Showing all products'}
                 </p>
-                <h2 className="mt-2 sm:mt-3 text-2xl sm:text-3xl font-black tracking-tight text-ink">
+                <h2 className="mt-2 text-xl font-black tracking-tight text-ink xs:text-2xl sm:mt-3 sm:text-3xl">
                   Curated shoe collections for every step.
                 </h2>
-                <p className="mt-2 sm:mt-3 text-xs sm:text-sm leading-5 sm:leading-6 text-foreground/75">
-                  Compact browsing cards, live filters, and effortless product discovery in a clean storefront layout.
+                <p className="mt-2 text-sm leading-6 text-foreground/75">
+                  Tap filters, compare sizes, and open any pair for details before calling or messaging the shop.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] text-foreground">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 xl:justify-end">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1.5 text-[11px] text-foreground sm:gap-2 sm:px-4 sm:py-2">
                   <span className="font-semibold">{filteredShoes.length}</span>
-                  <span className="text-muted-foreground hidden xs:inline">items</span>
+                  <span className="hidden text-muted-foreground xs:inline">shoes</span>
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-[11px] text-foreground">
-                  <span>Sort:</span>
+                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-2.5 py-1.5 text-[11px] text-foreground sm:px-3">
+                  <span className="hidden sm:inline">Sort:</span>
                   <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
-                    className="rounded-full border border-border bg-white py-1 px-2 text-[11px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="max-w-[7rem] rounded-full border border-border bg-white px-2 py-1 text-[11px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                   >
                     <option value="best-match">Best Match</option>
                     <option value="newest">Newest</option>
@@ -383,7 +389,7 @@ const ProductCatalog = () => {
                   type="button"
                   onClick={() => setViewMode('grid')}
                   className={cn(
-                    'inline-flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-full border transition',
+                    'inline-flex h-9 w-9 items-center justify-center rounded-full border transition sm:h-10 sm:w-10',
                     viewMode === 'grid'
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
@@ -395,7 +401,7 @@ const ProductCatalog = () => {
                   type="button"
                   onClick={() => setViewMode('list')}
                   className={cn(
-                    'inline-flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-full border transition',
+                    'inline-flex h-9 w-9 items-center justify-center rounded-full border transition sm:h-10 sm:w-10',
                     viewMode === 'list'
                       ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
@@ -408,11 +414,19 @@ const ProductCatalog = () => {
           </div>
 
           {loading ? (
-            <div className="rounded-3xl border border-border bg-card p-6 sm:p-10 text-center text-xs sm:text-sm text-muted-foreground">
+            <div className="rounded-[1.75rem] border border-border bg-card p-6 text-center text-sm text-muted-foreground sm:p-10">
               Loading shoes…
             </div>
+          ) : loadError ? (
+            <div className="rounded-[1.75rem] border border-border bg-card p-6 text-center sm:p-10">
+              <p className="text-base font-semibold text-ink sm:text-lg">Live catalog unavailable</p>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{loadError}</p>
+              <Link to="/contact" className="mt-4 inline-flex rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-terracotta-deep">
+                Contact the shop
+              </Link>
+            </div>
           ) : paginated.length === 0 ? (
-            <div className="rounded-3xl border border-border bg-card p-6 sm:p-10 text-center">
+            <div className="rounded-[1.75rem] border border-border bg-card p-6 text-center sm:p-10">
               <p className="text-base sm:text-lg font-semibold text-ink">No shoes found</p>
               <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-muted-foreground">Try adjusting your filters or search term.</p>
               <button onClick={resetFilters} className="mt-3 sm:mt-4 text-xs sm:text-sm font-semibold text-primary hover:underline">
@@ -426,12 +440,15 @@ const ProductCatalog = () => {
                 ? 'grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                 : 'grid-cols-1',
             )}>
-              {paginated.map((shoe, index) => (
-                <ScrollReveal key={shoe._id} delay={index * 100}>
-                  {viewMode === 'grid' ? (
-                    <article className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/20">
-                      <div className="relative overflow-hidden rounded-t-2xl bg-slate-50">
-                        <div className="aspect-square bg-[#f5f5f5]">
+              {paginated.map((shoe, index) =>
+                viewMode === 'grid' ? (
+                    <article
+                      key={shoe._id}
+                      className="group reveal-scale overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-soft"
+                      style={{ transitionDelay: `${index * 60}ms` }}
+                    >
+                      <div className="relative overflow-hidden bg-secondary/30">
+                        <div className="aspect-square bg-secondary/30">
                           <img
                             src={shoe.images?.[0]?.url || "https://via.placeholder.com/600x600?text=No+image"}
                             alt={shoe.name}
@@ -440,41 +457,41 @@ const ProductCatalog = () => {
                         </div>
                         <div className="absolute left-3 top-3 flex flex-col gap-2">
                           {shoe.trending && (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-500 text-white shadow-sm">
-                              🔥 Trending
+                            <span className="inline-flex rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary-foreground shadow-sm">
+                              Trending
                             </span>
                           )}
                           {shoe.branded && (
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm">
-                              ⭐ Branded
+                            <span className="inline-flex rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-foreground shadow-sm">
+                              Branded
                             </span>
                           )}
                         </div>
                         {shoe.price && (
-                          <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-sm font-bold bg-white/95 backdrop-blur-sm text-slate-900 shadow-sm">
+                          <div className="absolute right-3 top-3 rounded-full bg-card/95 px-3 py-1.5 text-sm font-bold text-ink shadow-sm backdrop-blur-sm">
                             रु {shoe.price.toLocaleString()}
                           </div>
                         )}
                       </div>
                       <div className="space-y-3 p-4">
                         <div>
-                          <h3 className="text-sm font-semibold text-ink capitalize line-clamp-2 group-hover:text-primary transition-colors">{shoe.name}</h3>
+                          <h3 className="line-clamp-2 text-sm font-semibold capitalize text-ink transition-colors group-hover:text-primary">{shoe.name}</h3>
                           <p className="mt-1 text-xs text-muted-foreground">{shoe.subcategory || 'Other'} · {shoe.gender || 'Unisex'}</p>
                         </div>
                         {shoe.brand && shoe.branded && (
-                          <p className="text-xs font-medium text-slate-600">{shoe.brand}</p>
+                          <p className="text-xs font-medium text-muted-foreground">{shoe.brand}</p>
                         )}
                         <div className="grid gap-2 text-xs text-muted-foreground">
                           {shoe.sizes?.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                               <span>Sizes:</span>
                               {shoe.sizes.slice(0, 3).map((size) => (
-                                <span key={size} className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+                                  <span key={size} className="rounded bg-secondary px-2 py-0.5 text-foreground/80">
                                   {size}
                                 </span>
                               ))}
                               {shoe.sizes.length > 3 && (
-                                <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
+                                <span className="rounded bg-secondary px-2 py-0.5 text-foreground/80">
                                   +{shoe.sizes.length - 3}
                                 </span>
                               )}
@@ -482,24 +499,28 @@ const ProductCatalog = () => {
                           )}
                         </div>
                         <div className="flex flex-wrap items-center gap-2 pt-2">
-                          <span className="rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                          <span className="rounded-full border border-border bg-background px-3 py-1 text-[11px] font-semibold capitalize text-muted-foreground">
                             {shoe.gender}
                           </span>
-                          <span className="rounded-full border border-border bg-background px-3 py-1 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                          <span className="rounded-full border border-border bg-background px-3 py-1 text-[11px] font-semibold capitalize text-muted-foreground">
                             {shoe.subcategory || 'Collection'}
                           </span>
                         </div>
                         <Link
                           to={`/shoes/${shoe._id}`}
-                          className="inline-flex w-full items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                          className="inline-flex w-full items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:bg-terracotta-deep"
                         >
                           View details
                         </Link>
                       </div>
                     </article>
-                  ) : (
-                    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-primary/20 sm:flex-row">
-                      <div className="relative h-72 overflow-hidden bg-slate-50 sm:h-auto sm:w-64">
+                ) : (
+                    <article
+                      key={shoe._id}
+                      className="group reveal-scale flex flex-col overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-soft sm:flex-row"
+                      style={{ transitionDelay: `${index * 60}ms` }}
+                    >
+                      <div className="relative h-56 overflow-hidden bg-secondary/30 sm:h-auto sm:w-64">
                         <img
                           src={shoe.images?.[0]?.url || "https://via.placeholder.com/600x600?text=No+image"}
                           alt={shoe.name}
@@ -514,17 +535,17 @@ const ProductCatalog = () => {
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
                             {shoe.trending && (
-                              <span className="rounded-full bg-orange-500 px-3 py-1 text-[11px] font-semibold text-white">
+                              <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground">
                                 Trending
                               </span>
                             )}
                             {shoe.branded && (
-                              <span className="rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold text-white">
+                              <span className="rounded-full bg-ink px-3 py-1 text-[11px] font-semibold text-ink-foreground">
                                 Branded
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-slate-600">{shoe.description?.slice(0, 120) || 'Explore the details, sizes, and colors of this shoe.'}</p>
+                          <p className="text-sm text-muted-foreground">{shoe.description?.slice(0, 120) || 'Explore the details, sizes, and colors of this shoe.'}</p>
                           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                             {shoe.sizes?.length > 0 && (
                               <span className="rounded-full border border-border bg-background px-3 py-1">Sizes {Math.min(...shoe.sizes)}–{Math.max(...shoe.sizes)}</span>
@@ -533,80 +554,87 @@ const ProductCatalog = () => {
                           </div>
                         </div>
                         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="text-lg font-bold text-slate-900">
+                          <div className="text-lg font-bold text-ink">
                             {shoe.price ? `रु ${shoe.price.toLocaleString()}` : 'Price N/A'}
                           </div>
                           <Link
                             to={`/shoes/${shoe._id}`}
-                            className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                            className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:bg-terracotta-deep"
                           >
                             View details
                           </Link>
                         </div>
                       </div>
                     </article>
-                  )}
-                </ScrollReveal>
-              ))}
+                )
+              )}
             </div>
           )}
 
-          {/* Pagination */}
-          <ScrollReveal delay={300}>
-            <Pagination className="flex flex-col gap-3 rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-            <span>
-              {filteredShoes.length === 0 ? "0" : (page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(filteredShoes.length, page * ITEMS_PER_PAGE)} of {filteredShoes.length} shoes
-            </span>
-            <PaginationContent className="justify-center">
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  aria-disabled={page <= 1}
+          {showPagination && (
+            <nav className="reveal flex justify-center pt-2" aria-label="Shoe pages">
+              <div className="inline-flex items-center gap-3">
+                <button
+                  type="button"
+                  aria-label="Previous page"
+                  disabled={page <= 1}
                   onClick={(e) => {
                     e.preventDefault();
                     if (page <= 1) return;
                     setPage((p) => Math.max(1, p - 1));
                   }}
-                />
-              </PaginationItem>
-              {paginationRange.map((item) =>
-                typeof item === "number" ? (
-                  <PaginationItem key={item}>
-                    <PaginationLink
-                      href="#"
-                      isActive={item === page}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-ink transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <span className="h-0 w-0 border-y-[5px] border-r-[8px] border-y-transparent border-r-current" />
+                </button>
+
+                {paginationRange.map((item) =>
+                  typeof item === "number" ? (
+                    <button
+                      key={item}
+                      type="button"
+                      aria-label={`Page ${item}`}
+                      aria-current={item === page ? "page" : undefined}
                       onClick={(e) => {
                         e.preventDefault();
                         setPage(item as number);
                       }}
-                      size="default"
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition",
+                        item === page
+                          ? "border-ink bg-ink text-ink-foreground"
+                          : "border-ink bg-transparent text-ink hover:border-primary hover:text-primary"
+                      )}
                     >
                       {item}
-                    </PaginationLink>
-                  </PaginationItem>
-                ) : (
-                  <PaginationItem key={item}>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                ),
-              )}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  aria-disabled={page >= pageCount}
+                    </button>
+                  ) : (
+                    <span key={item} className="px-1 text-ink/60">
+                      ...
+                    </span>
+                  ),
+                )}
+
+                <button
+                  type="button"
+                  aria-label="Next page"
+                  disabled={page >= pageCount}
                   onClick={(e) => {
                     e.preventDefault();
                     if (page >= pageCount) return;
                     setPage((p) => Math.min(pageCount, p + 1));
                   }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-          </ScrollReveal>
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-ink transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <span className="h-0 w-0 border-y-[5px] border-l-[8px] border-y-transparent border-l-current" />
+                </button>
+              </div>
+            </nav>
+          )}
         </section>
       </div>
       </ScrollReveal>
+      </div>
     </div>
   );
 };

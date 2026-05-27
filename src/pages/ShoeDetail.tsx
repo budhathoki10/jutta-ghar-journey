@@ -75,14 +75,14 @@ const ShoeDetail: React.FC = () => {
       <div className="mx-auto max-w-7xl">
         <Link
           to="/shoes"
-          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:text-slate-950"
+          className="reveal inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:text-slate-950"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to all shoes
         </Link>
 
         <section className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-4">
+          <div className="space-y-4 reveal-left">
             <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
               <div className="aspect-square bg-slate-100">
                 {mainImage ? (
@@ -123,7 +123,7 @@ const ShoeDetail: React.FC = () => {
             )}
           </div>
 
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:rounded-[2rem] sm:p-6 lg:p-8 reveal-right">
             <div className="flex flex-wrap gap-2">
               {shoe.trending && (
                 <span className="rounded-full bg-zinc-950 px-3 py-1 text-xs font-semibold text-white">
@@ -179,7 +179,7 @@ const ShoeDetail: React.FC = () => {
               </div>
             ) : null}
 
-            <div className="mt-8 grid gap-3 rounded-3xl bg-slate-50 p-5 text-sm text-slate-600 sm:grid-cols-2">
+            <div className="mt-8 grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-4 text-xs leading-5 text-slate-600 sm:rounded-3xl sm:p-5 sm:text-sm">
               <p>
                 <span className="font-semibold text-slate-950">Category:</span>{' '}
                 {shoe.subcategory || 'N/A'}
@@ -191,7 +191,7 @@ const ShoeDetail: React.FC = () => {
               </p>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 grid gap-3 xs:grid-cols-2 sm:flex sm:flex-row">
               <Button asChild className="rounded-full bg-zinc-950 px-6 hover:bg-zinc-800">
                 <Link to="/contact">Contact to order</Link>
               </Button>

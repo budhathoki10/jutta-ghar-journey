@@ -16,7 +16,6 @@ type ShoeForm = {
   subcategory: string;
   brand: string;
   branded: boolean;
-  trending: boolean;
   description: string;
   price: string;
   sizes: string;
@@ -35,7 +34,6 @@ const emptyForm = (): ShoeForm => ({
   subcategory: SUBCATS.male[0],
   brand: '',
   branded: false,
-  trending: false,
   description: '',
   price: '',
   sizes: '',
@@ -43,7 +41,7 @@ const emptyForm = (): ShoeForm => ({
 });
 
 const inputClass =
-  'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/10';
+  'w-full rounded-sm border border-border bg-white px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10';
 
 const AddShoe: React.FC = () => {
   const [forms, setForms] = useState<ShoeForm[]>([emptyForm()]);
@@ -182,7 +180,6 @@ const AddShoe: React.FC = () => {
             subcategory: form.subcategory,
             brand: form.brand.trim(),
             branded: form.branded,
-            trending: form.trending,
             description: form.description.trim(),
             price: form.price ? Number(form.price) : undefined,
             sizes: form.sizes ? parseSizesInput(form.sizes) : [],
@@ -215,27 +212,27 @@ const AddShoe: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-      <form onSubmit={submit} className="mx-auto max-w-7xl space-y-8">
-        <section className="overflow-hidden rounded-[2rem] bg-zinc-950 text-white shadow-2xl">
-          <div className="grid gap-8 p-8 lg:grid-cols-[1.4fr_0.6fr] lg:p-10">
+    <main className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
+      <form onSubmit={submit} className="mx-auto max-w-7xl space-y-6">
+        <section className="overflow-hidden rounded-sm border border-border bg-card shadow-card">
+          <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
                 Admin inventory
               </p>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
                 Add professional product listings
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-300">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
                 Upload clear shoe photos, add pricing, brand, size range, and publish products
                 that customers can view with a clean gallery.
               </p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
-              <p className="text-sm text-zinc-300">Products in this batch</p>
-              <p className="mt-3 text-5xl font-bold">{forms.length}</p>
-              <p className="mt-3 text-xs text-zinc-400">
+            <div className="rounded-sm border border-primary/20 bg-primary/5 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Batch</p>
+              <p className="mt-2 font-serif text-4xl font-black text-ink">{forms.length}</p>
+              <p className="mt-2 text-xs text-muted-foreground">
                 Every product must have at least one uploaded image.
               </p>
             </div>
@@ -246,25 +243,25 @@ const AddShoe: React.FC = () => {
           const isExpanded = formIndex === expandedIndex;
 
           return (
-            <section key={formIndex} className="grid gap-6 lg:grid-cols-[1fr_420px]">
-            <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
+            <section key={formIndex} className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="rounded-sm border border-border bg-card p-4 shadow-card sm:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
                 <button
                   type="button"
                   onClick={() => setExpandedIndex(formIndex)}
                   className="text-left"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                     Product {formIndex + 1}
                   </p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-950">Product details</h2>
+                  <h2 className="mt-2 text-2xl font-bold text-ink">Product details</h2>
                 </button>
 
                 {forms.length > 1 && (
                   <Button
                     type="button"
                     variant="outline"
-                    className="rounded-full"
+                    className="rounded-full border-border"
                     onClick={() => removeProduct(formIndex)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -276,35 +273,35 @@ const AddShoe: React.FC = () => {
               {!isExpanded && (
                 <button
                   type="button"
-                  className="mt-6 w-full rounded-3xl border border-slate-200 bg-slate-50 p-6 text-left text-slate-700 transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="mt-5 w-full rounded-sm border border-border bg-background p-5 text-left text-foreground transition hover:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   onClick={() => setExpandedIndex(formIndex)}
                 >
-                  <p className="text-sm font-semibold text-slate-950">Product summary</p>
+                  <p className="text-sm font-semibold text-ink">Product summary</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Name</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Name</p>
                       <p className="mt-1 font-medium">{form.name || `Product ${formIndex + 1}`}</p>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Group</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Group</p>
                       <p className="mt-1 capitalize">{form.gender}</p>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Subcategory</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Subcategory</p>
                       <p className="mt-1">{form.subcategory}</p>
                     </div>
                     <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Brand</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Brand</p>
                       <p className="mt-1">{form.brand || 'Not set'}</p>
                     </div>
                   </div>
-                  <p className="mt-4 text-xs text-slate-500">Click anywhere here to open and edit this product.</p>
+                  <p className="mt-4 text-xs text-muted-foreground">Click anywhere here to open and edit this product.</p>
                 </button>
               )}
 
               <div className={isExpanded ? 'mt-6 grid gap-5 md:grid-cols-2' : 'hidden'}>
                     <label className="space-y-2 md:col-span-2">
-                      <span className="text-sm font-semibold text-slate-800">Product name</span>
+                      <span className="text-sm font-semibold text-ink">Product name</span>
                       <input
                         className={inputClass}
                         value={form.name}
@@ -315,7 +312,7 @@ const AddShoe: React.FC = () => {
                     </label>
 
                     <label className="space-y-2">
-                      <span className="text-sm font-semibold text-slate-800">Customer group</span>
+                      <span className="text-sm font-semibold text-ink">Customer group</span>
                       <select
                         className={inputClass}
                         value={form.gender}
@@ -332,7 +329,7 @@ const AddShoe: React.FC = () => {
                     </label>
 
                     <label className="space-y-2">
-                      <span className="text-sm font-semibold text-slate-800">Subcategory</span>
+                      <span className="text-sm font-semibold text-ink">Subcategory</span>
                       <select
                         className={inputClass}
                         value={form.subcategory}
@@ -345,7 +342,7 @@ const AddShoe: React.FC = () => {
                     </label>
 
                     <label className="space-y-2">
-                      <span className="text-sm font-semibold text-slate-800">Brand</span>
+                      <span className="text-sm font-semibold text-ink">Brand</span>
                       <input
                         className={inputClass}
                         value={form.brand}
@@ -355,7 +352,7 @@ const AddShoe: React.FC = () => {
                     </label>
 
                     <label className="space-y-2">
-                      <span className="text-sm font-semibold text-slate-800">Price</span>
+                      <span className="text-sm font-semibold text-ink">Price</span>
                       <input
                         className={inputClass}
                         type="number"
@@ -367,7 +364,7 @@ const AddShoe: React.FC = () => {
                     </label>
 
                     <label className="space-y-2 md:col-span-2">
-                      <span className="text-sm font-semibold text-slate-800">Sizes</span>
+                      <span className="text-sm font-semibold text-ink">Sizes</span>
                       <input
                         className={inputClass}
                         value={form.sizes}
@@ -377,7 +374,7 @@ const AddShoe: React.FC = () => {
                     </label>
 
                     <label className="space-y-2 md:col-span-2">
-                      <span className="text-sm font-semibold text-slate-800">Description</span>
+                      <span className="text-sm font-semibold text-ink">Description</span>
                       <textarea
                         className={`${inputClass} min-h-32 resize-y`}
                         value={form.description}
@@ -386,53 +383,40 @@ const AddShoe: React.FC = () => {
                       />
                     </label>
 
-                    <div className="md:col-span-2 grid gap-3 sm:grid-cols-2">
-                      <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <div className="md:col-span-2 grid gap-3">
+                      <label className="flex items-center justify-between rounded-sm border border-border bg-background px-4 py-3">
                         <span>
-                          <span className="block text-sm font-semibold text-slate-800">Branded</span>
-                          <span className="text-xs text-slate-500">Show as branded product</span>
+                          <span className="block text-sm font-semibold text-ink">Branded</span>
+                          <span className="text-xs text-muted-foreground">Show as branded product</span>
                         </span>
                         <input
                           type="checkbox"
                           checked={form.branded}
                           onChange={(e) => updateForm(formIndex, 'branded', e.target.checked)}
-                          className="h-5 w-5 accent-zinc-950"
-                        />
-                      </label>
-
-                      <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                        <span>
-                          <span className="block text-sm font-semibold text-slate-800">Trending</span>
-                          <span className="text-xs text-slate-500">Feature on trending list</span>
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={form.trending}
-                          onChange={(e) => updateForm(formIndex, 'trending', e.target.checked)}
-                          className="h-5 w-5 accent-zinc-950"
+                          className="h-5 w-5 accent-primary"
                         />
                       </label>
                     </div>
                   </div>
                 </div>
 
-                  <aside className={isExpanded ? 'rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm' : 'hidden'}>
+                  <aside className={isExpanded ? 'rounded-sm border border-border bg-card p-4 shadow-card sm:p-6 xl:sticky xl:top-24 xl:self-start' : 'hidden'}>
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-950">Product images</h3>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <h3 className="text-lg font-bold text-ink">Product images</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Upload multiple photos. First image becomes the main image.
                   </p>
                 </div>
-                <ImagePlus className="h-6 w-6 text-slate-400" />
+                <ImagePlus className="h-6 w-6 text-primary" />
               </div>
 
-              <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center transition hover:border-zinc-900 hover:bg-white">
-                <ImagePlus className="h-8 w-8 text-slate-400" />
-                <span className="mt-3 text-sm font-semibold text-slate-900">
+              <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed border-border bg-background px-6 py-9 text-center transition hover:border-primary hover:bg-card">
+                <ImagePlus className="h-8 w-8 text-primary" />
+                <span className="mt-3 text-sm font-semibold text-ink">
                   Click to upload images
                 </span>
-                <span className="mt-1 text-xs text-slate-500">PNG, JPG, WEBP accepted</span>
+                <span className="mt-1 text-xs text-muted-foreground">PNG, JPG, WEBP accepted</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -444,7 +428,7 @@ const AddShoe: React.FC = () => {
 
               <div className="mt-5 space-y-3">
                 {form.uploads.length === 0 && (
-                  <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  <p className="rounded-sm border border-mustard/20 bg-mustard/10 px-4 py-3 text-sm text-ink">
                     No images uploaded yet.
                   </p>
                 )}
@@ -452,9 +436,9 @@ const AddShoe: React.FC = () => {
                 {form.uploads.map((upload, imageIndex) => (
                   <div
                     key={`${upload.name}-${imageIndex}`}
-                    className="flex gap-3 rounded-2xl border border-slate-200 p-3"
+                    className="flex gap-3 rounded-sm border border-border bg-background p-3"
                   >
-                    <div className="h-20 w-20 overflow-hidden rounded-xl bg-slate-100">
+                    <div className="h-20 w-20 overflow-hidden rounded-sm bg-secondary/40">
                       {upload.url ? (
                         <img
                           src={upload.url}
@@ -466,21 +450,21 @@ const AddShoe: React.FC = () => {
                           {upload.progress === -1 ? (
                             <X className="h-5 w-5 text-red-500" />
                           ) : (
-                            <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                           )}
                         </div>
                       )}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-800">
+                      <p className="truncate text-sm font-semibold text-ink">
                         {upload.name || `Image ${imageIndex + 1}`}
                       </p>
 
                       {upload.progress >= 0 && upload.progress < 100 && (
-                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
                           <div
-                            className="h-full rounded-full bg-zinc-950 transition-all"
+                            className="h-full rounded-full bg-primary transition-all"
                             style={{ width: `${upload.progress}%` }}
                           />
                         </div>
@@ -498,7 +482,7 @@ const AddShoe: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => removeImage(formIndex, imageIndex)}
-                      className="rounded-full p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                      className="rounded-full p-2 text-muted-foreground hover:bg-primary/10 hover:text-primary"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -510,11 +494,11 @@ const AddShoe: React.FC = () => {
           );
         })}
 
-        <div className="flex flex-col-reverse gap-3 rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col-reverse gap-3 rounded-sm border border-border bg-card p-4 shadow-card sm:flex-row sm:items-center sm:justify-between">
           <Button
             type="button"
             variant="outline"
-            className="rounded-full"
+            className="rounded-full border-border"
             onClick={addProduct}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -524,7 +508,7 @@ const AddShoe: React.FC = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-full bg-zinc-950 px-8 hover:bg-zinc-800"
+            className="rounded-full bg-primary px-8 text-primary-foreground hover:bg-terracotta-deep"
           >
             {isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

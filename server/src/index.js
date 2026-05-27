@@ -4,6 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const connectDB = require('./config/db');
 const Admin = require('./models/Admin');
+const { expireOldTrendingShoes } = require('./controllers/shoeController');
 
 dotenv.config();
 
@@ -33,8 +34,21 @@ const createDefaultAdmin = async () => {
   }
 };
 
+const startMaintenance = async () => {
+  await createDefaultAdmin();
+  await expireOldTrendingShoes();
+
+  const interval = setInterval(() => {
+    expireOldTrendingShoes().catch((err) => {
+      console.error('Unable to expire old trending shoes:', err.message);
+    });
+  }, 60 * 60 * 1000);
+
+  interval.unref?.();
+};
+
 // Connect DB
-connectDB().then(createDefaultAdmin);
+connectDB().then(startMaintenance);
 
 app.get('/', (req, res) => res.send({status: 'shoe-shop server running'}));
 

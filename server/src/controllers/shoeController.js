@@ -1,5 +1,38 @@
 const Shoe = require('../models/Shoe');
 
+const TRENDING_DAYS = 15;
+const trendingDurationMs = TRENDING_DAYS * 24 * 60 * 60 * 1000;
+
+const getTrendingUntil = () => new Date(Date.now() + trendingDurationMs);
+
+const expireOldTrendingShoes = async () => {
+  const now = new Date();
+  const legacyCutoff = new Date(Date.now() - trendingDurationMs);
+
+  await Shoe.updateMany(
+    {
+      trending: true,
+      $or: [
+        { trendingUntil: { $lte: now } },
+        {
+          trendingUntil: { $exists: false },
+          createdAt: { $lte: legacyCutoff },
+        },
+        {
+          trendingUntil: null,
+          createdAt: { $lte: legacyCutoff },
+        },
+      ],
+    },
+    {
+      $set: { trending: false },
+      $unset: { trendingUntil: '' },
+    }
+  );
+};
+
+exports.expireOldTrendingShoes = expireOldTrendingShoes;
+
 const cleanImages = (images = []) =>
   Array.isArray(images)
     ? images
@@ -32,6 +65,8 @@ const buildShoePayload = (body) => ({
 
 exports.getAllShoes = async (req, res) => {
   try {
+    await expireOldTrendingShoes();
+
     const { gender, subcategory, search, trending } = req.query;
     const filter = {};
 
@@ -62,6 +97,8 @@ exports.getAllShoes = async (req, res) => {
 
 exports.getShoeById = async (req, res) => {
   try {
+    await expireOldTrendingShoes();
+
     const shoe = await Shoe.findById(req.params.id);
 
     if (!shoe) {
@@ -80,7 +117,11 @@ exports.getShoeById = async (req, res) => {
 
 exports.createShoe = async (req, res) => {
   try {
-    const payload = buildShoePayload(req.body);
+    const payload = {
+      ...buildShoePayload(req.body),
+      trending: true,
+      trendingUntil: getTrendingUntil(),
+    };
 
     if (!payload.name) {
       return res.status(400).json({
@@ -118,6 +159,8 @@ exports.createShoe = async (req, res) => {
 
 exports.updateShoe = async (req, res) => {
   try {
+    await expireOldTrendingShoes();
+
     const payload = buildShoePayload(req.body);
 
     if (!payload.name) {
@@ -132,16 +175,33 @@ exports.updateShoe = async (req, res) => {
       });
     }
 
-    const shoe = await Shoe.findByIdAndUpdate(req.params.id, payload, {
-      new: true,
-      runValidators: true,
-    });
+    const existingShoe = await Shoe.findById(req.params.id);
 
-    if (!shoe) {
+    if (!existingShoe) {
       return res.status(404).json({
         message: 'Shoe not found',
       });
     }
+
+    const update = {
+      $set: {
+        ...payload,
+        ...(payload.trending
+          ? {
+              trendingUntil:
+                existingShoe.trending && existingShoe.trendingUntil
+                  ? existingShoe.trendingUntil
+                  : getTrendingUntil(),
+            }
+          : {}),
+      },
+      ...(payload.trending ? {} : { $unset: { trendingUntil: '' } }),
+    };
+
+    const shoe = await Shoe.findByIdAndUpdate(req.params.id, update, {
+      new: true,
+      runValidators: true,
+    });
 
     res.json(shoe);
   } catch (err) {

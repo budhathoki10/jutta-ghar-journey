@@ -7,12 +7,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./context/AuthContext";
 import SiteHeader from "./components/SiteHeader";
 import SiteFooter from "./components/SiteFooter";
+import { useReveal } from "@/hooks/use-reveal";
 import Index from "./pages/Index.tsx";
 import ProductCatalog from "./pages/ProductCatalog";
 import ShoeDetail from "./pages/ShoeDetail";
 import ShopFloors from "./pages/ShopFloors";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/admin/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -41,6 +44,14 @@ const ScrollToHash = () => {
   return null;
 };
 
+const RouteReveal = () => {
+  const location = useLocation();
+
+  useReveal([location.pathname, location.hash]);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -49,6 +60,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToHash />
+          <RouteReveal />
           <SiteHeader />
           <main className="min-h-[calc(100vh-6rem)]">
             <Routes>
@@ -59,6 +71,8 @@ const App = () => (
               <Route path="/shop-floors" element={<ShopFloors />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/shoes" element={<AdminShoes />} />
