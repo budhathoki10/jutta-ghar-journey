@@ -7,22 +7,22 @@
 
 @layer base {
   :root {
-    --background: 36 40% 95%;
+    --background: 36 58% 98%;
     --foreground: 24 32% 10%;
 
-    --card: 36 45% 98%;
+    --card: 36 62% 99%;
     --card-foreground: 24 30% 12%;
 
-    --popover: 36 42% 97%;
+    --popover: 36 62% 99%;
     --popover-foreground: 24 30% 12%;
 
     --primary: 0 84% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 32 28% 87%;
+    --secondary: 34 36% 93%;
     --secondary-foreground: 24 30% 12%;
 
-    --muted: 32 22% 86%;
+    --muted: 34 32% 92%;
     --muted-foreground: 24 14% 36%;
 
     --accent: 40 82% 56%;
@@ -30,7 +30,7 @@
 
     --ink: 24 30% 12%;
     --ink-foreground: 36 42% 97%;
-    --cream: 36 42% 97%;
+    --cream: 36 65% 99%;
     --terracotta: 0 78% 45%;
     --terracotta-deep: 0 60% 32%;
     --mustard: 38 78% 54%;
@@ -38,16 +38,16 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 28 22% 78%;
-    --input: 28 22% 78%;
+    --border: 30 24% 84%;
+    --input: 30 24% 84%;
     --ring: 0 78% 45%;
 
     --radius: 0.25rem;
 
     --gradient-warm: linear-gradient(135deg, hsl(0 78% 45%), hsl(0 60% 35%));
-    --gradient-paper: linear-gradient(180deg, hsl(36 38% 94%), hsl(32 30% 90%));
-    --shadow-soft: 0 30px 60px -30px hsl(24 30% 12% / 0.25);
-    --shadow-card: 0 10px 30px -15px hsl(24 30% 12% / 0.2);
+    --gradient-paper: linear-gradient(180deg, hsl(36 58% 98%), hsl(34 40% 95%));
+    --shadow-soft: 0 30px 60px -30px hsl(24 30% 12% / 0.18);
+    --shadow-card: 0 10px 30px -15px hsl(24 30% 12% / 0.14);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -246,6 +246,69 @@
   .hover-lift { transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease; }
   .hover-lift:hover { transform: translateY(-6px); }
 
+  .floor-hero-motion {
+    background:
+      linear-gradient(120deg, hsl(var(--background)) 0%, hsl(var(--cream)) 52%, hsl(var(--secondary) / 0.7) 100%);
+  }
+
+  .floor-hero-motion::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    background-image:
+      linear-gradient(90deg, hsl(var(--border) / 0.45) 1px, transparent 1px),
+      linear-gradient(0deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
+    background-size: 84px 84px;
+    opacity: 0.34;
+    transform: rotate(-6deg);
+    animation: floor-grid-drift 28s linear infinite;
+  }
+
+  .floor-hero-motion::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, hsl(var(--background) / 0.96), hsl(var(--background) / 0.62), hsl(var(--background) / 0.92));
+  }
+
+  .floor-path-card {
+    animation: floor-card-in 0.8s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  .floor-section-motion {
+    background-image:
+      repeating-linear-gradient(112deg, transparent 0 92px, hsl(var(--primary) / 0.04) 92px 94px, transparent 94px 184px);
+    background-size: 240px 240px;
+    opacity: 0.58;
+    animation: floor-section-drift 26s linear infinite;
+  }
+
+  .floor-photo-card {
+    animation: floor-card-in 0.75s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes floor-grid-drift {
+    from { transform: translate3d(0, 0, 0) rotate(-6deg); }
+    to { transform: translate3d(84px, 84px, 0) rotate(-6deg); }
+  }
+
+  @keyframes floor-section-drift {
+    from { background-position: 0 0; }
+    to { background-position: 240px 0; }
+  }
+
+  @keyframes floor-card-in {
+    from {
+      opacity: 0;
+      transform: translateY(22px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
   @media (max-width: 640px) {
     .bubble-1 { width: 64px; height: 64px; }
     .bubble-2 { width: 96px; height: 96px; }
@@ -273,5 +336,11 @@
   @media (prefers-reduced-motion: reduce) {
     .reveal, .reveal-left, .reveal-right, .reveal-scale { opacity: 1 !important; transform: none !important; }
     .marquee { animation: none !important; }
+    .floor-hero-motion::before,
+    .floor-section-motion,
+    .floor-path-card,
+    .floor-photo-card {
+      animation: none !important;
+    }
   }
 }

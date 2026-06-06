@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, KeyRound, MessageCircle, Phone, Youtube } from "lucide-react";
+import { Facebook, Instagram, MessageCircle, Phone, Youtube } from "lucide-react";
 import { businessName, fullAddress, instagramLink, phoneHref, phoneNumber, tiktokLink, whatsappLink,youtubeChannelLink } from "@/content/site";
 
 const SiteFooter = () => {
@@ -46,10 +46,7 @@ const SiteFooter = () => {
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="transition hover:text-white hover:underline">Privacy</Link>
             <Link to="/terms" className="transition hover:text-white hover:underline">Terms</Link>
-            <Link to="/admin/login" className="inline-flex items-center gap-1 transition hover:text-white hover:underline">
-              <KeyRound className="h-3.5 w-3.5" />
-              Admin
-            </Link>
+            <Link to="/admin/login" className="transition hover:text-white hover:underline">Admin</Link>
           </div>
         </div>
       </div>

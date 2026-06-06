@@ -8,7 +8,7 @@ import shopImage from "@/assets/shop.png";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
 import { useReveal } from "@/hooks/use-reveal";
-import { MapPin, Phone, Clock, Star, ArrowUpRight, Sparkles, Wrench, Package, Leaf } from "lucide-react";
+import { MapPin, Phone, Clock, Star, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const collections = [
@@ -26,26 +26,18 @@ const services = [
   {
     title: "Deep comfort styling",
     description: "Personalised shoe fitting and everyday comfort advice, tailored for Kathmandu feet.",
-    icon: Sparkles,
-    accent: "bg-primary/10 text-primary",
   },
   {
     title: "Repair & care",
     description: "Fast repair, polishing and fitting adjustments for shoes that you wear again and again.",
-    icon: Wrench,
-    accent: "bg-primary/10 text-primary",
   },
   {
     title: "Curated collections",
     description: "Branded releases, seasonal drops and local favourites arranged for easy browsing.",
-    icon: Package,
-    accent: "bg-primary/10 text-primary",
   },
   {
     title: "Fresh shop displays",
     description: "Clean presentation, seasonal looks and polished store styling for a premium visit.",
-    icon: Leaf,
-    accent: "bg-primary/10 text-primary",
   },
 ];
 
@@ -240,16 +232,23 @@ const Index = () => {
             <p className="text-xs uppercase tracking-[0.22em] text-primary sm:text-sm sm:tracking-[0.35em]">Signature Offerings</p>
             <h2 className="mt-4 text-3xl font-black tracking-tight text-ink xs:text-4xl">Services tailored for Kathmandu homes.</h2>
             <div className="mt-7 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
-              {services.map((service) => {
-                const Icon = service.icon;
+              {services.map((service, index) => {
+                const featured = index === 1;
                 return (
-                  <div key={service.title} className="rounded-2xl border border-border bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:rounded-[2rem] sm:p-8">
-                    <div className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl xs:h-11 xs:w-11 sm:h-14 sm:w-14 sm:rounded-3xl ${service.accent}`}>
-                      <Icon className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6" />
+                  <div
+                    key={service.title}
+                    className={`group relative flex min-h-[13.5rem] flex-col rounded-2xl border border-border p-4 shadow-sm transition duration-500 hover:-translate-y-1 hover:border-primary/25 hover:shadow-soft sm:min-h-[23rem] sm:rounded-[2rem] sm:p-8 ${
+                      featured ? "bg-secondary/45" : "bg-white"
+                    }`}
+                  >
+                    <span className="font-serif text-5xl font-black leading-none text-mustard sm:text-7xl">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div className="relative z-10 flex flex-1 flex-col">
+                      <h3 className={`mt-7 text-sm font-semibold leading-tight xs:text-base sm:mt-12 sm:text-xl ${featured ? "text-primary" : "text-ink"}`}>{service.title}</h3>
+                      <p className="mt-3 line-clamp-5 text-[11px] leading-5 text-foreground/70 xs:text-xs sm:mt-4 sm:text-sm sm:leading-6">{service.description}</p>
+                      <div className="mt-auto pt-5 text-xs font-semibold text-primary xs:text-sm sm:pt-8">Discuss service →</div>
                     </div>
-                    <h3 className="mt-4 text-sm font-semibold leading-tight text-ink xs:text-base sm:mt-6 sm:text-xl">{service.title}</h3>
-                    <p className="mt-2 line-clamp-5 text-[11px] leading-5 text-foreground/70 xs:text-xs sm:mt-3 sm:text-sm sm:leading-6">{service.description}</p>
-                    <div className="mt-4 text-xs font-semibold text-primary xs:text-sm sm:mt-6">Discuss service →</div>
                   </div>
                 );
               })}
