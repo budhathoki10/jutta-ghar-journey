@@ -48,7 +48,7 @@ const startMaintenance = async () => {
 };
 
 // Connect DB
-connectDB().then(startMaintenance);
+connectDB().then( );
 
 app.get('/', (req, res) => res.send({status: 'shoe-shop server running'}));
 
