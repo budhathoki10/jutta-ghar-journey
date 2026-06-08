@@ -176,7 +176,12 @@ const ProductCatalog = () => {
   };
 
   const getImage = (shoe: any) => shoe.images?.[0]?.url || "https://via.placeholder.com/600x750?text=No+image";
-  const getPrice = (shoe: any) => (shoe.price ? `रु ${shoe.price.toLocaleString()}` : "Price N/A");
+  const getPrice = (shoe: any) => {
+    const raw = shoe.price;
+    const num = typeof raw === "number" ? raw : Number(raw);
+    if (!num || Number.isNaN(num)) return "Price N/A";
+    return `रु ${num.toLocaleString()}`;
+  };
   const getSizeLabel = (shoe: any) => {
     if (!shoe.sizes?.length) return "Ask for size";
     if (shoe.sizes.length === 1) return `Size ${shoe.sizes[0]}`;
@@ -212,87 +217,94 @@ const ProductCatalog = () => {
 
   const ProductTile = ({ shoe, index }: { shoe: any; index: number }) => (
     <article
-      className="group reveal-scale flex min-h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-500 hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft"
+      className="group reveal-scale flex min-h-full flex-col overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft transition duration-500 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
       style={{ transitionDelay: `${index * 45}ms` }}
     >
-      <Link to={`/shoes/${shoe._id}`} className="block">
-        <div className="relative aspect-[4/5] overflow-hidden bg-secondary/35">
+      <Link to={`/shoes/${shoe._id}`} className="block" aria-label={`View ${shoe.name} details`}>
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-secondary/35">
           <img
             src={getImage(shoe)}
             alt={shoe.name}
             loading={index < 4 ? "eager" : "lazy"}
             className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
           />
-          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
             {shoe.trending && (
-              <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary-foreground shadow-sm">
-                Trending
+              <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary-foreground shadow-sm">
+                New
               </span>
             )}
-            {shoe.branded && (
-              <span className="rounded-full bg-background/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink shadow-sm backdrop-blur">
-                Branded
+            {shoe.soldOut && (
+              <span className="rounded-full bg-ink px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-background shadow-sm">
+                Sold out
               </span>
             )}
           </div>
-          <span className="absolute bottom-3 left-3 rounded-full bg-background/95 px-3 py-1.5 text-xs font-black text-ink shadow-sm backdrop-blur">
-            {getPrice(shoe)}
-          </span>
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col p-3 sm:p-4">
+      <div className="flex flex-1 flex-col gap-4 p-4 sm:p-5">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            {shoe.subcategory || "Collection"}
-          </p>
-          <Link to={`/shoes/${shoe._id}`} className="mt-1 block">
-            <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-black capitalize leading-5 text-ink transition group-hover:text-primary sm:text-base sm:leading-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{shoe.subcategory || "Collection"}</p>
+          <Link to={`/shoes/${shoe._id}`} className="mt-3 block">
+            <h3 className="line-clamp-2 text-base font-black capitalize leading-6 text-ink transition group-hover:text-primary sm:text-lg">
               {shoe.name}
             </h3>
           </Link>
+          <p className="mt-2 text-sm font-medium text-muted-foreground">{shoe.brand || "Non-branded"}</p>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] font-semibold text-muted-foreground sm:text-xs">
-          <span className="rounded-full border border-border bg-background px-2.5 py-1 capitalize">{shoe.gender || "Unisex"}</span>
-          <span className="rounded-full border border-border bg-background px-2.5 py-1">{getSizeLabel(shoe)}</span>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
+            <span className="rounded-full border border-border bg-background px-3 py-1 capitalize">{shoe.gender || "Unisex"}</span>
+            <span className="rounded-full border border-border bg-background px-3 py-1">{getSizeLabel(shoe)}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Price</p>
+              <p className="mt-2 text-xl font-black text-terracotta-deep">{getPrice(shoe)}</p>
+            </div>
+            <Link
+              to={`/shoes/${shoe._id}`}
+              className="inline-flex items-center justify-center rounded-full bg-ink px-4 py-2 text-xs font-bold text-background transition hover:bg-primary sm:text-sm"
+              aria-label={`View ${shoe.name} details`}
+            >
+              View
+            </Link>
+          </div>
         </div>
-
-        <Link
-          to={`/shoes/${shoe._id}`}
-          className="mt-auto pt-4 text-xs font-bold text-primary transition hover:text-terracotta-deep sm:text-sm"
-        >
-          View details
-        </Link>
       </div>
     </article>
   );
 
   const ProductRow = ({ shoe, index }: { shoe: any; index: number }) => (
     <article
-      className="group reveal-scale grid gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition duration-500 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-soft sm:grid-cols-[11rem_1fr_auto] sm:items-center sm:p-4"
+      className="group reveal-scale grid gap-3 rounded-[2rem] border border-border bg-card p-4 shadow-soft transition duration-500 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg sm:grid-cols-[11rem_1fr_auto] sm:items-center sm:p-5"
       style={{ transitionDelay: `${index * 45}ms` }}
     >
-      <Link to={`/shoes/${shoe._id}`} className="block overflow-hidden rounded-xl bg-secondary/35">
+      <Link to={`/shoes/${shoe._id}`} className="block overflow-hidden rounded-[1.75rem] bg-secondary/35">
         <img src={getImage(shoe)} alt={shoe.name} loading={index < 4 ? "eager" : "lazy"} className="aspect-[4/3] h-full w-full object-cover transition duration-700 group-hover:scale-105 sm:aspect-[4/3]" />
       </Link>
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{shoe.subcategory || "Collection"}</p>
         <Link to={`/shoes/${shoe._id}`}>
-          <h3 className="mt-1 line-clamp-2 text-lg font-black capitalize text-ink transition group-hover:text-primary">{shoe.name}</h3>
+          <h3 className="mt-1 line-clamp-2 text-xl font-black capitalize text-ink transition group-hover:text-primary">{shoe.name}</h3>
         </Link>
-        <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+        <p className="mt-2 text-sm font-medium text-muted-foreground">{shoe.brand || "Non-branded"}</p>
+        <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">
           {shoe.description || `${shoe.brand || "Selected"} pair with available sizing and in-store details.`}
         </p>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
+        <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
           <span className="rounded-full border border-border bg-background px-3 py-1 capitalize">{shoe.gender || "Unisex"}</span>
           <span className="rounded-full border border-border bg-background px-3 py-1">{getSizeLabel(shoe)}</span>
-          {shoe.brand && <span className="rounded-full border border-border bg-background px-3 py-1">{shoe.brand}</span>}
         </div>
       </div>
       <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
-        <p className="text-lg font-black text-ink">{getPrice(shoe)}</p>
-        <Link to={`/shoes/${shoe._id}`} className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:bg-terracotta-deep">
+        <div className="text-right">
+          <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground">Price</p>
+          <p className="mt-2 text-xl font-black text-terracotta-deep">{getPrice(shoe)}</p>
+        </div>
+        <Link to={`/shoes/${shoe._id}`} className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:bg-terracotta-deep" aria-label={`View ${shoe.name} details`}>
           View details
         </Link>
       </div>
@@ -314,267 +326,287 @@ const ProductCatalog = () => {
                   Search by shoe name, brand, size, gender, and collection. The catalog stays light, fast, and easy to scan on mobile.
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-3 rounded-2xl border border-border bg-background/80 p-3 shadow-sm">
-                <div>
-                  <p className="font-serif text-3xl font-black text-mustard">{shoes.length}</p>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Loaded</p>
-                </div>
-                <div>
-                  <p className="font-serif text-3xl font-black text-mustard">{filteredShoes.length}</p>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Matching</p>
-                </div>
-              </div>
             </div>
           </section>
         </ScrollReveal>
 
         <ScrollReveal delay={160}>
-          <section className="mt-6 rounded-[1.5rem] border border-border bg-card p-3 shadow-card sm:mt-8 sm:rounded-[1.75rem] sm:p-5 lg:sticky lg:top-24 lg:z-20">
-            <div className="grid gap-3 lg:grid-cols-[minmax(280px,1fr)_auto] lg:items-center">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search shoes, brand, type..."
-                  className="h-12 w-full rounded-2xl border border-border bg-background pl-11 pr-11 text-sm font-medium text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-4 focus:ring-primary/10"
-                />
-                {search && (
-                  <button
-                    type="button"
-                    onClick={() => setSearch("")}
-                    className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-primary"
-                    aria-label="Clear search"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setFiltersOpen((open) => !open)}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-border bg-background px-4 text-sm font-bold text-foreground shadow-sm transition hover:border-primary hover:text-primary lg:hidden"
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-                Refine
-                {activeFilterCount > 0 && (
-                  <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] text-primary-foreground">{activeFilterCount}</span>
-                )}
-              </button>
-            </div>
-
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-              {genderOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    setGender(option.value);
-                    setCategory("all");
-                  }}
-                  className={cn(
-                    "h-10 shrink-0 rounded-full border px-4 text-sm font-bold transition",
-                    gender === option.value
-                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                      : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-
-            <div className={cn("mt-4 gap-3", filtersOpen ? "grid" : "hidden lg:grid", "sm:grid-cols-2 lg:grid-cols-[1fr_1fr_0.8fr_1fr_auto] lg:items-end")}>
-              <SelectField label="Category" value={category} onChange={setCategory} options={categories} />
-              <SelectField label="Brand" value={brand} onChange={setBrand} options={brands} />
-              <SelectField label="Size" value={size} onChange={setSize} options={sizes} />
-              <label className="grid gap-2">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Sort</span>
-                <select
-                  value={sort}
-                  onChange={(event) => setSort(event.target.value)}
-                  className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm font-medium text-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                onClick={() => setTrendingOnly((current) => !current)}
-                className={cn(
-                  "h-11 rounded-2xl border px-4 text-sm font-bold transition",
-                  trendingOnly ? "border-primary bg-primary/10 text-primary" : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
-                )}
-              >
-                Trending only
-              </button>
-            </div>
-
-            {(activeFilters.length > 0 || activeFilterCount > 0) && (
-              <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-4">
-                {activeFilters.map((filter) => (
-                  <button
-                    key={filter.label}
-                    type="button"
-                    onClick={filter.clear}
-                    className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition hover:bg-primary hover:text-primary-foreground"
-                  >
-                    {filter.label}
-                    <X className="h-3 w-3" />
-                  </button>
-                ))}
-                {activeFilters.length > 0 && (
-                  <button type="button" onClick={resetFilters} className="text-xs font-bold text-muted-foreground transition hover:text-primary">
-                    Reset all
-                  </button>
-                )}
-              </div>
-            )}
-          </section>
-        </ScrollReveal>
-
-        <ScrollReveal delay={220}>
-          <section className="mt-7 space-y-4 sm:mt-9 sm:space-y-6">
-            <div className="flex flex-col gap-4 rounded-[1.5rem] border border-border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                  {search.trim() ? `Showing results for "${search.trim()}"` : "Available shoes"}
-                </p>
-                <h2 className="mt-1 text-2xl font-black tracking-tight text-ink">{filteredShoes.length} pairs found</h2>
-              </div>
-              <div className="flex items-center gap-2">
+          <div className="mt-6 grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
+            <aside className="rounded-[1.5rem] border border-border bg-card p-4 shadow-card lg:sticky lg:top-24 lg:self-start">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-primary">Refine search</p>
+                  <h2 className="mt-2 text-xl font-black text-ink">Find the right pair</h2>
+                </div>
                 <button
                   type="button"
-                  onClick={() => setViewMode("grid")}
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-full border transition",
-                    viewMode === "grid" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
-                  )}
-                  aria-label="Grid view"
+                  onClick={() => setFiltersOpen((open) => !open)}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-background px-3 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary lg:hidden"
                 >
-                  <LayoutGrid className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("list")}
-                  className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-full border transition",
-                    viewMode === "list" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
-                  )}
-                  aria-label="List view"
-                >
-                  <LayoutList className="h-4 w-4" />
+                  <SlidersHorizontal className="h-4 w-4" />
+                  {filtersOpen ? "Hide" : "Show"}
                 </button>
               </div>
-            </div>
 
-            {loading ? (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-                    <div className="aspect-[4/5] animate-pulse bg-muted" />
-                    <div className="space-y-2 p-4">
-                      <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
-                      <div className="h-4 w-full animate-pulse rounded bg-muted" />
-                      <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+              <div className={cn("mt-6 space-y-6", filtersOpen ? "block" : "hidden lg:block")}>
+                <div className="rounded-[1.75rem] border border-border bg-background p-4">
+                  <div className="relative">
+                    <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      value={search}
+                      onChange={(event) => setSearch(event.target.value)}
+                      placeholder="Search shoes, brand, style..."
+                      className="h-12 w-full rounded-2xl border border-border bg-background pl-11 pr-11 text-sm font-medium text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    />
+                    {search && (
+                      <button
+                        type="button"
+                        onClick={() => setSearch("")}
+                        className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-primary"
+                        aria-label="Clear search"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-3 rounded-[1.75rem] border border-border bg-background p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Gender</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Choose a category to refine options</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : loadError ? (
-              <div className="rounded-[1.5rem] border border-border bg-card p-8 text-center shadow-sm">
-                <p className="text-lg font-black text-ink">Live catalog unavailable</p>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{loadError}</p>
-                <Link to="/contact" className="mt-5 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-terracotta-deep">
-                  Contact the shop
-                </Link>
-              </div>
-            ) : paginated.length === 0 ? (
-              <div className="rounded-[1.5rem] border border-border bg-card p-8 text-center shadow-sm">
-                <p className="text-lg font-black text-ink">No shoes found</p>
-                <p className="mt-2 text-sm text-muted-foreground">Try clearing one filter or searching a broader term.</p>
-                <button onClick={resetFilters} className="mt-5 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-terracotta-deep">
-                  Reset filters
-                </button>
-              </div>
-            ) : (
-              <div
-                className={cn(
-                  viewMode === "grid"
-                    ? "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4"
-                    : "grid gap-3 sm:gap-4",
-                )}
-              >
-                {paginated.map((shoe, index) =>
-                  viewMode === "grid" ? <ProductTile key={shoe._id} shoe={shoe} index={index} /> : <ProductRow key={shoe._id} shoe={shoe} index={index} />,
-                )}
-              </div>
-            )}
+                  <div className="flex flex-wrap gap-2">
+                    {genderOptions
+                      .filter((option) => option.value !== "all")
+                      .map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setGender(option.value)}
+                          className={cn(
+                            "rounded-full border px-3 py-2 text-sm font-semibold transition",
+                            gender === option.value
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
+                          )}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                  </div>
+                </div>
 
-            {showPagination && (
-              <nav className="reveal flex justify-center pt-2" aria-label="Shoe pages">
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card p-1 shadow-sm">
-                  <button
-                    type="button"
-                    aria-label="Previous page"
-                    disabled={page <= 1}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      if (page <= 1) return;
-                      setPage((current) => Math.max(1, current - 1));
-                    }}
-                    className="flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-bold text-ink transition hover:bg-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-                  >
-                    Prev
-                  </button>
+                {gender === "all" ? (
+                  <div className="rounded-[1.75rem] border border-border bg-background p-4 text-sm leading-6 text-muted-foreground">
+                    Select a gender first to reveal filters for shoe type, brand, size, and sorting.
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-4 rounded-[1.75rem] border border-border bg-background p-4">
+                      <SelectField label="Shoe type" value={category} onChange={setCategory} options={categories} />
+                      <SelectField label="Brand" value={brand} onChange={setBrand} options={brands} />
+                      <SelectField label="Size" value={size} onChange={setSize} options={sizes} />
+                    </div>
 
-                  {paginationRange.map((item) =>
-                    typeof item === "number" ? (
-                      <button
-                        key={item}
-                        type="button"
-                        aria-label={`Page ${item}`}
-                        aria-current={item === page ? "page" : undefined}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          setPage(item as number);
-                        }}
-                        className={cn(
-                          "flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition",
-                          item === page ? "bg-primary text-primary-foreground" : "text-ink hover:bg-secondary hover:text-primary",
-                        )}
+                    <div className="space-y-3 rounded-[1.75rem] border border-border bg-background p-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Sort</p>
+                      <select
+                        value={sort}
+                        onChange={(event) => setSort(event.target.value)}
+                        className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm font-medium text-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
                       >
-                        {item}
-                      </button>
-                    ) : (
-                      <span key={item} className="px-1 text-muted-foreground">
-                        ...
-                      </span>
-                    ),
-                  )}
+                        {sortOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                  <button
-                    type="button"
-                    aria-label="Next page"
-                    disabled={page >= pageCount}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      if (page >= pageCount) return;
-                      setPage((current) => Math.min(pageCount, current + 1));
-                    }}
-                    className="flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-bold text-ink transition hover:bg-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-                  >
-                    Next
+                    <button
+                      type="button"
+                      onClick={() => setTrendingOnly((current) => !current)}
+                      className={cn(
+                        "inline-flex h-12 w-full items-center justify-center rounded-2xl border px-4 text-sm font-semibold transition",
+                        trendingOnly ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
+                      )}
+                    >
+                      {trendingOnly ? "Trending only" : "Show trending"}
+                    </button>
+                  </>
+                )}
+
+                {(activeFilters.length > 0 || activeFilterCount > 0) && (
+                  <div className="space-y-3 rounded-[1.75rem] border border-primary/20 bg-primary/10 p-4">
+                    <div className="flex flex-wrap gap-2">
+                      {activeFilters.map((filter) => (
+                        <button
+                          key={filter.label}
+                          type="button"
+                          onClick={filter.clear}
+                          className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground transition hover:bg-primary/90"
+                        >
+                          {filter.label}
+                          <X className="h-3 w-3" />
+                        </button>
+                      ))}
+                    </div>
+                    {activeFilters.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={resetFilters}
+                        className="w-full rounded-2xl bg-ink px-4 py-3 text-sm font-bold text-background transition hover:bg-primary"
+                      >
+                        Reset all filters
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </aside>
+
+            <section className="space-y-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                    {search.trim() ? `Showing results for "${search.trim()}"` : "Available shoes"}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  <p className="text-sm font-medium text-muted-foreground sm:text-right">{filteredShoes.length} pairs found</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("grid")}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-full border transition",
+                        viewMode === "grid" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
+                      )}
+                      aria-label="Grid view"
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("list")}
+                      className={cn(
+                        "flex h-10 w-10 items-center justify-center rounded-full border transition",
+                        viewMode === "list" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:border-primary hover:text-primary",
+                      )}
+                      aria-label="List view"
+                    >
+                      <LayoutList className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <div key={index} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                      <div className="aspect-[4/5] animate-pulse bg-muted" />
+                      <div className="space-y-2 p-4">
+                        <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
+                        <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                        <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : loadError ? (
+                <div className="rounded-[1.5rem] border border-border bg-card p-8 text-center shadow-sm">
+                  <p className="text-lg font-black text-ink">Live catalog unavailable</p>
+                  <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{loadError}</p>
+                  <Link to="/contact" className="mt-5 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-terracotta-deep">
+                    Contact the shop
+                  </Link>
+                </div>
+              ) : paginated.length === 0 ? (
+                <div className="rounded-[1.5rem] border border-border bg-card p-8 text-center shadow-sm">
+                  <p className="text-lg font-black text-ink">No shoes found</p>
+                  <p className="mt-2 text-sm text-muted-foreground">Try clearing one filter or searching a broader term.</p>
+                  <button onClick={resetFilters} className="mt-5 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-terracotta-deep">
+                    Reset filters
                   </button>
                 </div>
-              </nav>
-            )}
-          </section>
+              ) : (
+                <div
+                  className={cn(
+                    viewMode === "grid"
+                      ? "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4"
+                      : "grid gap-3 sm:gap-4",
+                  )}
+                >
+                  {paginated.map((shoe, index) =>
+                    viewMode === "grid" ? <ProductTile key={shoe._id} shoe={shoe} index={index} /> : <ProductRow key={shoe._id} shoe={shoe} index={index} />,
+                  )}
+                </div>
+              )}
+
+              {showPagination && (
+                <nav className="reveal flex justify-center pt-2" aria-label="Shoe pages">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card p-1 shadow-sm">
+                    <button
+                      type="button"
+                      aria-label="Previous page"
+                      disabled={page <= 1}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        if (page <= 1) return;
+                        setPage((current) => Math.max(1, current - 1));
+                      }}
+                      className="flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-bold text-ink transition hover:bg-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      Prev
+                    </button>
+
+                    {paginationRange.map((item) =>
+                      typeof item === "number" ? (
+                        <button
+                          key={item}
+                          type="button"
+                          aria-label={`Page ${item}`}
+                          aria-current={item === page ? "page" : undefined}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setPage(item as number);
+                          }}
+                          className={cn(
+                            "flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition",
+                            item === page ? "bg-primary text-primary-foreground" : "text-ink hover:bg-secondary hover:text-primary",
+                          )}
+                        >
+                          {item}
+                        </button>
+                      ) : (
+                        <span key={item} className="px-1 text-muted-foreground">
+                          ...
+                        </span>
+                      ),
+                    )}
+
+                    <button
+                      type="button"
+                      aria-label="Next page"
+                      disabled={page >= pageCount}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        if (page >= pageCount) return;
+                        setPage((current) => Math.min(pageCount, current + 1));
+                      }}
+                      className="flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-bold text-ink transition hover:bg-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </nav>
+              )}
+            </section>
+          </div>
         </ScrollReveal>
       </div>
     </main>

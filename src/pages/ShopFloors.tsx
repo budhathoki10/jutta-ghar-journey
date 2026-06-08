@@ -1,5 +1,7 @@
-import { ArrowDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowDown, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { type CarouselApi, Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { cn } from "@/lib/utils";
 import floorOne from "@/assets/one.png";
@@ -63,11 +65,116 @@ const floors = [
   },
 ];
 
-const heroPreviewImages = [
-  { src: floorOne, label: "1st Floor", alt: "First floor preview" },
-  { src: floorFive, label: "2nd Floor", alt: "Second floor preview" },
-  { src: floorSeven, label: "Top Floor", alt: "Top floor preview" },
-];
+type Floor = (typeof floors)[number];
+
+const FloorImageSlider = ({ floor, floorIndex }: { floor: Floor; floorIndex: number }) => {
+  const [api, setApi] = useState<CarouselApi>();
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [slideCount, setSlideCount] = useState(floor.images.length);
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    const syncSelectedSlide = () => {
+      setSelectedIndex(api.selectedScrollSnap());
+      setSlideCount(api.scrollSnapList().length);
+    };
+
+    syncSelectedSlide();
+    api.on("select", syncSelectedSlide);
+    api.on("reInit", syncSelectedSlide);
+
+    return () => {
+      api.off("select", syncSelectedSlide);
+      api.off("reInit", syncSelectedSlide);
+    };
+  }, [api]);
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    const autoplay = window.setInterval(() => {
+      api.scrollNext();
+    }, 2000);
+
+    return () => {
+      window.clearInterval(autoplay);
+    };
+  }, [api]);
+
+  const activeImage = floor.images[selectedIndex] ?? floor.images[0];
+
+  return (
+    <div className="min-w-0">
+      <Carousel
+        setApi={setApi}
+        opts={{ align: "start", loop: true }}
+        className="floor-photo-card overflow-hidden rounded-lg border border-border bg-card shadow-soft"
+        aria-label={`${floor.title} image slider`}
+      >
+        <CarouselContent className="ml-0">
+          {floor.images.map((image, imageIndex) => (
+            <CarouselItem key={image.title} className="pl-0">
+              <article className="bg-card">
+                <div className="relative aspect-[4/3] min-h-[17rem] overflow-hidden bg-muted sm:aspect-[16/10] sm:min-h-[24rem] lg:aspect-[16/9]">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    loading={floorIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3 sm:p-4">
+                    <span className="inline-flex items-center gap-2 rounded-full border border-background/70 bg-background/92 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-primary shadow-sm backdrop-blur sm:text-xs">
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      {floor.number}.{imageIndex + 1}
+                    </span>
+                    <span className="rounded-full border border-background/70 bg-ink/72 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-foreground shadow-sm backdrop-blur sm:text-xs">
+                      {floor.shortTitle} floor
+                    </span>
+                  </div>
+                </div>
+              </article>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+
+        <CarouselPrevious className="left-3 top-1/2 h-10 w-10 -translate-y-1/2 border-background/80 bg-background/92 text-ink shadow-card hover:bg-background sm:left-4" />
+        <CarouselNext className="right-3 top-1/2 h-10 w-10 -translate-y-1/2 border-background/80 bg-background/92 text-ink shadow-card hover:bg-background sm:right-4" />
+      </Carousel>
+
+      <div className="mt-3 grid gap-3 rounded-lg border border-border bg-card p-3 shadow-card sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-4">
+        <div className="min-w-0">
+          <p className="text-base font-black leading-6 text-ink sm:text-lg">{activeImage.title}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{activeImage.note}</p>
+        </div>
+        <div className="flex items-center justify-between gap-4 sm:justify-end">
+          <div className="flex gap-1.5" aria-label={`${floor.title} slide position`}>
+            {floor.images.map((image, dotIndex) => (
+              <button
+                key={image.title}
+                type="button"
+                className={cn(
+                  "h-2.5 rounded-full transition-all",
+                  dotIndex === selectedIndex ? "w-8 bg-primary" : "w-2.5 bg-border hover:bg-primary/45",
+                )}
+                onClick={() => api?.scrollTo(dotIndex)}
+                aria-label={`Show ${image.title}`}
+                aria-current={dotIndex === selectedIndex ? "true" : undefined}
+              />
+            ))}
+          </div>
+          <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {selectedIndex + 1} / {slideCount}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ShopFloors = () => {
   return (
@@ -75,76 +182,32 @@ const ShopFloors = () => {
       <section className="relative border-b border-border/70">
         <div className="floor-hero-motion absolute inset-0 pointer-events-none" aria-hidden="true" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,0.92fr)_minmax(340px,0.72fr)] lg:items-center lg:py-20">
-          <ScrollReveal delay={100}>
-            <div>
-              <p className="inline-flex rounded-full border border-border bg-card/90 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary shadow-sm sm:text-xs">
-                Shop floors
-              </p>
-              <h1 className="mt-5 max-w-3xl text-3xl font-black leading-[1.04] tracking-tight text-ink xs:text-4xl sm:text-5xl lg:text-6xl">
-                Every floor has a clear purpose.
-              </h1>
-              <p className="mt-5 max-w-2xl text-sm leading-6 text-foreground/75 sm:text-base sm:leading-7">
-                A simple guide to where each collection lives inside GoGo Jutta Ghar, so customers can move through the shop with confidence.
-              </p>
+        <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
+          <ScrollReveal delay={100} className="mx-auto max-w-5xl text-center">
+            <p className="inline-flex rounded-full border border-border bg-card/90 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary shadow-sm sm:text-xs">
+              Shop floors
+            </p>
+            <h1 className="mx-auto mt-5 max-w-4xl text-3xl font-black leading-[1.04] tracking-tight text-ink xs:text-4xl sm:text-5xl lg:text-6xl">
+              Every floor has a clear purpose.
+            </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-6 text-foreground/75 sm:text-base sm:leading-7">
+              A simple guide to where each collection lives inside GoGo Jutta Ghar, so customers can move through the shop with confidence.
+            </p>
 
-              <div className="mt-7 flex flex-col gap-3 xs:flex-row xs:flex-wrap">
-                <Button asChild className="h-11 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-terracotta-deep">
-                  <a href="#first-floor">
-                    Start the tour
-                    <ArrowDown className="h-4 w-4" />
-                  </a>
-                </Button>
-              </div>
-
-              <div className="mt-8 grid grid-cols-3 gap-2 sm:max-w-xl sm:gap-3">
-                {floors.map((floor) => (
-                  <a
-                    key={floor.id}
-                    href={`#${floor.id}`}
-                    className="rounded-2xl border border-border bg-card/80 px-3 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:text-primary sm:px-4"
-                  >
-                    <span className="block font-serif text-2xl font-black leading-none text-mustard sm:text-3xl">{floor.number}</span>
-                    <span className="mt-2 block text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs">{floor.shortTitle}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </ScrollReveal>
-
-          <ScrollReveal delay={200}>
-            <div className="floor-path-card relative">
-              <div className="grid grid-cols-[1fr_0.72fr] gap-3 rounded-[1.75rem] border border-border bg-card/90 p-3 shadow-soft backdrop-blur sm:gap-4 sm:p-4">
-                <article className="group relative overflow-hidden rounded-[1.25rem] bg-muted sm:rounded-[1.5rem]">
-                  <img src={heroPreviewImages[0].src} alt={heroPreviewImages[0].alt} className="h-full min-h-[20rem] w-full object-cover transition duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/55 via-transparent to-transparent" />
-                  <p className="absolute bottom-4 left-4 rounded-full bg-background/90 px-3 py-1.5 text-xs font-semibold text-ink backdrop-blur">
-                    {heroPreviewImages[0].label}
-                  </p>
-                </article>
-                <div className="grid gap-3 sm:gap-4">
-                  {heroPreviewImages.slice(1).map((image) => (
-                    <article key={image.label} className="group relative overflow-hidden rounded-[1.25rem] bg-muted sm:rounded-[1.5rem]">
-                      <img src={image.src} alt={image.alt} className="h-full min-h-[9.35rem] w-full object-cover transition duration-700 group-hover:scale-105" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
-                      <p className="absolute bottom-3 left-3 rounded-full bg-background/90 px-3 py-1.5 text-[11px] font-semibold text-ink backdrop-blur">
-                        {image.label}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-              <div className="absolute -bottom-4 left-5 right-5 hidden rounded-2xl border border-border bg-background/95 px-4 py-3 shadow-card backdrop-blur sm:flex sm:items-center sm:justify-between">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">3 floors</span>
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">9 image views</span>
-              </div>
+            <div className="mt-7 flex justify-center">
+              <Button asChild className="h-11 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-terracotta-deep">
+                <a href="#first-floor">
+                  Start the tour
+                  <ArrowDown className="h-4 w-4" />
+                </a>
+              </Button>
             </div>
           </ScrollReveal>
         </div>
       </section>
 
-      <nav className="sticky top-[4.25rem] z-30 border-b border-border bg-background/92 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-3 sm:justify-center sm:px-6">
+      <nav className="sticky top-[4.25rem] z-30 border-b border-border/25 bg-background/95 backdrop-blur-xl sm:border-border/60">
+        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2.5 sm:justify-center sm:px-6 sm:py-3">
           {floors.map((floor) => (
             <a
               key={floor.id}
@@ -170,57 +233,28 @@ const ShopFloors = () => {
           >
             <div className="floor-section-motion absolute inset-0 pointer-events-none" aria-hidden="true" />
 
-            <ScrollReveal delay={100}>
-              <div className="relative mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(260px,0.58fr)_minmax(0,1.42fr)] lg:gap-12">
-                <div className="lg:sticky lg:top-36 lg:self-start">
-                  <p className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
-                    {floor.eyebrow}
-                  </p>
-                  <div className="mt-5 flex items-end gap-4">
-                    <span className="font-serif text-6xl font-black leading-none text-mustard sm:text-7xl">{floor.number}</span>
-                    <h2 className="pb-1 text-3xl font-black tracking-tight text-ink sm:text-4xl">{floor.title}</h2>
-                  </div>
-                  <p className="mt-3 text-lg font-semibold leading-7 text-foreground sm:text-xl">{floor.label}</p>
-                  <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">{floor.description}</p>
-
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {floor.highlights.map((item) => (
-                      <div key={item} className="rounded-full border border-border bg-card px-4 py-2.5 text-xs font-semibold text-foreground shadow-sm sm:text-sm">
-                        {item}
-                      </div>
-                    ))}
-                  </div>
+            <ScrollReveal delay={100} className="relative mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[minmax(260px,0.58fr)_minmax(0,1.42fr)] lg:gap-12">
+              <div className="lg:sticky lg:top-36 lg:self-start">
+                <p className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">
+                  {floor.eyebrow}
+                </p>
+                <div className="mt-5 flex items-end gap-4">
+                  <span className="font-serif text-6xl font-black leading-none text-mustard sm:text-7xl">{floor.number}</span>
+                  <h2 className="pb-1 text-3xl font-black tracking-tight text-ink sm:text-4xl">{floor.title}</h2>
                 </div>
+                <p className="mt-3 text-lg font-semibold leading-7 text-foreground sm:text-xl">{floor.label}</p>
+                <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">{floor.description}</p>
 
-                <div className="grid auto-rows-[minmax(8.5rem,1fr)] grid-cols-2 gap-2 sm:auto-rows-[minmax(11rem,1fr)] sm:grid-cols-3 sm:gap-4 lg:gap-5">
-                  {floor.images.map((image, imageIndex) => (
-                    <article
-                      key={image.title}
-                      className={cn(
-                        "floor-photo-card group flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition duration-500 hover:-translate-y-1 hover:border-primary/25 hover:shadow-soft sm:rounded-[1.5rem]",
-                        imageIndex === 0 ? "row-span-2 sm:col-span-2 sm:row-span-2" : "",
-                      )}
-                      style={{ animationDelay: `${imageIndex * 120}ms` }}
-                    >
-                      <div className={cn("relative overflow-hidden bg-muted", imageIndex === 0 ? "min-h-0 flex-1" : "aspect-[4/3]")}>
-                        <img
-                          src={image.src}
-                          alt={image.alt}
-                          loading={floorIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
-                          className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                        />
-                        <span className="absolute right-2 top-2 rounded-full border border-border bg-background/95 px-2.5 py-1 text-[10px] font-black text-primary shadow-sm backdrop-blur sm:right-3 sm:top-3 sm:text-xs">
-                          {floor.number}.{imageIndex + 1}
-                        </span>
-                      </div>
-                      <div className="px-2.5 py-2 sm:px-4 sm:py-3.5">
-                        <p className="line-clamp-1 text-[11px] font-semibold text-ink sm:text-sm">{image.title}</p>
-                        <p className="mt-0.5 hidden text-xs text-muted-foreground sm:block">{image.note}</p>
-                      </div>
-                    </article>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {floor.highlights.map((item) => (
+                    <div key={item} className="rounded-full border border-border bg-card px-4 py-2.5 text-xs font-semibold text-foreground shadow-sm sm:text-sm">
+                      {item}
+                    </div>
                   ))}
                 </div>
               </div>
+
+              <FloorImageSlider floor={floor} floorIndex={floorIndex} />
             </ScrollReveal>
           </section>
         ))}
