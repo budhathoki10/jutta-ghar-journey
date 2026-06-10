@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, BadgeCheck, ImageIcon } from 'lucide-react';
 import { fetchShoe } from '../api/shoeApi';
 import { Button } from '@/components/ui/button';
+import { handleProductImageError, resolveImageUrl } from '@/lib/image';
 
 type Shoe = {
   _id: string;
@@ -26,6 +27,11 @@ const ShoeDetail: React.FC = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const formatPrice = (price?: number) => {
+    if (!price || Number.isNaN(price)) return 'Price on request';
+    return `रु ${price.toLocaleString()}`;
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -67,28 +73,32 @@ const ShoeDetail: React.FC = () => {
     );
   }
 
-  const images = shoe.images || [];
+  const images = (shoe.images || []).map((image) => ({
+    ...image,
+    url: resolveImageUrl(image.url),
+  }));
   const mainImage = images[activeImage]?.url;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen bg-background text-slate-950">
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <Link
           to="/shoes"
-          className="reveal inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:text-slate-950"
+          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm shadow-slate-200 transition hover:bg-white hover:text-slate-950"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to all shoes
         </Link>
 
-        <section className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-4 reveal-left">
-            <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-              <div className="aspect-square bg-slate-100">
+        <section className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] xl:gap-10">
+          <div className="space-y-6">
+            <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_20px_80px_-40px_rgba(15,23,42,0.25)]">
+              <div className="aspect-[4/5] bg-gradient-to-br from-primary/10 via-white to-secondary/10">
                 {mainImage ? (
                   <img
                     src={mainImage}
                     alt={shoe.name}
+                    onError={handleProductImageError}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -106,16 +116,17 @@ const ShoeDetail: React.FC = () => {
                     key={`${image.url}-${index}`}
                     type="button"
                     onClick={() => setActiveImage(index)}
-                    className={`overflow-hidden rounded-2xl border bg-white p-1 transition ${
+                    className={`overflow-hidden rounded-3xl border bg-white p-1 transition ${
                       activeImage === index
-                        ? 'border-zinc-950 ring-4 ring-zinc-950/10'
+                        ? 'border-slate-900 shadow-sm shadow-slate-900/10'
                         : 'border-slate-200 hover:border-slate-400'
                     }`}
                   >
                     <img
                       src={image.url}
                       alt={`${shoe.name} ${index + 1}`}
-                      className="aspect-square w-full rounded-xl object-cover"
+                      onError={handleProductImageError}
+                      className="aspect-square w-full rounded-2xl object-cover"
                     />
                   </button>
                 ))}
@@ -123,10 +134,10 @@ const ShoeDetail: React.FC = () => {
             )}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:rounded-[2rem] sm:p-6 lg:p-8 reveal-right">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_-20px_rgba(15,23,42,0.35)] sm:p-8">
             <div className="flex flex-wrap gap-2">
               {shoe.trending && (
-                <span className="rounded-full bg-zinc-950 px-3 py-1 text-xs font-semibold text-white">
+                <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm">
                   Trending
                 </span>
               )}
@@ -143,7 +154,7 @@ const ShoeDetail: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-950 sm:text-5xl">
+            <h1 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
               {shoe.name}
             </h1>
 
@@ -151,52 +162,56 @@ const ShoeDetail: React.FC = () => {
               {shoe.brand || 'Local craft'} • {shoe.subcategory || 'Shoe'}
             </p>
 
-            <p className="mt-6 text-4xl font-bold text-slate-950">
-              Rs. {shoe.price?.toLocaleString() ?? '—'}
-            </p>
+            <div className="mt-6 rounded-[1.75rem] bg-slate-50 p-5 shadow-sm sm:p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Price</p>
+              <p className="mt-2 text-3xl font-black text-slate-950">{formatPrice(shoe.price)}</p>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Available in multiple sizes and fresh stock. Tap contact to reserve your pair.
+              </p>
+            </div>
 
-            <p className="mt-6 leading-7 text-slate-600">
-              {shoe.description ||
-                'A quality shoe selected for comfort, daily use, and style.'}
+            <p className="mt-6 leading-7 text-slate-700">
+              {shoe.description || 'A quality shoe selected for comfort, daily use, and style.'}
             </p>
 
             {shoe.sizes?.length ? (
               <div className="mt-8">
-                <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">
+                <h2 className="text-sm font-bold uppercase tracking-[0.24em] text-slate-500">
                   Available sizes
                 </h2>
-
                 <div className="mt-4 flex flex-wrap gap-2">
                   {shoe.sizes.map((size) => (
                     <span
                       key={size}
-                      className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800"
+                      className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm"
                     >
                       {size}
                     </span>
                   ))}
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-600">
+                Ask for sizes and stock availability.
+              </div>
+            )}
 
-            <div className="mt-8 grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-4 text-xs leading-5 text-slate-600 sm:rounded-3xl sm:p-5 sm:text-sm">
-              <p>
-                <span className="font-semibold text-slate-950">Category:</span>{' '}
-                {shoe.subcategory || 'N/A'}
-              </p>
-
-              <p>
-                <span className="font-semibold text-slate-950">Added:</span>{' '}
-                {shoe.createdAt ? new Date(shoe.createdAt).toLocaleDateString() : 'N/A'}
-              </p>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600 shadow-sm">
+                <p className="font-semibold text-slate-950">Category</p>
+                <p className="mt-2">{shoe.subcategory || 'N/A'}</p>
+              </div>
+              <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600 shadow-sm">
+                <p className="font-semibold text-slate-950">Added</p>
+                <p className="mt-2">{shoe.createdAt ? new Date(shoe.createdAt).toLocaleDateString() : 'N/A'}</p>
+              </div>
             </div>
 
-            <div className="mt-8 grid gap-3 xs:grid-cols-2 sm:flex sm:flex-row">
-              <Button asChild className="rounded-full bg-zinc-950 px-6 hover:bg-zinc-800">
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <Button asChild className="rounded-full bg-zinc-950 px-6 py-4 text-base font-semibold text-white transition hover:bg-slate-900">
                 <Link to="/contact">Contact to order</Link>
               </Button>
-
-              <Button asChild variant="outline" className="rounded-full px-6">
+              <Button asChild variant="outline" className="rounded-full border-slate-200 px-6 py-4 text-base font-semibold">
                 <Link to="/shoes">Continue shopping</Link>
               </Button>
             </div>

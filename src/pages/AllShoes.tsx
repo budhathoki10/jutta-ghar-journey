@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { fetchShoes } from '../api/shoeApi';
 import { Search } from 'lucide-react';
+import { handleProductImageError, resolveImageUrl } from '@/lib/image';
+import type { Shoe } from '@/types/shoe';
 
 const AllShoes: React.FC = () => {
-  const [shoes, setShoes] = useState<any[]>([]);
+  const [shoes, setShoes] = useState<Shoe[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchShoes()
-      .then((res) => setShoes(res.data.data))
+      .then((res) => setShoes((res.data.data || []) as Shoe[]))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -73,10 +75,11 @@ const AllShoes: React.FC = () => {
                   <div className="relative h-40 bg-muted overflow-hidden">
                     {shoe.images?.[0]?.url ? (
                       <img
-                        src={shoe.images[0].url}
+                        src={resolveImageUrl(shoe.images[0].url)}
                         alt={shoe.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                         loading="lazy"
+                        onError={handleProductImageError}
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/10 flex items-center justify-center">
@@ -102,7 +105,7 @@ const AllShoes: React.FC = () => {
                       )}
                     </div>
 
-                    {shoe.price && (
+                    {shoe.price && typeof shoe.price === 'number' && (
                       <div className="mt-2 text-sm font-bold text-primary">
                         रु {shoe.price.toLocaleString()}
                       </div>

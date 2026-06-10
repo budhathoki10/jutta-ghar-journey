@@ -44,8 +44,12 @@ exports.uploadImage = async (req, res) => {
     bufferStream.pipe(uploadStream);
 
     uploadStream.on('finish', () => {
+      const baseUrl =
+        process.env.PUBLIC_API_URL ||
+        `${req.protocol}://${req.get('host')}`;
+
       res.json({
-        url: `/api/admin/image/${uploadStream.id}`,
+        url: `${baseUrl}/api/admin/image/${uploadStream.id}`,
         publicId: uploadStream.id.toString(),
         filename: filename
       });
@@ -65,6 +69,15 @@ exports.getImage = async (req, res) => {
     if (!gfs) return res.status(500).json({ message: 'GridFS not initialized' });
 
     const fileId = new mongoose.Types.ObjectId(req.params.id);
+    const file = await conn.db.collection('uploads.files').findOne({ _id: fileId });
+
+    if (!file) {
+      return res.status(404).json({ message: 'Image not found' });
+    }
+
+    res.set('Content-Type', file.contentType || 'application/octet-stream');
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+
     const downloadStream = gfs.openDownloadStream(fileId);
 
     downloadStream.on('error', () => {

@@ -2,9 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { LayoutGrid, LayoutList, Search, SlidersHorizontal, X } from "lucide-react";
 import { fetchShoes } from "@/api/shoeApi";
+import { handleProductImageError, resolveImageUrl } from "@/lib/image";
 import { cn } from "@/lib/utils";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { useReveal } from "@/hooks/use-reveal";
+import ShoeModal from "@/components/ShoeModal";
+import type { Shoe } from "@/types/shoe";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -30,7 +33,7 @@ const sortOptions = [
 ];
 
 const ProductCatalog = () => {
-  const [shoes, setShoes] = useState<any[]>([]);
+  const [shoes, setShoes] = useState<Shoe[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [search, setSearch] = useState("");
@@ -43,11 +46,21 @@ const ProductCatalog = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [selectedShoe, setSelectedShoe] = useState<Shoe | null>(null);
+  const isModalOpen = Boolean(selectedShoe);
+
+  const openShoeModal = (shoe: Shoe) => {
+    setSelectedShoe(shoe);
+  };
+
+  const closeShoeModal = () => {
+    setSelectedShoe(null);
+  };
 
   useEffect(() => {
     fetchShoes()
       .then((res) => {
-        setShoes(res.data.data || []);
+        setShoes((res.data.data || []) as Shoe[]);
         setLoadError("");
       })
       .catch((error) => {
@@ -175,14 +188,14 @@ const ProductCatalog = () => {
     setTrendingOnly(false);
   };
 
-  const getImage = (shoe: any) => shoe.images?.[0]?.url || "https://via.placeholder.com/600x750?text=No+image";
-  const getPrice = (shoe: any) => {
+  const getImage = (shoe: Shoe) => resolveImageUrl(shoe.images?.[0]?.url);
+  const getPrice = (shoe: Shoe) => {
     const raw = shoe.price;
     const num = typeof raw === "number" ? raw : Number(raw);
     if (!num || Number.isNaN(num)) return "Price N/A";
     return `रु ${num.toLocaleString()}`;
   };
-  const getSizeLabel = (shoe: any) => {
+  const getSizeLabel = (shoe: Shoe) => {
     if (!shoe.sizes?.length) return "Ask for size";
     if (shoe.sizes.length === 1) return `Size ${shoe.sizes[0]}`;
     return `Sizes ${Math.min(...shoe.sizes)}-${Math.max(...shoe.sizes)}`;
@@ -215,123 +228,122 @@ const ProductCatalog = () => {
     </label>
   );
 
-  const ProductTile = ({ shoe, index }: { shoe: any; index: number }) => (
+  const ProductTile = ({ shoe, index }: { shoe: Shoe; index: number }) => (
     <article
-      className="group reveal-scale flex min-h-full flex-col overflow-hidden rounded-[2rem] border border-border bg-card shadow-soft transition duration-500 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+      className="group reveal-scale flex min-h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition duration-300 hover:shadow-md"
       style={{ transitionDelay: `${index * 45}ms` }}
     >
-      <Link to={`/shoes/${shoe._id}`} className="block" aria-label={`View ${shoe.name} details`}>
-        <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-secondary/35">
+      <button
+        type="button"
+        onClick={() => openShoeModal(shoe)}
+        className="block text-left"
+        aria-label={`Open ${shoe.name} details`}
+      >
+        <div className="relative aspect-square overflow-hidden bg-secondary/35">
           <img
             src={getImage(shoe)}
             alt={shoe.name}
             loading={index < 4 ? "eager" : "lazy"}
-            className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+            onError={handleProductImageError}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
           />
-          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+          <div className="absolute right-3 top-3 flex flex-col gap-2">
             {shoe.trending && (
-              <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary-foreground shadow-sm">
+              <span className="inline-block rounded bg-red-600 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-white shadow-md">
                 New
               </span>
             )}
             {shoe.soldOut && (
-              <span className="rounded-full bg-ink px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-background shadow-sm">
-                Sold out
+              <span className="inline-block rounded bg-ink px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-white shadow-md">
+                Sold Out
               </span>
             )}
           </div>
         </div>
-      </Link>
+      </button>
 
-      <div className="flex flex-1 flex-col gap-4 p-4 sm:p-5">
+      <div className="flex flex-1 flex-col justify-between gap-3 p-3 sm:p-4">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{shoe.subcategory || "Collection"}</p>
-          <Link to={`/shoes/${shoe._id}`} className="mt-3 block">
-            <h3 className="line-clamp-2 text-base font-black capitalize leading-6 text-ink transition group-hover:text-primary sm:text-lg">
+          <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground">{shoe.subcategory || "Collection"}</p>
+          <button
+            type="button"
+            onClick={() => openShoeModal(shoe)}
+            className="mt-2 w-full text-left"
+          >
+            <h3 className="line-clamp-2 text-sm font-bold leading-5 text-ink transition group-hover:text-primary sm:text-base">
               {shoe.name}
             </h3>
-          </Link>
-          <p className="mt-2 text-sm font-medium text-muted-foreground">{shoe.brand || "Non-branded"}</p>
+          </button>
+          <p className="mt-1 text-xs text-muted-foreground">{getSizeLabel(shoe)}</p>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
-            <span className="rounded-full border border-border bg-background px-3 py-1 capitalize">{shoe.gender || "Unisex"}</span>
-            <span className="rounded-full border border-border bg-background px-3 py-1">{getSizeLabel(shoe)}</span>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Price</p>
-              <p className="mt-2 text-xl font-black text-terracotta-deep">{getPrice(shoe)}</p>
-            </div>
-            <Link
-              to={`/shoes/${shoe._id}`}
-              className="inline-flex items-center justify-center rounded-full bg-ink px-4 py-2 text-xs font-bold text-background transition hover:bg-primary sm:text-sm"
-              aria-label={`View ${shoe.name} details`}
-            >
-              View
-            </Link>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={() => openShoeModal(shoe)}
+          className="inline-flex items-center justify-center rounded bg-red-600 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-red-700 sm:text-sm"
+          aria-label={`View ${shoe.name} details`}
+        >
+          View Details
+        </button>
       </div>
     </article>
   );
 
-  const ProductRow = ({ shoe, index }: { shoe: any; index: number }) => (
+  const ProductRow = ({ shoe, index }: { shoe: Shoe; index: number }) => (
     <article
-      className="group reveal-scale grid gap-3 rounded-[2rem] border border-border bg-card p-4 shadow-soft transition duration-500 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg sm:grid-cols-[11rem_1fr_auto] sm:items-center sm:p-5"
+      className="group reveal-scale grid gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition duration-300 hover:shadow-md sm:grid-cols-[10rem_1fr_auto] sm:items-center"
       style={{ transitionDelay: `${index * 45}ms` }}
     >
-      <Link to={`/shoes/${shoe._id}`} className="block overflow-hidden rounded-[1.75rem] bg-secondary/35">
-        <img src={getImage(shoe)} alt={shoe.name} loading={index < 4 ? "eager" : "lazy"} className="aspect-[4/3] h-full w-full object-cover transition duration-700 group-hover:scale-105 sm:aspect-[4/3]" />
-      </Link>
+      <button
+        type="button"
+        onClick={() => openShoeModal(shoe)}
+        className="block overflow-hidden rounded-lg bg-secondary/35 text-left"
+        aria-label={`Open ${shoe.name} details`}
+      >
+        <img 
+          src={getImage(shoe)} 
+          alt={shoe.name} 
+          loading={index < 4 ? "eager" : "lazy"} 
+          onError={handleProductImageError}
+          className="aspect-square h-full w-full object-cover transition duration-300 group-hover:scale-110" 
+        />
+      </button>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{shoe.subcategory || "Collection"}</p>
-        <Link to={`/shoes/${shoe._id}`}>
-          <h3 className="mt-1 line-clamp-2 text-xl font-black capitalize text-ink transition group-hover:text-primary">{shoe.name}</h3>
-        </Link>
-        <p className="mt-2 text-sm font-medium text-muted-foreground">{shoe.brand || "Non-branded"}</p>
-        <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">
-          {shoe.description || `${shoe.brand || "Selected"} pair with available sizing and in-store details.`}
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-muted-foreground">
-          <span className="rounded-full border border-border bg-background px-3 py-1 capitalize">{shoe.gender || "Unisex"}</span>
-          <span className="rounded-full border border-border bg-background px-3 py-1">{getSizeLabel(shoe)}</span>
-        </div>
+        <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground">{shoe.subcategory || "Collection"}</p>
+        <button type="button" onClick={() => openShoeModal(shoe)} className="mt-2 w-full text-left">
+          <h3 className="line-clamp-1 text-base font-bold text-ink transition group-hover:text-primary sm:text-lg">{shoe.name}</h3>
+        </button>
+        <p className="mt-1 text-xs text-muted-foreground">{shoe.brand || "Non-branded"}</p>
+        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{getSizeLabel(shoe)}</p>
       </div>
-      <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
-        <div className="text-right">
-          <p className="text-sm uppercase tracking-[0.22em] text-muted-foreground">Price</p>
-          <p className="mt-2 text-xl font-black text-terracotta-deep">{getPrice(shoe)}</p>
-        </div>
-        <Link to={`/shoes/${shoe._id}`} className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:bg-terracotta-deep" aria-label={`View ${shoe.name} details`}>
-          View details
-        </Link>
-      </div>
+      <button
+        type="button"
+        onClick={() => openShoeModal(shoe)}
+        className="rounded bg-red-600 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-red-700"
+      >
+        View Details
+      </button>
     </article>
   );
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 sm:pb-16 sm:pt-12">
+    <>
+      <main className="min-h-screen bg-background text-foreground">
+        <div className={cn("mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 sm:pb-16 sm:pt-8 transition duration-300", selectedShoe ? "pointer-events-none blur-2xl" : "") }>
         <ScrollReveal delay={100}>
-          <section className="overflow-hidden rounded-[1.75rem] border border-border bg-gradient-to-br from-card via-background to-secondary/45 p-5 shadow-soft sm:rounded-[2rem] sm:p-8 lg:p-10">
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,0.72fr)_minmax(260px,0.28fr)] lg:items-end">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-primary">Shoe finder</p>
-                <h1 className="mt-3 max-w-3xl text-3xl font-black leading-tight tracking-tight text-ink sm:text-5xl">
-                  Browse the live GoGo Jutta Ghar collection.
-                </h1>
-                <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-                  Search by shoe name, brand, size, gender, and collection. The catalog stays light, fast, and easy to scan on mobile.
-                </p>
-              </div>
-            </div>
+          <section className="mb-8">
+            <p className="text-xs font-bold uppercase tracking-[0.35em] text-primary">Browse Shoes</p>
+            <h1 className="mt-2 text-3xl font-black text-ink sm:text-4xl md:text-5xl">
+              Our Collection
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
+              Discover premium footwear handpicked for quality and style.
+            </p>
           </section>
         </ScrollReveal>
 
         <ScrollReveal delay={160}>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
             <aside className="rounded-[1.5rem] border border-border bg-card p-4 shadow-card lg:sticky lg:top-24 lg:self-start">
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -505,31 +517,32 @@ const ProductCatalog = () => {
               </div>
 
               {loading ? (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4">
                   {Array.from({ length: 8 }).map((_, index) => (
-                    <div key={index} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-                      <div className="aspect-[4/5] animate-pulse bg-muted" />
-                      <div className="space-y-2 p-4">
-                        <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
-                        <div className="h-4 w-full animate-pulse rounded bg-muted" />
-                        <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+                    <div key={index} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                      <div className="aspect-[3/4] animate-pulse bg-muted" />
+                      <div className="space-y-2 p-3 sm:p-4">
+                        <div className="h-2 w-1/2 animate-pulse rounded bg-muted" />
+                        <div className="h-3 w-full animate-pulse rounded bg-muted" />
+                        <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
+                        <div className="mt-2 h-8 w-full animate-pulse rounded bg-muted" />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : loadError ? (
-                <div className="rounded-[1.5rem] border border-border bg-card p-8 text-center shadow-sm">
+                <div className="rounded-xl border border-border bg-card p-8 text-center shadow-sm">
                   <p className="text-lg font-black text-ink">Live catalog unavailable</p>
                   <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{loadError}</p>
-                  <Link to="/contact" className="mt-5 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-terracotta-deep">
+                  <Link to="/contact" className="mt-5 inline-flex rounded bg-red-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-red-700">
                     Contact the shop
                   </Link>
                 </div>
               ) : paginated.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-border bg-card p-8 text-center shadow-sm">
+                <div className="rounded-xl border border-border bg-card p-8 text-center shadow-sm">
                   <p className="text-lg font-black text-ink">No shoes found</p>
                   <p className="mt-2 text-sm text-muted-foreground">Try clearing one filter or searching a broader term.</p>
-                  <button onClick={resetFilters} className="mt-5 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-terracotta-deep">
+                  <button onClick={resetFilters} className="mt-5 rounded bg-red-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-red-700">
                     Reset filters
                   </button>
                 </div>
@@ -537,7 +550,7 @@ const ProductCatalog = () => {
                 <div
                   className={cn(
                     viewMode === "grid"
-                      ? "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-4"
+                      ? "grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-4"
                       : "grid gap-3 sm:gap-4",
                   )}
                 >
@@ -548,8 +561,8 @@ const ProductCatalog = () => {
               )}
 
               {showPagination && (
-                <nav className="reveal flex justify-center pt-2" aria-label="Shoe pages">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card p-1 shadow-sm">
+                <nav className="reveal flex justify-center pt-6" aria-label="Shoe pages">
+                  <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1 shadow-sm">
                     <button
                       type="button"
                       aria-label="Previous page"
@@ -559,9 +572,9 @@ const ProductCatalog = () => {
                         if (page <= 1) return;
                         setPage((current) => Math.max(1, current - 1));
                       }}
-                      className="flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-bold text-ink transition hover:bg-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                      className="flex h-8 min-w-8 items-center justify-center rounded px-2.5 text-sm font-bold text-ink transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-30"
                     >
-                      Prev
+                      ←
                     </button>
 
                     {paginationRange.map((item) =>
@@ -576,14 +589,14 @@ const ProductCatalog = () => {
                             setPage(item as number);
                           }}
                           className={cn(
-                            "flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition",
-                            item === page ? "bg-primary text-primary-foreground" : "text-ink hover:bg-secondary hover:text-primary",
+                            "flex h-8 w-8 items-center justify-center rounded text-sm font-bold transition",
+                            item === page ? "bg-red-600 text-white" : "text-ink hover:bg-secondary",
                           )}
                         >
                           {item}
                         </button>
                       ) : (
-                        <span key={item} className="px-1 text-muted-foreground">
+                        <span key={item} className="px-2 text-muted-foreground text-xs">
                           ...
                         </span>
                       ),
@@ -598,9 +611,9 @@ const ProductCatalog = () => {
                         if (page >= pageCount) return;
                         setPage((current) => Math.min(pageCount, current + 1));
                       }}
-                      className="flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-sm font-bold text-ink transition hover:bg-secondary hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
+                      className="flex h-8 min-w-8 items-center justify-center rounded px-2.5 text-sm font-bold text-ink transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-30"
                     >
-                      Next
+                      →
                     </button>
                   </div>
                 </nav>
@@ -608,8 +621,10 @@ const ProductCatalog = () => {
             </section>
           </div>
         </ScrollReveal>
-      </div>
-    </main>
+        </div>
+      </main>
+      <ShoeModal shoe={selectedShoe} isOpen={isModalOpen} onClose={closeShoeModal} />
+    </>
   );
 };
 
