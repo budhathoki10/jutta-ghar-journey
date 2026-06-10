@@ -6,6 +6,7 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 import { parseSizesInput } from '../../lib/utils';
 import AuthContext from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
+import AdminLayout from '../../components/admin/AdminLayout';
 
 type Gender = 'male' | 'female' | 'unisex';
 type UploadItem = { url?: string; publicId?: string; progress: number; name?: string };
@@ -212,8 +213,8 @@ const AddShoe: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
-      <form onSubmit={submit} className="mx-auto max-w-7xl space-y-6">
+    <AdminLayout>
+      <form onSubmit={submit} className="mx-auto max-w-7xl space-y-6 px-4 py-6">
         <section className="overflow-hidden rounded-sm border border-border bg-card shadow-card">
           <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
@@ -519,7 +520,7 @@ const AddShoe: React.FC = () => {
           </Button>
         </div>
       </form>
-    </main>
+    </AdminLayout>
   );
 };
 

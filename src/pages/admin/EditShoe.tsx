@@ -6,6 +6,8 @@ import { uploadToCloudinary } from '../../lib/cloudinary';
 import { parseSizesInput } from '../../lib/utils';
 import AuthContext from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
+import AdminLayout from '../../components/admin/AdminLayout';
+import { handleProductImageError, resolveImageUrl } from '../../lib/image';
 
 type Gender = 'male' | 'female' | 'unisex';
 type ImageItem = { url?: string; publicId?: string; progress?: number; name?: string };
@@ -30,7 +32,7 @@ const SUBCATS: Record<Gender, string[]> = {
 };
 
 const inputClass =
-  'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900 focus:ring-4 focus:ring-zinc-900/10';
+  'w-full rounded-sm border border-border bg-background px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10';
 
 const EditShoe: React.FC = () => {
   const { id } = useParams();
@@ -197,8 +199,8 @@ const EditShoe: React.FC = () => {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </main>
     );
   }
@@ -215,8 +217,8 @@ const EditShoe: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-      <form onSubmit={submit} className="mx-auto max-w-7xl space-y-8">
+    <AdminLayout>
+      <form onSubmit={submit} className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Button asChild variant="outline" className="rounded-full">
             <Link to="/admin/shoes">
@@ -228,7 +230,7 @@ const EditShoe: React.FC = () => {
           <Button
             type="submit"
             disabled={saving}
-            className="rounded-full bg-zinc-950 px-8 hover:bg-zinc-800"
+            className="rounded-full bg-primary px-8 text-primary-foreground hover:bg-terracotta-deep"
           >
             {saving ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -239,36 +241,36 @@ const EditShoe: React.FC = () => {
           </Button>
         </div>
 
-        <section className="overflow-hidden rounded-[2rem] bg-zinc-950 text-white shadow-2xl">
-          <div className="grid gap-6 p-8 lg:grid-cols-[1.4fr_0.6fr] lg:p-10">
+        <section className="overflow-hidden rounded-sm border border-border bg-ink text-ink-foreground shadow-soft">
+          <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.4fr_0.6fr] lg:p-8">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-mustard">
                 Edit product
               </p>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
+              <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
                 Polish product details
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-300">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-foreground/75">
                 Update product information, price, brand, images, and visibility badges from one
                 clean admin screen.
               </p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur">
-              <p className="text-sm text-zinc-300">Live images</p>
-              <p className="mt-3 text-5xl font-bold">{imageCount}</p>
-              <p className="mt-3 text-xs text-zinc-400">At least one image is required.</p>
+            <div className="rounded-sm border border-white/10 bg-white/10 p-5 backdrop-blur">
+              <p className="text-sm text-ink-foreground/70">Live images</p>
+              <p className="mt-3 text-5xl font-black">{imageCount}</p>
+              <p className="mt-3 text-xs text-ink-foreground/60">At least one image is required.</p>
             </div>
           </div>
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1fr_420px]">
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-            <h2 className="text-2xl font-bold text-slate-950">Product information</h2>
+          <div className="rounded-sm border border-border bg-card p-5 shadow-card sm:p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-ink">Product information</h2>
 
             <div className="mt-6 grid gap-5 md:grid-cols-2">
               <label className="space-y-2 md:col-span-2">
-                <span className="text-sm font-semibold text-slate-800">Product name</span>
+                <span className="text-sm font-semibold text-ink">Product name</span>
                 <input
                   className={inputClass}
                   value={form.name}
@@ -278,7 +280,7 @@ const EditShoe: React.FC = () => {
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-slate-800">Customer group</span>
+                <span className="text-sm font-semibold text-ink">Customer group</span>
                 <select
                   className={inputClass}
                   value={form.gender}
@@ -295,7 +297,7 @@ const EditShoe: React.FC = () => {
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-slate-800">Subcategory</span>
+                <span className="text-sm font-semibold text-ink">Subcategory</span>
                 <select
                   className={inputClass}
                   value={form.subcategory}
@@ -308,7 +310,7 @@ const EditShoe: React.FC = () => {
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-slate-800">Brand</span>
+                <span className="text-sm font-semibold text-ink">Brand</span>
                 <input
                   className={inputClass}
                   value={form.brand}
@@ -317,7 +319,7 @@ const EditShoe: React.FC = () => {
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-slate-800">Price</span>
+                <span className="text-sm font-semibold text-ink">Price</span>
                 <input
                   className={inputClass}
                   type="number"
@@ -328,7 +330,7 @@ const EditShoe: React.FC = () => {
               </label>
 
               <label className="space-y-2 md:col-span-2">
-                <span className="text-sm font-semibold text-slate-800">Sizes</span>
+                <span className="text-sm font-semibold text-ink">Sizes</span>
                 <input
                   className={inputClass}
                   value={form.sizes}
@@ -338,7 +340,7 @@ const EditShoe: React.FC = () => {
               </label>
 
               <label className="space-y-2 md:col-span-2">
-                <span className="text-sm font-semibold text-slate-800">Description</span>
+                <span className="text-sm font-semibold text-ink">Description</span>
                 <textarea
                   className={`${inputClass} min-h-32 resize-y`}
                   value={form.description}
@@ -347,48 +349,48 @@ const EditShoe: React.FC = () => {
               </label>
 
               <div className="grid gap-3 md:col-span-2 sm:grid-cols-2">
-                <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <label className="flex items-center justify-between rounded-sm border border-border bg-background px-4 py-3">
                   <span>
-                    <span className="block text-sm font-semibold text-slate-800">Branded</span>
-                    <span className="text-xs text-slate-500">Show branded badge</span>
+                    <span className="block text-sm font-semibold text-ink">Branded</span>
+                    <span className="text-xs text-muted-foreground">Show branded badge</span>
                   </span>
                   <input
                     type="checkbox"
                     checked={form.branded}
                     onChange={(e) => updateField('branded', e.target.checked)}
-                    className="h-5 w-5 accent-zinc-950"
+                    className="h-5 w-5 accent-primary"
                   />
                 </label>
 
-                <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <label className="flex items-center justify-between rounded-sm border border-border bg-background px-4 py-3">
                   <span>
-                    <span className="block text-sm font-semibold text-slate-800">Trending</span>
-                    <span className="text-xs text-slate-500">Show in trending area</span>
+                    <span className="block text-sm font-semibold text-ink">Trending</span>
+                    <span className="text-xs text-muted-foreground">Show in trending area</span>
                   </span>
                   <input
                     type="checkbox"
                     checked={form.trending}
                     onChange={(e) => updateField('trending', e.target.checked)}
-                    className="h-5 w-5 accent-zinc-950"
+                    className="h-5 w-5 accent-primary"
                   />
                 </label>
               </div>
             </div>
           </div>
 
-          <aside className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <aside className="rounded-sm border border-border bg-card p-5 shadow-card sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-lg font-bold text-slate-950">Images</h3>
-                <p className="mt-1 text-sm text-slate-500">Add, preview, or remove images.</p>
+                <h3 className="text-lg font-bold text-ink">Images</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Add, preview, or remove images.</p>
               </div>
-              <ImagePlus className="h-6 w-6 text-slate-400" />
+              <ImagePlus className="h-6 w-6 text-primary" />
             </div>
 
-            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center transition hover:border-zinc-900 hover:bg-white">
-              <ImagePlus className="h-8 w-8 text-slate-400" />
-              <span className="mt-3 text-sm font-semibold text-slate-900">Upload more images</span>
-              <span className="mt-1 text-xs text-slate-500">PNG, JPG, WEBP accepted</span>
+            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed border-border bg-background px-6 py-10 text-center transition hover:border-primary hover:bg-card">
+              <ImagePlus className="h-8 w-8 text-primary" />
+              <span className="mt-3 text-sm font-semibold text-ink">Upload more images</span>
+              <span className="mt-1 text-xs text-muted-foreground">PNG, JPG, WEBP accepted</span>
               <input
                 type="file"
                 accept="image/*"
@@ -400,7 +402,7 @@ const EditShoe: React.FC = () => {
 
             <div className="mt-5 space-y-3">
               {form.images.length === 0 && (
-                <p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                <p className="rounded-sm border border-mustard/20 bg-mustard/10 px-4 py-3 text-sm text-ink">
                   No images available.
                 </p>
               )}
@@ -408,13 +410,14 @@ const EditShoe: React.FC = () => {
               {form.images.map((image, index) => (
                 <div
                   key={`${image.url || image.name}-${index}`}
-                  className="flex gap-3 rounded-2xl border border-slate-200 p-3"
+                  className="flex gap-3 rounded-sm border border-border bg-background p-3"
                 >
-                  <div className="h-20 w-20 overflow-hidden rounded-xl bg-slate-100">
+                  <div className="h-20 w-20 overflow-hidden rounded-sm bg-secondary/40">
                     {image.url ? (
                       <img
-                        src={image.url}
+                        src={resolveImageUrl(image.url)}
                         alt={image.name || 'Product'}
+                        onError={handleProductImageError}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -422,23 +425,23 @@ const EditShoe: React.FC = () => {
                         {image.progress === -1 ? (
                           <X className="h-5 w-5 text-red-500" />
                         ) : (
-                          <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                         )}
                       </div>
                     )}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-slate-800">
+                    <p className="truncate text-sm font-semibold text-ink">
                       {image.name || `Image ${index + 1}`}
                     </p>
 
                     {typeof image.progress === 'number' &&
                       image.progress >= 0 &&
                       image.progress < 100 && (
-                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
                           <div
-                            className="h-full rounded-full bg-zinc-950 transition-all"
+                            className="h-full rounded-full bg-primary transition-all"
                             style={{ width: `${image.progress}%` }}
                           />
                         </div>
@@ -456,7 +459,7 @@ const EditShoe: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="rounded-full p-2 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded-full p-2 text-muted-foreground hover:bg-primary/10 hover:text-primary"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -466,7 +469,7 @@ const EditShoe: React.FC = () => {
           </aside>
         </section>
       </form>
-    </main>
+    </AdminLayout>
   );
 };
 

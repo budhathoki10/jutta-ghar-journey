@@ -7,7 +7,18 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('admin_token');
+  const getCookie = (name: string) => {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  };
+
+  let token = '';
+  try {
+    token = getCookie('admin_token') || localStorage.getItem('admin_token') || '';
+  } catch (e) {
+    token = '';
+  }
+
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }

@@ -1,24 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import heroShoes from "@/assets/hero-shoes.jpg";
-import shoeOxford from "@/assets/shoe-oxford.jpg";
-import shoeHeels from "@/assets/shoe-heels.jpg";
-import shoeSneaker from "@/assets/shoe-sneaker.jpg";
-import shoeLoafer from "@/assets/shoe-loafer.jpg";
-import shopImage from "@/assets/shop.png";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
 import { useReveal } from "@/hooks/use-reveal";
+import { handleProductImageError, resolveImageUrl } from "@/lib/image";
+import type { Shoe } from "@/types/shoe";
 import { MapPin, Phone, Clock, Star, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const collections = [
-  { id: "trending", name: "Trending Now", category: "Trending · Popular", img: heroShoes, trending: true },
-  { id: "oxford", name: "Heritage Oxford", category: "Men · Formal", img: shoeOxford },
-  { id: "heels", name: "Velvet Burgundy", category: "Women · Heels", img: shoeHeels },
-  { id: "sneaker", name: "Cream Court", category: "Unisex · Sneakers", img: shoeSneaker },
-  { id: "loafer", name: "Tassel Loafer", category: "Men · Casual", img: shoeLoafer },
-  { id: "storefront", name: "Street Display", category: "Shop · Window", img: shopImage },
-];
+type CollectionCard = {
+  id: string;
+  name: string;
+  category: string;
+  img: string;
+  trending?: boolean;
+};
 
 const googleMapsUrl = "https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082595,85.3093997,928m/data=!3m2!1e3!4b1!4m6!3m5!1s0x39eb18fe4cf62957:0x3054f9c0f5228fb0!8m2!3d27.7082548!4d85.31198!16s%2Fg%2F11d_d1vhp3?entry=ttu&g_ep=EgoyMDI2MDUwNi4wIKXMDSoASAFQAw%3D%3D";
 
@@ -81,29 +77,90 @@ const Index = () => {
 
   const [playing, setPlaying] = useState(false);
   const videoId = "SZMr39NJ76A";
+  const [heroImage, setHeroImage] = useState<string>(heroShoes);
+  const [heroAlt, setHeroAlt] = useState<string>("Premium leather oxford and tan loafer on warm terracotta backdrop");
+  const [heroSlides, setHeroSlides] = useState<{ img: string; alt: string }[]>([]);
   const [trendingImage, setTrendingImage] = useState<string>(heroShoes);
+  const [collections, setCollections] = useState<CollectionCard[]>([]);
+  const [isLoadingCollections, setIsLoadingCollections] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const shuffle = <T,>(items: T[]) => [...items].sort(() => Math.random() - 0.5);
+
     fetchShoes()
       .then((res) => {
-        const trending = (res.data.data || []).filter((shoe: any) => shoe.trending && shoe.images?.length);
+        const shoes = ((res.data.data || []) as Shoe[]).filter((shoe) => shoe.images?.length);
+
+        const latestShoes = shoes
+          .slice()
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+          );
+
+        const trending = latestShoes.filter((shoe) => shoe.trending);
+
         if (trending.length) {
-          const random = trending[Math.floor(Math.random() * trending.length)];
-          setTrendingImage(random.images[0].url);
+          const randomTrending = trending[Math.floor(Math.random() * trending.length)];
+          const trendingUrl = resolveImageUrl(randomTrending.images[0].url);
+          setTrendingImage(trendingUrl);
+          setHeroImage(trendingUrl);
+          setHeroAlt(`${randomTrending.name} featured shoe`);
+        } else if (latestShoes.length) {
+          const firstLatest = latestShoes[0];
+          const latestUrl = resolveImageUrl(firstLatest.images[0].url);
+          setHeroImage(latestUrl);
+          setHeroAlt(`${firstLatest.name} featured shoe`);
+        }
+
+        const uniqueLatestShoes = latestShoes.filter(
+          (shoe, index, self) => self.findIndex((other) => other._id === shoe._id) === index
+        );
+
+        const selected = shuffle(uniqueLatestShoes.slice(0, 12)).slice(0, 5);
+        const selectedCardData = selected.map((shoe) => ({
+          id: shoe._id,
+          name: shoe.name,
+          category: `${shoe.gender ? `${shoe.gender.charAt(0).toUpperCase() + shoe.gender.slice(1)}` : 'Unisex'} · ${shoe.subcategory || 'Shoe'}`,
+          img: resolveImageUrl(shoe.images[0].url),
+          trending: Boolean(shoe.trending),
+        }));
+
+        setCollections(selectedCardData);
+        setHeroSlides(
+          selectedCardData.map((shoe) => ({
+            img: shoe.img,
+            alt: `${shoe.name} featured shoe`,
+          }))
+        );
+        if (selectedCardData.length) {
+          setHeroImage(selectedCardData[0].img);
+          setHeroAlt(`${selectedCardData[0].name} featured shoe`);
         }
       })
-      .catch(console.error);
+      .catch(console.error)
+      .finally(() => setIsLoadingCollections(false));
+
   }, []);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % collections.length);
-    }, 3000);
+      setActiveSlide((current) =>
+        collections.length ? (current + 1) % collections.length : 0
+      );
+    }, 6000);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [collections.length]);
+
+  useEffect(() => {
+    if (!heroSlides.length) return;
+    const hero = heroSlides[activeSlide] || heroSlides[0];
+    setHeroImage(hero.img);
+    setHeroAlt(hero.alt);
+  }, [activeSlide, heroSlides]);
 
   useEffect(() => {
     const slider = sliderRef.current;
@@ -146,15 +203,15 @@ const Index = () => {
           <div className="relative min-w-0 md:col-span-6 md:row-span-2 reveal-right" style={{ transitionDelay: "0.25s" }}>
             <div className="group relative mx-auto aspect-square w-full max-w-[14.5rem] overflow-hidden rounded-2xl bg-card shadow-soft sm:max-w-[24rem] md:aspect-[4/5] md:max-w-[520px] md:rounded-[2rem]">
               <img
-                src={heroShoes}
-                alt="Premium leather oxford and tan loafer on warm terracotta backdrop"
+                src={heroImage}
+                alt={heroAlt}
                 className="h-full w-full rounded-2xl object-cover transition-transform duration-700 group-hover:scale-[1.04] md:rounded-xl"
                 width={1600}
                 height={2000}
               />
               <div className="absolute bottom-3 left-3 right-3 hidden items-end justify-between text-ink-foreground sm:flex">
                 <div className="rounded-2xl bg-ink/80 px-2 py-1.5 text-[9px] uppercase tracking-[0.16em] backdrop-blur transition-transform duration-500 group-hover:-translate-y-1 sm:px-3 sm:py-2 sm:text-xs">
-                  Featured · Heritage Line
+                  Featured · Latest Picks
                 </div>
                 <div className="hidden rounded-2xl bg-mustard px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-ink transition-transform duration-500 group-hover:-translate-y-1 sm:block">
                   New In
@@ -277,42 +334,65 @@ const Index = () => {
 
         <div className="overflow-hidden rounded-xl">
           <div ref={sliderRef} className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-6 xl:pb-8">
-            {collections.map((item, i) => (
-              <article
-                key={item.name}
-                className="snap-start flex-none w-[80vw] sm:w-[60vw] lg:w-[42vw] xl:w-[32rem] group relative overflow-hidden rounded-[1.5rem] bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
-                style={{ transitionDelay: `${i * 80}ms` }}
-              >
-                <div className="aspect-[11/14] overflow-hidden bg-muted">
-                  <img
-                    src={item.trending ? trendingImage : item.img}
-                    alt={item.trending ? `${item.name} trending shoe` : item.name}
-                    loading="lazy"
-                    width={800}
-                    height={1000}
-                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
-                <div className="space-y-2 p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px]">
-                      {item.category}
-                    </p>
-                    <span className="rounded-full bg-background/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-ink shadow-sm">
-                      № {String(i + 1).padStart(2, "0")}
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-lg font-bold text-foreground sm:text-xl">
-                    {item.name}
-                  </h3>
-                  {item.trending && (
-                    <p className="text-sm text-muted-foreground">
-                      Trending right now — the most requested pair in store.
-                    </p>
-                  )}
+            {isLoadingCollections ? (
+              <article className="snap-start flex-none w-[80vw] sm:w-[60vw] lg:w-[42vw] xl:w-[32rem] group relative overflow-hidden rounded-[1.5rem] bg-card shadow-card p-8">
+                <div className="h-[28rem] rounded-[1.5rem] bg-slate-100" />
+                <div className="mt-5 space-y-3">
+                  <div className="h-4 w-40 rounded-full bg-slate-200" />
+                  <div className="h-4 w-24 rounded-full bg-slate-200" />
+                  <div className="h-3 w-60 rounded-full bg-slate-200" />
                 </div>
               </article>
-            ))}
+            ) : collections.length ? (
+              collections.map((item, i) => (
+                <article
+                  key={item.id}
+                  className="snap-start flex-none w-[80vw] sm:w-[60vw] lg:w-[42vw] xl:w-[32rem] group relative overflow-hidden rounded-[1.5rem] bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
+                  style={{ transitionDelay: `${i * 80}ms` }}
+                >
+                  <div className="aspect-[11/14] overflow-hidden bg-muted">
+                    <img
+                      src={item.img}
+                      alt={`${item.name} ${item.trending ? 'trending shoe' : 'shoe'}`}
+                      loading="lazy"
+                      onError={handleProductImageError}
+                      width={800}
+                      height={1000}
+                      className="h-full w-full object-contain object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="space-y-2 p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px]">
+                        {item.category}
+                      </p>
+                      <span className="rounded-full bg-background/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-ink shadow-sm">
+                        № {String(i + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-lg font-bold text-foreground sm:text-xl">
+                      {item.name}
+                    </h3>
+                    {item.trending && (
+                      <p className="text-sm text-muted-foreground">
+                        Trending right now — the most requested pair in store.
+                      </p>
+                    )}
+                  </div>
+                </article>
+              ))
+            ) : (
+              <article className="snap-start flex-none w-[80vw] sm:w-[60vw] lg:w-[42vw] xl:w-[32rem] group relative overflow-hidden rounded-[1.5rem] bg-card shadow-card p-8">
+                <div className="h-[28rem] rounded-[1.5rem] bg-slate-100 grid place-items-center text-center px-6">
+                  <div>
+                    <p className="text-lg font-semibold text-ink">New arrivals will appear here.</p>
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      Add new shoes and they will automatically show in this section.
+                    </p>
+                  </div>
+                </div>
+              </article>
+            )}
           </div>
         </div>
         <div className="mt-6 flex justify-center gap-2">

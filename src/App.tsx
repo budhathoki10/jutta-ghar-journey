@@ -52,6 +52,39 @@ const RouteReveal = () => {
   return null;
 };
 
+const AppRoutes = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <>
+      <ScrollToHash />
+      <RouteReveal />
+      {!isAdminRoute && <SiteHeader />}
+      <main className={isAdminRoute ? 'min-h-screen' : 'min-h-[calc(100vh-6rem)]'}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/catalog" element={<ProductCatalog />} />
+          <Route path="/shoes" element={<ProductCatalog />} />
+          <Route path="/shoes/:id" element={<ShoeDetail />} />
+          <Route path="/shop-floors" element={<ShopFloors />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/shoes" element={<AdminShoes />} />
+          <Route path="/admin/add-shoe" element={<AddShoe />} />
+          <Route path="/admin/edit-shoe/:id" element={<EditShoe />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
+      {!isAdminRoute && <SiteFooter />}
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -59,29 +92,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <ScrollToHash />
-          <RouteReveal />
-          <SiteHeader />
-          <main className="min-h-[calc(100vh-6rem)]">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/catalog" element={<ProductCatalog />} />
-              <Route path="/shoes" element={<ProductCatalog />} />
-              <Route path="/shoes/:id" element={<ShoeDetail />} />
-              <Route path="/shop-floors" element={<ShopFloors />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/shoes" element={<AdminShoes />} />
-              <Route path="/admin/add-shoe" element={<AddShoe />} />
-              <Route path="/admin/edit-shoe/:id" element={<EditShoe />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <SiteFooter />
+          <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

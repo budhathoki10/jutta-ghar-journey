@@ -1,16 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 import { fetchShoes } from '@/api/shoeApi';
-
-interface Shoe {
-  _id: string;
-  name: string;
-  images?: Array<{ url: string }>;
-  subcategory?: string;
-  gender?: string;
-  price?: number;
-  trending?: boolean;
-}
+import { handleProductImageError, resolveImageUrl } from '@/lib/image';
+import type { Shoe } from '@/types/shoe';
 
 export const TrendingShoes: React.FC = () => {
   const [shoes, setShoes] = useState<Shoe[]>([]);
@@ -22,7 +14,7 @@ export const TrendingShoes: React.FC = () => {
   useEffect(() => {
     fetchShoes()
       .then((res) => {
-        const trendingShoes = (res.data.data || []).filter((shoe: any) => shoe.trending === true);
+        const trendingShoes = ((res.data.data || []) as Shoe[]).filter((shoe) => shoe.trending === true);
         setShoes(trendingShoes.slice(0, 8));
       })
       .catch((err) => {
@@ -100,8 +92,9 @@ export const TrendingShoes: React.FC = () => {
                   <div className="relative aspect-square bg-muted overflow-hidden">
                     {shoe.images?.[0]?.url ? (
                       <img
-                        src={shoe.images[0].url}
+                        src={resolveImageUrl(shoe.images[0].url)}
                         alt={shoe.name}
+                        onError={handleProductImageError}
                         className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-500"
                       />
                     ) : (
@@ -121,13 +114,6 @@ export const TrendingShoes: React.FC = () => {
                         </span>
                       )}
                     </div>
-
-                    {/* Price */}
-                    {shoe.price && (
-                      <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full text-sm font-bold bg-white/95 backdrop-blur-sm text-slate-900 shadow-sm">
-                        रु {shoe.price.toLocaleString()}
-                      </div>
-                    )}
 
                     {/* Overlay on Hover */}
                     <div className="absolute inset-0 bg-black/0 group-hover/card:bg-black/10 transition-colors duration-300" />

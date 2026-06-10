@@ -12,6 +12,8 @@ import {
 import { deleteShoe, fetchShoes, updateShoe } from '../../api/shoeApi';
 import AuthContext from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
+import AdminLayout from '../../components/admin/AdminLayout';
+import { handleProductImageError, resolveImageUrl } from '../../lib/image';
 
 type Shoe = {
   _id: string;
@@ -112,54 +114,54 @@ const Shoes: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <section className="overflow-hidden rounded-[2rem] bg-zinc-950 text-white shadow-2xl">
-          <div className="grid gap-8 p-8 lg:grid-cols-[1.2fr_0.8fr] lg:p-10">
+    <AdminLayout>
+      <div className="space-y-6">
+        <section className="overflow-hidden rounded-sm border border-border bg-ink text-ink-foreground shadow-soft">
+          <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.2fr_0.8fr] lg:p-8">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-zinc-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-mustard">
                 Admin products
               </p>
-              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
+              <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
                 Manage Jutta Ghar inventory
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-300">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-foreground/75">
                 Review product photos, prices, categories, and trending status from one clean
                 professional dashboard.
               </p>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-3xl border border-white/10 bg-white/10 p-4">
-                <p className="text-xs text-zinc-400">Total</p>
-                <p className="mt-2 text-3xl font-bold">{stats.total}</p>
+              <div className="rounded-sm border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-ink-foreground/60">Total</p>
+                <p className="mt-2 text-3xl font-black">{stats.total}</p>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-white/10 p-4">
-                <p className="text-xs text-zinc-400">Images</p>
-                <p className="mt-2 text-3xl font-bold">{stats.withImages}</p>
+              <div className="rounded-sm border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-ink-foreground/60">Images</p>
+                <p className="mt-2 text-3xl font-black">{stats.withImages}</p>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-white/10 p-4">
-                <p className="text-xs text-zinc-400">Trending</p>
-                <p className="mt-2 text-3xl font-bold">{stats.trending}</p>
+              <div className="rounded-sm border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-ink-foreground/60">Trending</p>
+                <p className="mt-2 text-3xl font-black">{stats.trending}</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="flex flex-col gap-4 rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+        <section className="flex flex-col gap-4 rounded-sm border border-border bg-card p-4 shadow-card md:flex-row md:items-center md:justify-between">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, brand, category, gender..."
-              className="w-full rounded-full border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-zinc-900 focus:bg-white focus:ring-4 focus:ring-zinc-900/10"
+              className="w-full rounded-sm border border-border bg-background py-3 pl-11 pr-4 text-sm text-ink outline-none transition placeholder:text-muted-foreground focus:border-primary focus:bg-card focus:ring-4 focus:ring-primary/10"
             />
           </div>
 
-          <Button asChild className="rounded-full bg-zinc-950 px-6 hover:bg-zinc-800">
+          <Button asChild className="rounded-full bg-primary px-6 text-primary-foreground hover:bg-terracotta-deep">
             <Link to="/admin/add-shoe">
               <Plus className="mr-2 h-4 w-4" />
               Add product
@@ -168,50 +170,55 @@ const Shoes: React.FC = () => {
         </section>
 
         {loading ? (
-          <div className="rounded-[2rem] bg-white p-10 text-center text-slate-500 shadow-sm">
+          <div className="rounded-sm border border-border bg-card p-10 text-center text-muted-foreground shadow-card">
             Loading products...
           </div>
         ) : filteredShoes.length === 0 ? (
-          <div className="rounded-[2rem] bg-white p-10 text-center shadow-sm">
-            <ImageIcon className="mx-auto h-12 w-12 text-slate-300" />
-            <p className="mt-4 text-lg font-semibold text-slate-950">No products found</p>
-            <p className="mt-2 text-sm text-slate-500">Try another search or add a new product.</p>
+          <div className="rounded-sm border border-border bg-card p-10 text-center shadow-card">
+            <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground/50" />
+            <p className="mt-4 text-lg font-semibold text-ink">No products found</p>
+            <p className="mt-2 text-sm text-muted-foreground">Try another search or add a new product.</p>
           </div>
         ) : (
           <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {filteredShoes.map((shoe) => {
-              const mainImage = shoe.images?.[0]?.url;
+              const mainImage = resolveImageUrl(shoe.images?.[0]?.url);
 
               return (
                 <article
                   key={shoe._id}
-                  className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+                  className="overflow-hidden rounded-sm border border-border bg-card shadow-card transition hover:-translate-y-1 hover:shadow-soft"
                 >
-                  <div className="relative aspect-[4/3] bg-slate-100">
+                  <div className="relative aspect-[4/3] bg-secondary/40">
                     {mainImage ? (
-                      <img src={mainImage} alt={shoe.name} className="h-full w-full object-cover" />
+                      <img
+                        src={mainImage}
+                        alt={shoe.name}
+                        onError={handleProductImageError}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-slate-400">
+                      <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                         <ImageIcon className="h-12 w-12" />
                       </div>
                     )}
 
                     <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                       {shoe.trending && (
-                        <span className="rounded-full bg-zinc-950 px-3 py-1 text-xs font-semibold text-white shadow">
+                        <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow">
                           Trending
                         </span>
                       )}
 
                       {shoe.branded && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700 shadow">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-card px-3 py-1 text-xs font-semibold text-ink shadow">
                           <BadgeCheck className="h-3.5 w-3.5" />
                           Branded
                         </span>
                       )}
                     </div>
 
-                    <span className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 shadow">
+                    <span className="absolute bottom-4 right-4 rounded-full bg-card/95 px-3 py-1 text-xs font-semibold text-ink shadow">
                       {shoe.images?.length || 0} images
                     </span>
                   </div>
@@ -220,20 +227,20 @@ const Shoes: React.FC = () => {
                     <div>
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h2 className="line-clamp-1 text-lg font-bold text-slate-950">
+                          <h2 className="line-clamp-1 text-lg font-bold text-ink">
                             {shoe.name}
                           </h2>
-                          <p className="mt-1 text-sm text-slate-500">
+                          <p className="mt-1 text-sm text-muted-foreground">
                             {shoe.brand || 'Local craft'} • {shoe.subcategory}
                           </p>
                         </div>
 
-                        <p className="whitespace-nowrap text-lg font-bold text-slate-950">
+                        <p className="whitespace-nowrap text-lg font-bold text-primary">
                           Rs. {shoe.price?.toLocaleString() ?? '—'}
                         </p>
                       </div>
 
-                      <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
+                      <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                         {shoe.gender}
                       </p>
                     </div>
@@ -250,7 +257,7 @@ const Shoes: React.FC = () => {
                       </Button>
 
                       <Button asChild variant="outline" className="rounded-full">
-                        <Link to={`/admin/shoes/${shoe._id}/edit`}>
+                        <Link to={`/admin/edit-shoe/${shoe._id}`}>
                           <Edit3 className="mr-2 h-4 w-4" />
                           Edit
                         </Link>
@@ -259,7 +266,7 @@ const Shoes: React.FC = () => {
                       <Button
                         type="button"
                         variant="outline"
-                        className="rounded-full text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="rounded-full text-primary hover:bg-primary/10 hover:text-primary"
                         onClick={() => handleDelete(shoe._id)}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
@@ -273,7 +280,7 @@ const Shoes: React.FC = () => {
           </section>
         )}
       </div>
-    </main>
+    </AdminLayout>
   );
 };
 

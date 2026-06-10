@@ -1,4 +1,5 @@
 import api from '@/api/axios';
+import { resolveImageUrl } from './image';
 
 export type UploadResult = { url: string; publicId: string };
 
@@ -16,7 +17,7 @@ export async function uploadToCloudinary(file: File, onProgress?: (p: number) =>
   });
 
   return {
-    url: response.data.url,
+    url: resolveImageUrl(response.data.url),
     publicId: response.data.publicId,
   };
 }

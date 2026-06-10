@@ -1,8 +1,13 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { adminLogin, getMe } from '../api/adminApi';
 
+type AdminUser = {
+  id: string;
+  email: string;
+};
+
 type AuthContextType = {
-  admin: any | null;
+  admin: AdminUser | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
@@ -14,46 +19,45 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  try {
-    const [admin, setAdmin] = useState<any | null>(null);
-  
-    useEffect(() => {
-      const token = localStorage.getItem('admin_token');
-      if (token) {
-        // try to fetch admin
-        getMe()
-          .then((res) => setAdmin(res.data))
-          .catch(() => {
-            localStorage.removeItem('admin_token');
-            setAdmin(null);
-          });
-      }
-    }, []);
-    const login = async (email: string, password: string) => {
-      console.log("errors")
-      const res = await adminLogin({ email, password });
-      console.log("response admin login",res)
-      const token = res.data.token;
-      console.log("inside auth context tsx")
-      localStorage.setItem('admin_token', token);
-      const me = await getMe();
-      console.log("me data is",me.data)
-      console.log("me  is",me)
-  
-      setAdmin(me.data);
-    };
-  
-    const logout = () => {
-      localStorage.removeItem('admin_token');
-      setAdmin(null);
-    };
-  
-    return <AuthContext.Provider value={{ admin, login, logout }}>{children}</AuthContext.Provider>;
-  }
-  catch (err: any) {
-     console.log("Status:",  err.response?.status);   // 401? 404? 500?
-  console.log("Data:",    err.response?.data);      // backend error message
-  console.log("Message:", err.message)
-  }
+  const [admin, setAdmin] = useState<AdminUser | null>(null);
+
+  const setCookie = (name: string, value: string, days = 7) => {
+    const d = new Date();
+    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+    const expires = 'expires=' + d.toUTCString();
+    document.cookie = `${name}=${value};${expires};path=/`;
+  };
+
+  const getCookie = (name: string) => {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  };
+
+  useEffect(() => {
+    const token = getCookie('admin_token');
+    if (token) {
+      getMe()
+        .then((res) => setAdmin(res.data))
+        .catch(() => {
+          document.cookie = 'admin_token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
+          setAdmin(null);
+        });
+    }
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    const res = await adminLogin({ email, password });
+    const token = res.data.token;
+    setCookie('admin_token', token, 7);
+    const me = await getMe();
+    setAdmin(me.data);
+  };
+
+  const logout = () => {
+    document.cookie = 'admin_token=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
+    setAdmin(null);
+  };
+
+  return <AuthContext.Provider value={{ admin, login, logout }}>{children}</AuthContext.Provider>;
 }
 export default AuthContext;
