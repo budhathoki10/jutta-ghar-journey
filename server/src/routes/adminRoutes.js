@@ -6,8 +6,9 @@ const { protect } = require('../middleware/authMiddleware');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Register is intended for initial setup; remove or protect in production
-router.post('/register', adminController.register);
+if (process.env.ENABLE_ADMIN_REGISTER === 'true') {
+  router.post('/register', adminController.register);
+}
 router.post('/login', adminController.login);
 router.post('/upload-image', protect, upload.single('file'), adminController.uploadImage);
 router.get('/image/:id', adminController.getImage);
