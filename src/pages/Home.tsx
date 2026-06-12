@@ -5,7 +5,7 @@ const Home: React.FC = () => {
   return (
     <main id="main-content" className="bg-background">
       {/* Hero Section */}
-      <section className="px-6 sm:px-10 py-12 md:py-18 bg-gradient-to-b from-cream/50 to-background">
+      <section className="bg-background px-6 py-12 sm:px-10 md:py-18">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Left Content */}
@@ -85,7 +85,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="px-6 sm:px-10 py-12 md:py-16 bg-background border-t border-border">
+      <section className="border-t border-border bg-background px-6 py-12 sm:px-10 md:py-16">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -106,7 +106,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Call to Action */}
-      <section className="px-6 sm:px-10 py-12 md:py-16 bg-gradient-to-r from-primary/10 to-accent/10">
+      <section className="bg-background px-6 py-12 sm:px-10 md:py-16">
         <div className="mx-auto max-w-7xl text-center">
           <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4">
             Ready to Walk in Style?

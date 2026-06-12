@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import heroShoes from "@/assets/hero-shoes.jpg";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
 import { useReveal } from "@/hooks/use-reveal";
 import { handleProductImageError, resolveImageUrl } from "@/lib/image";
 import type { Shoe } from "@/types/shoe";
-import { MapPin, Phone, Clock, Star, ArrowUpRight } from "lucide-react";
+import { MapPin, Phone, Clock, Star, ArrowUpRight, ImageIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import heroShoes from "@/assets/hero-shoes.jpg";
 
 type CollectionCard = {
   id: string;
@@ -77,10 +77,7 @@ const Index = () => {
 
   const [playing, setPlaying] = useState(false);
   const videoId = "SZMr39NJ76A";
-  const [heroImage, setHeroImage] = useState<string>(heroShoes);
-  const [heroAlt, setHeroAlt] = useState<string>("Premium leather oxford and tan loafer on warm terracotta backdrop");
-  const [heroSlides, setHeroSlides] = useState<{ img: string; alt: string }[]>([]);
-  const [trendingImage, setTrendingImage] = useState<string>(heroShoes);
+  const heroAlt = "GoGo Jutta Ghar business logo";
   const [collections, setCollections] = useState<CollectionCard[]>([]);
   const [isLoadingCollections, setIsLoadingCollections] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -100,21 +97,6 @@ const Index = () => {
               new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
           );
 
-        const trending = latestShoes.filter((shoe) => shoe.trending);
-
-        if (trending.length) {
-          const randomTrending = trending[Math.floor(Math.random() * trending.length)];
-          const trendingUrl = resolveImageUrl(randomTrending.images[0].url);
-          setTrendingImage(trendingUrl);
-          setHeroImage(trendingUrl);
-          setHeroAlt(`${randomTrending.name} featured shoe`);
-        } else if (latestShoes.length) {
-          const firstLatest = latestShoes[0];
-          const latestUrl = resolveImageUrl(firstLatest.images[0].url);
-          setHeroImage(latestUrl);
-          setHeroAlt(`${firstLatest.name} featured shoe`);
-        }
-
         const uniqueLatestShoes = latestShoes.filter(
           (shoe, index, self) => self.findIndex((other) => other._id === shoe._id) === index
         );
@@ -129,16 +111,6 @@ const Index = () => {
         }));
 
         setCollections(selectedCardData);
-        setHeroSlides(
-          selectedCardData.map((shoe) => ({
-            img: shoe.img,
-            alt: `${shoe.name} featured shoe`,
-          }))
-        );
-        if (selectedCardData.length) {
-          setHeroImage(selectedCardData[0].img);
-          setHeroAlt(`${selectedCardData[0].name} featured shoe`);
-        }
       })
       .catch(console.error)
       .finally(() => setIsLoadingCollections(false));
@@ -154,13 +126,6 @@ const Index = () => {
 
     return () => window.clearInterval(interval);
   }, [collections.length]);
-
-  useEffect(() => {
-    if (!heroSlides.length) return;
-    const hero = heroSlides[activeSlide] || heroSlides[0];
-    setHeroImage(hero.img);
-    setHeroAlt(hero.alt);
-  }, [activeSlide, heroSlides]);
 
   useEffect(() => {
     const slider = sliderRef.current;
@@ -201,11 +166,11 @@ const Index = () => {
           </div>
 
           <div className="relative min-w-0 md:col-span-6 md:row-span-2 reveal-right" style={{ transitionDelay: "0.25s" }}>
-            <div className="group relative mx-auto aspect-square w-full max-w-[14.5rem] overflow-hidden rounded-2xl bg-card shadow-soft sm:max-w-[24rem] md:aspect-[4/5] md:max-w-[520px] md:rounded-[2rem]">
+            <div className="group relative mx-auto aspect-square w-full max-w-[14.5rem] overflow-hidden rounded-2xl bg-card shadow-soft sm:max-w-[24rem] md:max-w-[480px] md:rounded-[2rem]">
               <img
-                src={heroImage}
-                alt={heroAlt}
-                className="h-full w-full rounded-2xl object-cover transition-transform duration-700 group-hover:scale-[1.04] md:rounded-xl"
+                src={heroShoes}
+                alt={"Featured shoes collection"}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                 width={1600}
                 height={2000}
               />
@@ -218,7 +183,7 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <div className="absolute -left-6 -top-6 hidden h-24 w-24 rotate-[-8deg] items-center justify-center rounded-full bg-primary/10 text-center text-[18px] font-bold uppercase leading-tight tracking-widest text-primary shadow-card md:flex animate-float">
+            <div className="absolute -left-3 -top-4 flex h-16 w-16 rotate-[-8deg] items-center justify-center rounded-full bg-primary/10 text-center text-[12px] font-bold uppercase leading-tight tracking-widest text-primary shadow-card xs:-left-5 xs:-top-6 xs:h-20 xs:w-20 xs:text-sm md:-left-6 md:top-[-1.5rem] md:h-24 md:w-24 md:text-[18px] animate-float">
               20 %<br />off<br />
             </div>
           </div>
@@ -350,7 +315,7 @@ const Index = () => {
                   className="snap-start flex-none w-[80vw] sm:w-[60vw] lg:w-[42vw] xl:w-[32rem] group relative overflow-hidden rounded-[1.5rem] bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
                   style={{ transitionDelay: `${i * 80}ms` }}
                 >
-                  <div className="aspect-[11/14] overflow-hidden bg-muted">
+                  <div className="aspect-[5/4] overflow-hidden bg-muted">
                     <img
                       src={item.img}
                       alt={`${item.name} ${item.trending ? 'trending shoe' : 'shoe'}`}
@@ -358,7 +323,7 @@ const Index = () => {
                       onError={handleProductImageError}
                       width={800}
                       height={1000}
-                      className="h-full w-full object-contain object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                      className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                   </div>
                   <div className="space-y-2 p-5">
@@ -416,7 +381,7 @@ const Index = () => {
 
 
       {/* ── Story ── */}
-      <section id="story" className="bg-secondary/60 grain relative">
+      <section id="story" className="bg-background relative">
         {/* Background animation */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
           <div className="absolute -right-50 top-1/4 w-96 h-96 bg-primary/8 rounded-full blur-3xl animate-pulse"></div>
@@ -486,7 +451,7 @@ const Index = () => {
       </section>
 
       {/* ── Contact ── */}
-      <section id="contact" className="relative bg-secondary/30 py-14 sm:py-20 lg:py-24">
+      <section id="contact" className="relative bg-background py-14 sm:py-20 lg:py-24">
         {/* Background animation */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
           <div className="absolute right-0 top-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
@@ -624,7 +589,7 @@ const Index = () => {
       </section>
 
       {/* ── Visit ── */}
-      <section id="visit" className="relative border-t border-border/80 bg-secondary/35 py-14 sm:py-20 lg:py-24">
+      <section id="visit" className="relative border-t border-border/80 bg-background py-14 sm:py-20 lg:py-24">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -right-32 top-8 h-72 w-72 rounded-full bg-mustard/10 blur-3xl animate-pulse"></div>
           <div className="absolute -left-32 bottom-4 h-72 w-72 rounded-full bg-primary/5 blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>

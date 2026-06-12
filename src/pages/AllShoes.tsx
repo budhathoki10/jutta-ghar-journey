@@ -24,7 +24,7 @@ const AllShoes: React.FC = () => {
   return (
     <main id="main-content" className="bg-background">
       {/* Hero */}
-      <section className="px-6 sm:px-10 py-10 md:py-14 bg-gradient-to-b from-cream/30 to-background border-b border-border">
+      <section className="border-b border-border bg-background px-6 py-10 sm:px-10 md:py-14">
         <div className="mx-auto max-w-7xl">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground mb-2">Collection</p>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground mb-3">

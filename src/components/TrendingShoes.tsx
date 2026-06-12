@@ -89,13 +89,13 @@ export const TrendingShoes: React.FC = () => {
               >
                 <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card hover:shadow-xl transition-all duration-300 group-hover/card:border-primary/20 group-hover/card:scale-[1.02]">
                   {/* Image Container */}
-                  <div className="relative aspect-square bg-muted overflow-hidden">
+                  <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                     {shoe.images?.[0]?.url ? (
                       <img
                         src={resolveImageUrl(shoe.images[0].url)}
                         alt={shoe.name}
                         onError={handleProductImageError}
-                        className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-500"
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-muted to-muted-foreground/20 flex items-center justify-center">

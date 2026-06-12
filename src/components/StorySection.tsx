@@ -1,7 +1,7 @@
 import { ScrollReveal } from '@/components/ScrollReveal';
 
 const StorySection = () => (
-  <section id="story" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-terracotta/5 to-transparent">
+  <section id="story" className="bg-background px-4 py-12 sm:px-6 sm:py-16 md:py-24">
     <div className="mx-auto max-w-4xl w-full">
       <ScrollReveal>
         <div className="space-y-2 sm:space-y-4 mb-8 sm:mb-12">
