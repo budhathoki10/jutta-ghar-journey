@@ -165,7 +165,7 @@ const Index = () => {
             </h1>
           </div>
 
-          <div className="relative min-w-0 md:col-span-6 md:row-span-2 reveal-right" style={{ transitionDelay: "0.25s" }}>
+          <div className="relative min-w-0 md:col-span-6 md:row-span-2 md:self-start md:pt-10 lg:pt-12 reveal-right" style={{ transitionDelay: "0.25s" }}>
             <div className="group relative mx-auto aspect-square w-full max-w-[14.5rem] overflow-hidden rounded-2xl bg-card shadow-soft sm:max-w-[24rem] md:max-w-[480px] md:rounded-[2rem]">
               <img
                 src={heroShoes}
@@ -174,10 +174,7 @@ const Index = () => {
                 width={1600}
                 height={2000}
               />
-              <div className="absolute bottom-3 left-3 right-3 hidden items-end justify-between text-ink-foreground sm:flex">
-                <div className="rounded-2xl bg-ink/80 px-2 py-1.5 text-[9px] uppercase tracking-[0.16em] backdrop-blur transition-transform duration-500 group-hover:-translate-y-1 sm:px-3 sm:py-2 sm:text-xs">
-                  Featured · Latest Picks
-                </div>
+              <div className="absolute bottom-3 left-3 right-3 hidden items-end justify-end text-ink-foreground sm:flex">
                 <div className="hidden rounded-2xl bg-mustard px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-ink transition-transform duration-500 group-hover:-translate-y-1 sm:block">
                   New In
                 </div>

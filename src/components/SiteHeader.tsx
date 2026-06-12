@@ -53,7 +53,12 @@ const SiteHeader = () => {
           className="group inline-flex min-w-0 items-center gap-2 text-ink transition-transform duration-300 hover:-translate-y-0.5 sm:gap-3"
           aria-label="GoGo Jutta Ghar home"
         >
-          <img src={heroShoes} alt="GoGo Jutta Ghar" className="h-9 w-9 shrink-0 rounded-xl border border-border bg-card object-cover shadow-sm xs:h-10 xs:w-10 sm:h-12 sm:w-12" />
+          <img
+            src={heroShoes}
+            alt="GoGo Jutta Ghar"
+            className="h-9 w-9 shrink-0 rounded-full border border-border bg-card object-cover shadow-sm ring-2 ring-primary/10 xs:h-10 xs:w-10 sm:h-12 sm:w-12"
+            style={{ objectPosition: 'center 34%' }}
+          />
           <span className="min-w-0">
             <span className="block truncate text-sm font-black leading-tight tracking-tight xs:text-base sm:text-xl">GoGo Jutta Ghar</span>
             <span className="block text-[8px] uppercase tracking-[0.18em] text-muted-foreground xs:text-[9px] xs:tracking-[0.24em] sm:text-[10px]">Jagatsundar Marg</span>

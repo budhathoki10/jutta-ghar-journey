@@ -1,6 +1,6 @@
 import type { SyntheticEvent } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
 
 export const PRODUCT_IMAGE_PLACEHOLDER = '/placeholder.svg';
 

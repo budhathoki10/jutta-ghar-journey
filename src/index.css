@@ -42,7 +42,7 @@
     --input: 30 24% 84%;
     --ring: 0 78% 45%;
 
-    --radius: 0.25rem;
+    --radius: 0.5rem;
 
     --gradient-warm: linear-gradient(135deg, hsl(0 78% 45%), hsl(0 60% 35%));
     --gradient-paper: linear-gradient(180deg, hsl(36 58% 98%), hsl(34 40% 95%));
@@ -84,6 +84,7 @@
 
 @layer base {
   * { @apply border-border; }
+  .border:not([class*="rounded"]) { border-radius: var(--radius); }
   html { scroll-behavior: smooth; }
   body {
     @apply bg-background text-foreground font-sans antialiased;
@@ -234,6 +235,37 @@
   .reveal-right.in-view { opacity: 1; transform: translateX(0); }
   .reveal-scale { opacity: 0; transform: scale(0.94); transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1); }
   .reveal-scale.in-view { opacity: 1; transform: scale(1); }
+  .shoe-scroll-reveal {
+    opacity: 0;
+    transform: translateY(34px) scale(0.96);
+    transition:
+      opacity 0.75s cubic-bezier(0.22,1,0.36,1),
+      transform 0.75s cubic-bezier(0.22,1,0.36,1),
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
+    will-change: opacity, transform;
+  }
+  .shoe-scroll-reveal.in-view {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .admin-shoe-card-reveal {
+    opacity: 0;
+    transform: translateY(32px) scale(0.97);
+    transition:
+      opacity 0.75s cubic-bezier(0.22,1,0.36,1),
+      transform 0.75s cubic-bezier(0.22,1,0.36,1),
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
+    will-change: opacity, transform;
+  }
+  .admin-shoe-card-reveal.in-view {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .admin-shoe-card-reveal.in-view:hover {
+    transform: translateY(-4px) scale(1);
+  }
 
   /* Animated underline link */
   .link-underline { position: relative; }
@@ -335,7 +367,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .reveal, .reveal-left, .reveal-right, .reveal-scale { opacity: 1 !important; transform: none !important; }
+    .reveal, .reveal-left, .reveal-right, .reveal-scale, .shoe-scroll-reveal, .admin-shoe-card-reveal { opacity: 1 !important; transform: none !important; }
     .marquee { animation: none !important; }
     .floor-hero-motion::before,
     .floor-section-motion,

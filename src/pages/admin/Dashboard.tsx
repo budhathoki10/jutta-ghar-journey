@@ -1,20 +1,23 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ImageIcon, Package, Sparkles, Users } from 'lucide-react';
+import { BadgeCheck, ImageIcon, Layers3, Package, Sparkles, Users } from 'lucide-react';
 import { fetchShoes } from '../../api/shoeApi';
 import { Button } from '../../components/ui/button';
 import AdminLayout from '../../components/admin/AdminLayout';
-import { resolveImageUrl } from '../../lib/image';
 import type { Shoe } from '../../types/shoe';
+import AuthContext from '../../context/AuthContext';
 
 const Dashboard: React.FC = () => {
+  const { admin, authLoading } = useContext(AuthContext);
   const [shoes, setShoes] = useState<Shoe[]>([]);
 
   useEffect(() => {
+    if (!admin) return;
+
     fetchShoes()
       .then((res) => setShoes((res.data?.data || []) as Shoe[]))
       .catch(console.error);
-  }, []);
+  }, [admin]);
 
   const stats = useMemo(
     () => [
@@ -28,21 +31,39 @@ const Dashboard: React.FC = () => {
 
   const trending = shoes.filter((shoe) => shoe.trending).length;
 
-  const latestRandomShoes = useMemo(() => {
-    const latest = [...shoes]
-      .filter((shoe) => shoe.createdAt)
-      .sort((a, b) =>
-        new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime()
-      )
-      .slice(0, 12);
+  const inventorySummary = useMemo(() => {
+    const subcategories = shoes.reduce<Record<string, number>>((acc, shoe) => {
+      const key = shoe.subcategory?.trim() || 'Uncategorized';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
 
-    for (let i = latest.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [latest[i], latest[j]] = [latest[j], latest[i]];
-    }
-
-    return latest.slice(0, 4);
+    return Object.entries(subcategories)
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
   }, [shoes]);
+
+  const brandedCount = shoes.filter((shoe) => shoe.branded).length;
+  const nonBrandedCount = Math.max(0, shoes.length - brandedCount);
+  const withImages = shoes.filter((shoe) => shoe.images?.length).length;
+  const noImages = Math.max(0, shoes.length - withImages);
+  const maxCategoryCount = Math.max(1, ...inventorySummary.map((item) => item.count));
+
+  if (authLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        Restoring admin session...
+      </main>
+    );
+  }
+
+  if (!admin) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-16 text-center">
+        Please log in to access the admin dashboard.
+      </div>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -59,7 +80,7 @@ const Dashboard: React.FC = () => {
               <div className="rounded-sm border border-primary/15 bg-primary/5 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">Quick add</p>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Create product listings with complete details, pricing, and image gallery support.
+                  Create product listings with category, brand details, sizes, and image gallery support.
                 </p>
               </div>
               <div className="rounded-sm border border-border bg-background p-5">
@@ -104,59 +125,93 @@ const Dashboard: React.FC = () => {
           })}
         </div>
 
-        <div className="rounded-sm border border-border bg-card p-5 shadow-card sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
+          <div className="rounded-sm border border-border bg-card p-5 shadow-card sm:p-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">Latest random arrivals</p>
-              <h2 className="mt-2 text-xl font-black text-ink">Fresh shoes added automatically</h2>
-            </div>
-            <span className="inline-flex items-center rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-ink">
-              New latest random picks
-            </span>
-          </div>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {latestRandomShoes.length ? (
-              latestRandomShoes.map((shoe) => (
-                <div key={shoe._id} className="rounded-3xl border border-border bg-white p-4 shadow-sm">
-                  <div className="aspect-square overflow-hidden rounded-3xl bg-slate-100">
-                    <img
-                      src={resolveImageUrl(shoe.images?.[0]?.url)}
-                      alt={shoe.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="mt-3">
-                    <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">{shoe.subcategory || 'Shoe'}</p>
-                    <h3 className="mt-2 text-base font-bold text-ink line-clamp-2">{shoe.name}</h3>
-                    <p className="mt-2 text-sm font-semibold text-slate-700">{shoe.brand || 'Local craft'}</p>
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      {shoe.sizes?.length ? `Sizes ${Math.min(...shoe.sizes)}-${Math.max(...shoe.sizes)}` : 'Size info pending'}
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full rounded-3xl border border-border bg-slate-50 p-6 text-center text-sm text-slate-600">
-                No latest shoes available yet. Add a new product to refresh this view.
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-sm border border-border bg-card p-5 shadow-card sm:p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">Admin note</p>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                Use the quick actions above to add and manage shoe listings. Your inventory overview helps you prioritize product updates and featured launches.
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                Inventory summary
+              </p>
+              <h2 className="mt-2 text-xl font-black text-ink">Shoes available by category</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                A quick count of what is currently listed in the catalogue.
               </p>
             </div>
-            <span className="inline-flex items-center rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-ink">
-              Keep images clear and prices current.
-            </span>
+
+            <div className="mt-6 grid gap-3">
+              {inventorySummary.length ? (
+                inventorySummary.map((item) => (
+                  <div key={item.label} className="rounded-sm border border-border bg-background p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-ink">{item.label}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {Math.round((item.count / Math.max(1, shoes.length)) * 100)}% of inventory
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-primary px-3 py-1 text-sm font-black text-primary-foreground">
+                        {item.count}
+                      </span>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${(item.count / maxCategoryCount) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-sm border border-border bg-background p-6 text-center text-sm text-muted-foreground">
+                  No products have been added yet.
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="rounded-sm border border-border bg-card p-5 shadow-card">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    Branded
+                  </p>
+                  <p className="mt-3 text-3xl font-black text-ink">{brandedCount}</p>
+                </div>
+                <BadgeCheck className="h-6 w-6 text-primary" />
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                {nonBrandedCount} non-branded or local craft listings.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-border bg-card p-5 shadow-card">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                    Coverage
+                  </p>
+                  <p className="mt-3 text-3xl font-black text-ink">{withImages}</p>
+                </div>
+                <Layers3 className="h-6 w-6 text-primary" />
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                {noImages} products still need images.
+              </p>
+            </div>
+
+            <div className="rounded-sm border border-primary/20 bg-primary/5 p-5 shadow-card sm:col-span-2 xl:col-span-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+                Useful next step
+              </p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                Balance the inventory by adding more styles to low-count categories and keeping trending picks fresh.
+              </p>
+              <Button asChild className="mt-5 w-full rounded-full">
+                <Link to="/admin/shoes">Review inventory</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
       </div>
     </AdminLayout>
   );

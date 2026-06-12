@@ -245,8 +245,8 @@ const ProductCatalog = () => {
 
   const ProductTile = ({ shoe, index }: { shoe: Shoe; index: number }) => (
     <article
-      className="group flex min-h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition duration-300 hover:shadow-md"
-      style={{ transitionDelay: `${index * 45}ms` }}
+      className="shoe-scroll-reveal group flex min-h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md"
+      style={{ transitionDelay: `${Math.min(index, 8) * 70}ms` }}
     >
       <button
         type="button"
@@ -306,8 +306,8 @@ const ProductCatalog = () => {
 
   const ProductRow = ({ shoe, index }: { shoe: Shoe; index: number }) => (
     <article
-      className="group grid gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition duration-300 hover:shadow-md sm:grid-cols-[10rem_1fr_auto] sm:items-center"
-      style={{ transitionDelay: `${index * 45}ms` }}
+      className="shoe-scroll-reveal group grid gap-4 rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md sm:grid-cols-[10rem_1fr_auto] sm:items-center"
+      style={{ transitionDelay: `${Math.min(index, 8) * 70}ms` }}
     >
       <button
         type="button"

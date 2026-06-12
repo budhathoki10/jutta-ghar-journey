@@ -1,31 +1,48 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 const api = axios.create({
   baseURL: API_BASE,
 });
 
-api.interceptors.request.use((config) => {
-  const getCookie = (name: string) => {
-    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return v ? v.pop() : '';
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const getCookie = (name: string): string => {
+    if (typeof document === 'undefined') return '';
+    try {
+      const nameEQ = `${name}=`;
+      const cookies = document.cookie.split(';');
+      for (const cookie of cookies) {
+        const trimmed = cookie.trim();
+        if (trimmed.startsWith(nameEQ)) {
+          return trimmed.substring(nameEQ.length);
+        }
+      }
+      return '';
+    } catch {
+      return '';
+    }
   };
 
   let token = '';
   try {
-    token = getCookie('admin_token') || localStorage.getItem('admin_token') || '';
+    token =
+      getCookie('admin_token') ||
+      localStorage.getItem('admin_token') ||
+      sessionStorage.getItem('admin_token') ||
+      '';
   } catch (e) {
     token = '';
   }
 
-  config.headers = config.headers || {};
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.set('Authorization', `Bearer ${token}`);
   }
 
-  if (config.data && !(config.data instanceof FormData)) {
-    config.headers['Content-Type'] = 'application/json';
+  if (config.data instanceof FormData) {
+    config.headers.delete('Content-Type');
+  } else if (config.data) {
+    config.headers.set('Content-Type', 'application/json');
   }
 
   return config;
