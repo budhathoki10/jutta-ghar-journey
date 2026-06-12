@@ -38,7 +38,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-paper px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-md rounded-sm border border-border bg-card p-6 shadow-soft sm:p-8">
         <div className="mb-7 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-sm bg-primary text-lg font-black text-primary-foreground shadow-sm">

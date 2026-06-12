@@ -1,7 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
-import esewaLogo from "@/assets/esewa-logo.png";
 
 const CheckoutSuccess = () => {
   const [params] = useSearchParams();
@@ -24,7 +23,7 @@ const CheckoutSuccess = () => {
         <div className="mt-10 w-full rounded-sm border border-border bg-card p-6 text-left">
           <div className="mb-4 flex items-center justify-between">
             <span className="text-xs uppercase tracking-widest text-muted-foreground">Paid via</span>
-            <img src={esewaLogo} alt="eSewa" width={64} height={24} loading="lazy" className="h-6 w-auto" />
+            <div className="text-sm font-semibold text-muted-foreground">eSewa</div>
           </div>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">

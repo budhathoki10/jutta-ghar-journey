@@ -4,15 +4,20 @@ import { Button } from "@/components/ui/button";
 import { type CarouselApi, Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { cn } from "@/lib/utils";
-import floorOne from "@/assets/one.png";
-import floorTwo from "@/assets/two.png";
-import floorThree from "@/assets/three.png";
-import floorFour from "@/assets/four.png";
-import floorFive from "@/assets/five.png";
-import floorSix from "@/assets/six.png";
-import floorSeven from "@/assets/seven.png";
-import floorEight from "@/assets/Eight.png";
-import floorNine from "@/assets/nine.png";
+import floorTwoNav from "@/assets/Floor2Imag.png";
+import floorThreeNav from "@/assets/Floor3Image.png";
+import heroShoes from "@/assets/hero-shoes.jpg";
+import floor2Hills from "@/assets/floor2Hills.png";
+import floor2HillsAlt from "@/assets/Floor2hillss.png";
+import floor2Boots from "@/assets/floor2bootss.png";
+import floor2BootsAlt from "@/assets/floor2boots.png";
+import floor2Shoes from "@/assets/Floor2CloseShoes.png";
+import floor2ShoesClose from "@/assets/floor2closeee.png";
+import floor3Branded from "@/assets/floor3branded.png";
+import floor3Tables from "@/assets/floor3tbls.png";
+import floor3Boots from "@/assets/florr3boots.png";
+import floor3Branded2 from "@/assets/flor3brandedd.png";
+import floor3BrandedAlt from "@/assets/florr3brandedd.png";
 
 const floors = [
   {
@@ -25,10 +30,11 @@ const floors = [
     description:
       "Start here for pairs that are easy to compare, easy to try, and comfortable for daily Kathmandu walking.",
     highlights: ["Doctor chappal", "Ladies sports", "Everyday comfort"],
+    navImage: null,
     images: [
-      { src: floorOne, title: "Comfort wall", note: "Daily fits", alt: "First floor comfort shoe display" },
-      { src: floorTwo, title: "Doctor chappal", note: "Soft support", alt: "Doctor chappal section on the first floor" },
-      { src: floorThree, title: "Daily picks", note: "Ready to try", alt: "Everyday ladies shoe collection" },
+      { src: heroShoes, title: "Comfort wall", note: "Daily fits", alt: "First floor comfort shoe display" },
+      { src: heroShoes, title: "Doctor chappal", note: "Soft support", alt: "Doctor chappal section on the first floor" },
+      { src: heroShoes, title: "Daily picks", note: "Ready to try", alt: "Everyday ladies shoe collection" },
     ],
   },
   {
@@ -41,10 +47,15 @@ const floors = [
     description:
       "A calmer floor for dressier choices, with styles grouped so shape, height, and finish are easier to compare.",
     highlights: ["Sandals", "Heels", "Boots"],
+    navImage: floorTwoNav,
     images: [
-      { src: floorFour, title: "Sandal display", note: "Open styles", alt: "Second floor sandal display" },
-      { src: floorFive, title: "Heels section", note: "Occasion pairs", alt: "Heels arranged on the second floor" },
-      { src: floorSix, title: "Boot wall", note: "Structured fits", alt: "Boot collection display" },
+      { src: floorTwoNav, title: "Floor overview", note: "Complete view", alt: "Second floor overview" },
+      { src: floor2Hills, title: "Heels section", note: "Occasion pairs", alt: "Second floor heels display" },
+      { src: floor2HillsAlt, title: "Heels wall", note: "Premium selection", alt: "Heels collection on second floor" },
+      { src: floor2Boots, title: "Boot wall", note: "Structured fits", alt: "Boots arranged on the second floor" },
+      { src: floor2BootsAlt, title: "Boot collection", note: "Various styles", alt: "Different boot styles on display" },
+      { src: floor2Shoes, title: "Close shoes", note: "Detailed view", alt: "Close-up shoe display on second floor" },
+      { src: floor2ShoesClose, title: "Shoe details", note: "Premium finishes", alt: "Detailed shoe collection on second floor" },
     ],
   },
   {
@@ -57,10 +68,14 @@ const floors = [
     description:
       "Head upstairs for branded pairs and premium picks, grouped for focused browsing when you already know the look.",
     highlights: ["Nike", "Adidas", "Premium picks"],
+    navImage: floorThreeNav,
     images: [
-      { src: floorSeven, title: "Brand shelves", note: "Popular labels", alt: "Top floor branded shoe shelves" },
-      { src: floorEight, title: "Premium wall", note: "Selected pairs", alt: "Premium branded shoe wall" },
-      { src: floorNine, title: "New arrivals", note: "Fresh display", alt: "New branded arrivals display" },
+      { src: floorThreeNav, title: "Floor overview", note: "Complete view", alt: "Top floor overview" },
+      { src: floor3Branded, title: "Premium brands", note: "Popular labels", alt: "Top floor premium branded shoes" },
+      { src: floor3Tables, title: "Display tables", note: "Organized collection", alt: "Brand shoes on display tables" },
+      { src: floor3Boots, title: "Boots display", note: "Selected styles", alt: "Boot collection on top floor" },
+      { src: floor3Branded2, title: "Brand collection", note: "Fresh arrivals", alt: "Brand collection display on top floor" },
+      { src: floor3BrandedAlt, title: "Branded wall", note: "Premium picks", alt: "Premium branded shoe wall" },
     ],
   },
 ];
@@ -120,13 +135,20 @@ const FloorImageSlider = ({ floor, floorIndex }: { floor: Floor; floorIndex: num
           {floor.images.map((image, imageIndex) => (
             <CarouselItem key={image.title} className="pl-0">
               <article className="bg-card">
-                <div className="relative aspect-[4/3] min-h-[17rem] overflow-hidden bg-muted sm:aspect-[16/10] sm:min-h-[24rem] lg:aspect-[16/9]">
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    loading={floorIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
-                    className="h-full w-full object-cover"
-                  />
+                <div className="relative aspect-[4/3] min-h-[17rem] overflow-hidden bg-muted sm:aspect-[16/10] sm:min-h-[24rem] lg:aspect-[16/9] flex items-center justify-center">
+                  {image.src ? (
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      loading={floorIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <ImageIcon className="h-8 w-8" />
+                      <span className="text-sm font-medium">Image not yet added</span>
+                    </div>
+                  )}
                   <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3 sm:p-4">
                     <span className="inline-flex items-center gap-2 rounded-full border border-background/70 bg-background/92 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-primary shadow-sm backdrop-blur sm:text-xs">
                       <ImageIcon className="h-3.5 w-3.5" />
@@ -179,9 +201,7 @@ const FloorImageSlider = ({ floor, floorIndex }: { floor: Floor; floorIndex: num
 const ShopFloors = () => {
   return (
     <main className="overflow-hidden bg-background text-foreground">
-      <section className="relative border-b border-border/70">
-        <div className="floor-hero-motion absolute inset-0 pointer-events-none" aria-hidden="true" />
-
+      <section className="relative border-b border-border/70 bg-background">
         <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
           <ScrollReveal delay={100} className="mx-auto max-w-5xl text-center">
             <p className="inline-flex rounded-full border border-border bg-card/90 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary shadow-sm sm:text-xs">
@@ -206,18 +226,39 @@ const ShopFloors = () => {
         </div>
       </section>
 
-      <nav className="sticky top-[4.25rem] z-30 border-b border-border/25 bg-background/95 backdrop-blur-xl sm:border-border/60">
-        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2.5 sm:justify-center sm:px-6 sm:py-3">
-          {floors.map((floor) => (
-            <a
-              key={floor.id}
-              href={`#${floor.id}`}
-              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground/80 shadow-sm transition hover:border-primary hover:bg-primary/5 hover:text-primary"
-            >
-              <span className="font-serif text-base font-black text-mustard">{floor.number}</span>
-              <span>{floor.title}</span>
-            </a>
-          ))}
+      <nav className="sticky top-[4.25rem] z-30 bg-background/95 border-b border-border/20 backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
+          <div className="flex items-center justify-center gap-3 overflow-x-auto text-sm sm:gap-4">
+            {floors.map((floor, index) => (
+              <div key={floor.id} className="flex items-center gap-3">
+                <a
+                  href={`#${floor.id}`}
+                  className="inline-flex items-center gap-3 rounded-full border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary hover:bg-primary/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                >
+                  {floor.navImage ? (
+                    <img
+                      src={floor.navImage}
+                      alt={`${floor.title} preview`}
+                      className="h-9 w-9 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-black text-foreground">
+                      {floor.number}
+                    </div>
+                  )}
+
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Floor {floor.number}</p>
+                    <p className="font-semibold text-foreground">{floor.title}</p>
+                  </div>
+                </a>
+
+                {index < floors.length - 1 && (
+                  <span className="text-muted-foreground">→</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </nav>
 
@@ -227,8 +268,7 @@ const ShopFloors = () => {
             key={floor.id}
             id={floor.id}
             className={cn(
-              "relative scroll-mt-32 overflow-hidden border-b border-border/70 py-12 sm:py-16 lg:py-20",
-              floorIndex % 2 === 0 ? "bg-background" : "bg-secondary/30",
+              "relative scroll-mt-32 overflow-hidden border-b border-border/70 bg-background py-12 sm:py-16 lg:py-20",
             )}
           >
             <div className="floor-section-motion absolute inset-0 pointer-events-none" aria-hidden="true" />

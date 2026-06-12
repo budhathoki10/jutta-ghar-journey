@@ -15,7 +15,7 @@ const AdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { logout } = useContext(AuthContext);
 
   return (
-    <div className="min-h-screen bg-gradient-paper text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-4 sm:px-6 lg:py-6">
         <header className="mb-5 rounded-sm border border-border bg-card px-4 py-3 shadow-card">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

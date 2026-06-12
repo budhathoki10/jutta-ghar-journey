@@ -27,7 +27,7 @@ interface ContactSectionProps {
 }
 
 const ContactSection = ({ id }: ContactSectionProps) => (
-  <section id={id} className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-gradient-to-b from-transparent to-primary/5">
+  <section id={id} className="bg-background px-4 py-12 sm:px-6 sm:py-16 md:py-24">
     <div className="mx-auto max-w-4xl space-y-8 sm:space-y-12">
       <ScrollReveal>
         <div className="space-y-2 sm:space-y-4">
@@ -149,7 +149,7 @@ const ContactSection = ({ id }: ContactSectionProps) => (
       </ScrollReveal>
 
       <ScrollReveal>
-        <div className="bg-gradient-to-r from-ink/5 to-terracotta/10 rounded-xl py-8 sm:py-12 px-4 sm:px-8 text-center">
+        <div className="rounded-xl bg-card px-4 py-8 text-center sm:px-8 sm:py-12">
           <h4 className="text-xl sm:text-2xl font-bold text-ink mb-3 sm:mb-4">Ready to connect?</h4>
           <p className="text-xs sm:text-base text-foreground/70 mb-4 sm:mb-6">Pick your preferred way to reach us — we're here to help.</p>
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">

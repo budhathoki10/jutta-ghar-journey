@@ -51,7 +51,7 @@ const Contact = () => {
 
   return (
     <div id="main-content" className="bg-background text-foreground">
-      <section id="contact" className="bg-secondary/30 py-14 sm:py-20 lg:py-24">
+      <section id="contact" className="bg-background py-14 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mx-auto mb-10 max-w-2xl text-center reveal">
             <p className="mb-3 text-xs tracking-[0.16em] text-muted-foreground">§ 05 — सम्पर्क · Contact</p>

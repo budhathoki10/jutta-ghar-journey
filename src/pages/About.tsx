@@ -21,7 +21,7 @@ const craft = [
 
 const About = () => (
   <div id="main-content" className="bg-background text-foreground">
-    <section id="story" className="bg-secondary/60 grain">
+    <section id="story" className="bg-background">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-9 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-12 md:gap-16 lg:py-24">
         <div className="md:col-span-5 reveal-left">
           <p className="mb-3 text-xs tracking-[0.14em] text-muted-foreground sm:tracking-[0.16em]">§ 03 — Our Story</p>

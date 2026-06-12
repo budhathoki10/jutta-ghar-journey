@@ -90,6 +90,7 @@
     font-feature-settings: "ss01", "ss02";
     overflow-x: hidden;
   }
+  #root { @apply min-h-screen bg-background; }
   img, video, iframe { max-width: 100%; }
   h1, h2, h3, h4 { @apply font-serif tracking-tight; }
 }

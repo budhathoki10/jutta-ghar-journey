@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Minus, Plus, Trash2, ShieldCheck, Truck } from "lucide-react";
-import esewaLogo from "@/assets/esewa-logo.png";
 import { toast } from "sonner";
 
 const DELIVERY = 150;
@@ -110,7 +109,7 @@ const Checkout = () => {
                   </div>
                 </div>
                 <img
-                  src={esewaLogo}
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='24'%3E%3Ctext x='8' y='16' font-size='12' fill='%23666'%3EeSewa%3C/text%3E%3C/svg%3E"
                   alt="eSewa"
                   width={80}
                   height={32}
