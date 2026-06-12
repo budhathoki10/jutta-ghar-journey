@@ -11,7 +11,6 @@ if (process.env.ENABLE_ADMIN_REGISTER === 'true') {
 }
 router.post('/login', adminController.login);
 router.post('/upload-image', protect, upload.single('file'), adminController.uploadImage);
-router.get('/image/:id', adminController.getImage);
 
 // Example protected endpoint to get current admin
 router.get('/me', protect, (req, res) => {
