@@ -20,6 +20,7 @@ const navItems: NavItem[] = [
   { label: "Contact", to: "/contact", match: (pathname) => pathname === "/contact" },
 ];
 
+
 const SiteHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
