@@ -20,7 +20,6 @@ type ShoeForm = {
   branded: boolean;
   trending: boolean;
   description: string;
-  price: string;
   sizes: string;
   images: ImageItem[];
 };
@@ -34,10 +33,13 @@ const SUBCATS: Record<Gender, string[]> = {
 const inputClass =
   'w-full rounded-sm border border-border bg-background px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10';
 
+const isBrandedSubcategory = (subcategory: string) =>
+  subcategory.toLowerCase().includes('branded');
+
 const EditShoe: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { admin } = useContext(AuthContext);
+  const { admin, authLoading } = useContext(AuthContext);
   const [form, setForm] = useState<ShoeForm | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,18 +51,20 @@ const EditShoe: React.FC = () => {
       .then((res) => {
         const shoe = res.data;
         const gender = shoe.gender === 'kids' ? 'unisex' : shoe.gender || 'male';
+        const subcategory =
+          shoe.subcategory && SUBCATS[gender as Gender].includes(shoe.subcategory)
+            ? shoe.subcategory
+            : SUBCATS[gender as Gender][0];
+        const branded = isBrandedSubcategory(subcategory);
+
         setForm({
           name: shoe.name || '',
           gender: gender as Gender,
-          subcategory:
-            shoe.subcategory && SUBCATS[gender as Gender].includes(shoe.subcategory)
-              ? shoe.subcategory
-              : SUBCATS[gender as Gender][0],
-          brand: shoe.brand || '',
-          branded: Boolean(shoe.branded),
+          subcategory,
+          brand: branded ? shoe.brand || '' : '',
+          branded,
           trending: Boolean(shoe.trending),
           description: shoe.description || '',
-          price: shoe.price?.toString() || '',
           sizes: Array.isArray(shoe.sizes) ? shoe.sizes.join(', ') : '',
           images: Array.isArray(shoe.images) ? shoe.images : [],
         });
@@ -165,11 +169,10 @@ const EditShoe: React.FC = () => {
         name: form.name.trim(),
         gender: form.gender,
         subcategory: form.subcategory,
-        brand: form.brand.trim(),
-        branded: form.branded,
+        brand: isBrandedSubcategory(form.subcategory) ? form.brand.trim() : '',
+        branded: isBrandedSubcategory(form.subcategory),
         trending: form.trending,
         description: form.description.trim(),
-        price: form.price ? Number(form.price) : undefined,
         sizes: form.sizes ? parseSizesInput(form.sizes) : [],
         images: form.images
           .filter((image) => image.url)
@@ -188,6 +191,14 @@ const EditShoe: React.FC = () => {
       setSaving(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        Restoring admin session...
+      </main>
+    );
+  }
 
   if (!admin) {
     return (
@@ -226,19 +237,6 @@ const EditShoe: React.FC = () => {
               Back
             </Link>
           </Button>
-
-          <Button
-            type="submit"
-            disabled={saving}
-            className="rounded-full bg-primary px-8 text-primary-foreground hover:bg-terracotta-deep"
-          >
-            {saving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            Save changes
-          </Button>
         </div>
 
         <section className="overflow-hidden rounded-sm border border-border bg-ink text-ink-foreground shadow-soft">
@@ -251,7 +249,7 @@ const EditShoe: React.FC = () => {
                 Polish product details
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-foreground/75">
-                Update product information, price, brand, images, and visibility badges from one
+                Update product information, brand details for branded pairs, images, and visibility badges from one
                 clean admin screen.
               </p>
             </div>
@@ -286,8 +284,13 @@ const EditShoe: React.FC = () => {
                   value={form.gender}
                   onChange={(e) => {
                     const selected = e.target.value as Gender;
+                    const selectedSubcategory = SUBCATS[selected][0];
                     updateField('gender', selected);
-                    updateField('subcategory', SUBCATS[selected][0]);
+                    updateField('subcategory', selectedSubcategory);
+                    updateField('branded', isBrandedSubcategory(selectedSubcategory));
+                    if (!isBrandedSubcategory(selectedSubcategory)) {
+                      updateField('brand', '');
+                    }
                   }}
                 >
                   <option value="male">Men</option>
@@ -301,7 +304,15 @@ const EditShoe: React.FC = () => {
                 <select
                   className={inputClass}
                   value={form.subcategory}
-                  onChange={(e) => updateField('subcategory', e.target.value)}
+                  onChange={(e) => {
+                    const selectedSubcategory = e.target.value;
+                    const nextBranded = isBrandedSubcategory(selectedSubcategory);
+                    updateField('subcategory', selectedSubcategory);
+                    updateField('branded', nextBranded);
+                    if (!nextBranded) {
+                      updateField('brand', '');
+                    }
+                  }}
                 >
                   {SUBCATS[form.gender].map((option) => (
                     <option key={option}>{option}</option>
@@ -309,25 +320,17 @@ const EditShoe: React.FC = () => {
                 </select>
               </label>
 
-              <label className="space-y-2">
-                <span className="text-sm font-semibold text-ink">Brand</span>
-                <input
-                  className={inputClass}
-                  value={form.brand}
-                  onChange={(e) => updateField('brand', e.target.value)}
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-sm font-semibold text-ink">Price</span>
-                <input
-                  className={inputClass}
-                  type="number"
-                  min="0"
-                  value={form.price}
-                  onChange={(e) => updateField('price', e.target.value)}
-                />
-              </label>
+              {isBrandedSubcategory(form.subcategory) && (
+                <label className="space-y-2">
+                  <span className="text-sm font-semibold text-ink">Brand</span>
+                  <input
+                    className={inputClass}
+                    value={form.brand}
+                    onChange={(e) => updateField('brand', e.target.value)}
+                    placeholder="e.g. Nike, Goldstar"
+                  />
+                </label>
+              )}
 
               <label className="space-y-2 md:col-span-2">
                 <span className="text-sm font-semibold text-ink">Sizes</span>
@@ -349,19 +352,6 @@ const EditShoe: React.FC = () => {
               </label>
 
               <div className="grid gap-3 md:col-span-2 sm:grid-cols-2">
-                <label className="flex items-center justify-between rounded-sm border border-border bg-background px-4 py-3">
-                  <span>
-                    <span className="block text-sm font-semibold text-ink">Branded</span>
-                    <span className="text-xs text-muted-foreground">Show branded badge</span>
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={form.branded}
-                    onChange={(e) => updateField('branded', e.target.checked)}
-                    className="h-5 w-5 accent-primary"
-                  />
-                </label>
-
                 <label className="flex items-center justify-between rounded-sm border border-border bg-background px-4 py-3">
                   <span>
                     <span className="block text-sm font-semibold text-ink">Trending</span>
@@ -468,6 +458,28 @@ const EditShoe: React.FC = () => {
             </div>
           </aside>
         </section>
+
+        <div className="flex flex-col-reverse gap-3 rounded-sm border border-border bg-card p-4 shadow-card sm:flex-row sm:items-center sm:justify-between">
+          <Button asChild variant="outline" className="rounded-full border-border">
+            <Link to="/admin/shoes">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to products
+            </Link>
+          </Button>
+
+          <Button
+            type="submit"
+            disabled={saving}
+            className="rounded-full bg-primary px-8 text-primary-foreground hover:bg-terracotta-deep"
+          >
+            {saving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            Save changes
+          </Button>
+        </div>
       </form>
     </AdminLayout>
   );

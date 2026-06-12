@@ -1,8 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, LockKeyhole } from 'lucide-react';
 import AuthContext from '../../context/AuthContext';
 import { Button } from '../../components/ui/button';
+import heroShoes from '../../assets/hero-shoes.jpg';
 
 type LoginError = {
   response?: {
@@ -16,17 +17,24 @@ type LoginError = {
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { login } = useContext(AuthContext);
+  const { admin, authLoading, login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && admin) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [admin, authLoading, navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await login(email, password);
-      navigate('/admin/dashboard');
+      await login(email, password, rememberMe);
+      navigate('/admin/dashboard', { replace: true });
     } catch (err: unknown) {
       const loginError = err as LoginError;
       const message = loginError.response?.data?.message || loginError.message || 'Login failed';
@@ -41,9 +49,11 @@ const Login: React.FC = () => {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-md rounded-sm border border-border bg-card p-6 shadow-soft sm:p-8">
         <div className="mb-7 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-sm bg-primary text-lg font-black text-primary-foreground shadow-sm">
-            JG
-          </div>
+          <img
+            src={heroShoes}
+            alt="GoGo Jutta Ghar"
+            className="mx-auto h-14 w-14 rounded-full border border-border bg-card object-cover shadow-sm ring-4 ring-primary/10"
+          />
           <p className="mt-5 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
             Admin access
           </p>
@@ -75,9 +85,22 @@ const Login: React.FC = () => {
             />
           </label>
 
+          <label className="flex cursor-pointer items-center justify-between gap-4 rounded-sm border border-border bg-background px-4 py-3">
+            <span>
+              <span className="block text-sm font-semibold text-ink">Remember me</span>
+              <span className="text-xs text-muted-foreground">Stay signed in on this device until logout.</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-5 w-5 accent-primary"
+            />
+          </label>
+
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || authLoading}
             className="h-12 w-full rounded-full bg-primary text-primary-foreground hover:bg-terracotta-deep"
           >
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LockKeyhole className="mr-2 h-4 w-4" />}

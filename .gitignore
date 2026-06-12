@@ -30,3 +30,6 @@ server/.env
 # Local overrides
 .env.local
 server/.env.local
+.next/
+node_modules/
+

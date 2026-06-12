@@ -18,7 +18,6 @@ type ShoeForm = {
   brand: string;
   branded: boolean;
   description: string;
-  price: string;
   sizes: string;
   uploads: UploadItem[];
 };
@@ -36,10 +35,12 @@ const emptyForm = (): ShoeForm => ({
   brand: '',
   branded: false,
   description: '',
-  price: '',
   sizes: '',
   uploads: [],
 });
+
+const isBrandedSubcategory = (subcategory: string) =>
+  subcategory.toLowerCase().includes('branded');
 
 const inputClass =
   'w-full rounded-sm border border-border bg-white px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-4 focus:ring-primary/10';
@@ -49,7 +50,7 @@ const AddShoe: React.FC = () => {
   const [expandedIndex, setExpandedIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { admin } = useContext(AuthContext);
+  const { admin, authLoading } = useContext(AuthContext);
 
   const updateForm = <K extends keyof ShoeForm>(
     index: number,
@@ -179,10 +180,9 @@ const AddShoe: React.FC = () => {
             name: form.name.trim(),
             gender: form.gender,
             subcategory: form.subcategory,
-            brand: form.brand.trim(),
-            branded: form.branded,
+            brand: isBrandedSubcategory(form.subcategory) ? form.brand.trim() : '',
+            branded: isBrandedSubcategory(form.subcategory),
             description: form.description.trim(),
-            price: form.price ? Number(form.price) : undefined,
             sizes: form.sizes ? parseSizesInput(form.sizes) : [],
             images: form.uploads
               .filter((upload) => upload.url)
@@ -203,6 +203,14 @@ const AddShoe: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+        Restoring admin session...
+      </main>
+    );
+  }
 
   if (!admin) {
     return (
@@ -225,7 +233,7 @@ const AddShoe: React.FC = () => {
                 Add professional product listings
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-                Upload clear shoe photos, add pricing, brand, size range, and publish products
+                Upload clear shoe photos, add brand details for branded pairs, size range, and publish products
                 that customers can view with a clean gallery.
               </p>
             </div>
@@ -242,6 +250,7 @@ const AddShoe: React.FC = () => {
 
         {forms.map((form, formIndex) => {
           const isExpanded = formIndex === expandedIndex;
+          const isBrandedProduct = isBrandedSubcategory(form.subcategory);
 
           return (
             <section key={formIndex} className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
@@ -291,10 +300,12 @@ const AddShoe: React.FC = () => {
                       <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Subcategory</p>
                       <p className="mt-1">{form.subcategory}</p>
                     </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Brand</p>
-                      <p className="mt-1">{form.brand || 'Not set'}</p>
-                    </div>
+                    {isBrandedProduct && (
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Brand</p>
+                        <p className="mt-1">{form.brand || 'Not set'}</p>
+                      </div>
+                    )}
                   </div>
                   <p className="mt-4 text-xs text-muted-foreground">Click anywhere here to open and edit this product.</p>
                 </button>
@@ -319,8 +330,13 @@ const AddShoe: React.FC = () => {
                         value={form.gender}
                         onChange={(e) => {
                           const selected = e.target.value as Gender;
+                          const selectedSubcategory = SUBCATS[selected][0];
                           updateForm(formIndex, 'gender', selected);
-                          updateForm(formIndex, 'subcategory', SUBCATS[selected][0]);
+                          updateForm(formIndex, 'subcategory', selectedSubcategory);
+                          updateForm(formIndex, 'branded', isBrandedSubcategory(selectedSubcategory));
+                          if (!isBrandedSubcategory(selectedSubcategory)) {
+                            updateForm(formIndex, 'brand', '');
+                          }
                         }}
                       >
                         <option value="male">Men</option>
@@ -334,7 +350,15 @@ const AddShoe: React.FC = () => {
                       <select
                         className={inputClass}
                         value={form.subcategory}
-                        onChange={(e) => updateForm(formIndex, 'subcategory', e.target.value)}
+                        onChange={(e) => {
+                          const selectedSubcategory = e.target.value;
+                          const nextBranded = isBrandedSubcategory(selectedSubcategory);
+                          updateForm(formIndex, 'subcategory', selectedSubcategory);
+                          updateForm(formIndex, 'branded', nextBranded);
+                          if (!nextBranded) {
+                            updateForm(formIndex, 'brand', '');
+                          }
+                        }}
                       >
                         {SUBCATS[form.gender].map((option) => (
                           <option key={option}>{option}</option>
@@ -342,27 +366,17 @@ const AddShoe: React.FC = () => {
                       </select>
                     </label>
 
-                    <label className="space-y-2">
-                      <span className="text-sm font-semibold text-ink">Brand</span>
-                      <input
-                        className={inputClass}
-                        value={form.brand}
-                        onChange={(e) => updateForm(formIndex, 'brand', e.target.value)}
-                        placeholder="e.g. Nike, Goldstar, Local craft"
-                      />
-                    </label>
-
-                    <label className="space-y-2">
-                      <span className="text-sm font-semibold text-ink">Price</span>
-                      <input
-                        className={inputClass}
-                        type="number"
-                        min="0"
-                        value={form.price}
-                        onChange={(e) => updateForm(formIndex, 'price', e.target.value)}
-                        placeholder="e.g. 2500"
-                      />
-                    </label>
+                    {isBrandedProduct && (
+                      <label className="space-y-2">
+                        <span className="text-sm font-semibold text-ink">Brand</span>
+                        <input
+                          className={inputClass}
+                          value={form.brand}
+                          onChange={(e) => updateForm(formIndex, 'brand', e.target.value)}
+                          placeholder="e.g. Nike, Goldstar"
+                        />
+                      </label>
+                    )}
 
                     <label className="space-y-2 md:col-span-2">
                       <span className="text-sm font-semibold text-ink">Sizes</span>
@@ -384,20 +398,6 @@ const AddShoe: React.FC = () => {
                       />
                     </label>
 
-                    <div className="md:col-span-2 grid gap-3">
-                      <label className="flex items-center justify-between rounded-sm border border-border bg-background px-4 py-3">
-                        <span>
-                          <span className="block text-sm font-semibold text-ink">Branded</span>
-                          <span className="text-xs text-muted-foreground">Show as branded product</span>
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={form.branded}
-                          onChange={(e) => updateForm(formIndex, 'branded', e.target.checked)}
-                          className="h-5 w-5 accent-primary"
-                        />
-                      </label>
-                    </div>
                   </div>
                 </div>
 

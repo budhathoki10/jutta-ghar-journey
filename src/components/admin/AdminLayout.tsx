@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, LogOut, Package, PlusCircle, Store } from 'lucide-react';
 import AuthContext from '../../context/AuthContext';
 import { Button } from '../ui/button';
+import SiteFooter from '../SiteFooter';
+import heroShoes from '../../assets/hero-shoes.jpg';
 
 const nav = [
   { label: 'Dashboard', to: '/admin/dashboard', icon: LayoutDashboard },
@@ -20,9 +22,12 @@ const AdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         <header className="mb-5 rounded-sm border border-border bg-card px-4 py-3 shadow-card">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-primary text-sm font-black text-primary-foreground shadow-sm">
-                JG
-              </div>
+              <img
+                src={heroShoes}
+                alt="GoGo Jutta Ghar"
+                className="h-11 w-11 shrink-0 rounded-full border border-border bg-card object-cover shadow-sm ring-2 ring-primary/10"
+                style={{ objectPosition: 'center 34%' }}
+              />
               <div>
                 <h2 className="text-lg font-black text-ink">GoGo Jutta Ghar Admin</h2>
                 <p className="text-sm text-muted-foreground">Products, images, and inventory controls</p>
@@ -80,6 +85,7 @@ const AdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
           <main className="min-w-0 pb-8">{children}</main>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 };

@@ -1,12 +1,11 @@
 import { DependencyList, useEffect } from "react";
 
 /**
- * Adds `.in-view` to any element with `.reveal`, `.reveal-left`,
- * `.reveal-right`, or `.reveal-scale` when it scrolls into view.
+ * Adds `.in-view` to reveal elements when they scroll into view.
  */
 export function useReveal(deps: DependencyList = []) {
   useEffect(() => {
-    const selector = ".reveal, .reveal-left, .reveal-right, .reveal-scale";
+    const selector = ".reveal, .reveal-left, .reveal-right, .reveal-scale, .shoe-scroll-reveal, .admin-shoe-card-reveal";
     let observer: IntersectionObserver | null = null;
     let frame = 0;
 
