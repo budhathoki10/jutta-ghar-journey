@@ -19,11 +19,12 @@ api.interceptors.request.use((config) => {
     token = '';
   }
 
-  if (token && config.headers) {
+  config.headers = config.headers || {};
+  if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  if (config.data && !(config.data instanceof FormData) && config.headers) {
+  if (config.data && !(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
   }
 

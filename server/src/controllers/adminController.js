@@ -2,16 +2,8 @@ const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const cloudinary = require('../config/cloudinary');
 const { Readable } = require('stream');
-
-// Create GridFS bucket
-let gfs;
-const conn = mongoose.connection;
-conn.once('open', () => {
-  gfs = new mongoose.mongo.GridFSBucket(conn.db, {
-    bucketName: 'uploads'
-  });
-});
 
 exports.register = async (req, res) => {
   try {
@@ -33,58 +25,32 @@ exports.uploadImage = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No image file uploaded' });
 
-    if (!gfs) return res.status(500).json({ message: 'GridFS not initialized' });
+    // Upload to Cloudinary using buffer with signed upload
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'shoe_shop',
+        resource_type: 'auto',
+        use_filename: true,
+      },
+      (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          return res.status(500).json({ message: 'Upload failed', error: error.message });
+        }
 
-    const filename = `shoe-${Date.now()}-${req.file.originalname}`;
-    const uploadStream = gfs.openUploadStream(filename, {
-      contentType: req.file.mimetype,
-    });
+        res.json({
+          url: result.secure_url,
+          publicId: result.public_id,
+          filename: req.file.originalname,
+          cloudinaryUrl: result.secure_url
+        });
+      }
+    );
 
+    // Pipe the buffer to Cloudinary
     const bufferStream = Readable.from([req.file.buffer]);
     bufferStream.pipe(uploadStream);
 
-    uploadStream.on('finish', () => {
-      const baseUrl =
-        process.env.PUBLIC_API_URL ||
-        `${req.protocol}://${req.get('host')}`;
-
-      res.json({
-        url: `${baseUrl}/api/admin/image/${uploadStream.id}`,
-        publicId: uploadStream.id.toString(),
-        filename: filename
-      });
-    });
-
-    uploadStream.on('error', (error) => {
-      res.status(500).json({ message: 'Upload failed', error: error.message });
-    });
-
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-exports.getImage = async (req, res) => {
-  try {
-    if (!gfs) return res.status(500).json({ message: 'GridFS not initialized' });
-
-    const fileId = new mongoose.Types.ObjectId(req.params.id);
-    const file = await conn.db.collection('uploads.files').findOne({ _id: fileId });
-
-    if (!file) {
-      return res.status(404).json({ message: 'Image not found' });
-    }
-
-    res.set('Content-Type', file.contentType || 'application/octet-stream');
-    res.set('Cache-Control', 'public, max-age=31536000, immutable');
-
-    const downloadStream = gfs.openDownloadStream(fileId);
-
-    downloadStream.on('error', () => {
-      res.status(404).json({ message: 'Image not found' });
-    });
-
-    downloadStream.pipe(res);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -94,9 +60,10 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const admin = await Admin.findOne({ email });
-    if (!admin) return res.status(401).json({ message: 'Invalid credentials' });
+    // Return a single generic message to avoid revealing which part failed
+    if (!admin) return res.status(401).json({ message: 'Invalid email' });
     const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!isMatch) return res.status(401).json({ message: 'Invalid password' });
     const token = jwt.sign(
       { id: admin._id, email: admin.email },
       process.env.JWT_SECRET,
