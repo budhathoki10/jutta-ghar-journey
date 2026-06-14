@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 import { fetchShoes } from '@/api/shoeApi';
-import { handleProductImageError, resolveImageUrl } from '@/lib/image';
+import { handleProductImageError, resolveOptimizedProductImageUrl } from '@/lib/image';
 import type { Shoe } from '@/types/shoe';
 
 export const TrendingShoes: React.FC = () => {
@@ -92,8 +92,10 @@ export const TrendingShoes: React.FC = () => {
                   <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                     {shoe.images?.[0]?.url ? (
                       <img
-                        src={resolveImageUrl(shoe.images[0].url)}
+                        src={resolveOptimizedProductImageUrl(shoe.images[0].url, { width: 576, height: 432 })}
                         alt={shoe.name}
+                        loading={index < 2 ? 'eager' : 'lazy'}
+                        decoding="async"
                         onError={handleProductImageError}
                         className="w-full h-full object-cover object-center group-hover/card:scale-105 transition-transform duration-500"
                       />

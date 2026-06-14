@@ -18,6 +18,19 @@ import floor3Tables from "@/assets/floor3tbls.png";
 import floor3Boots from "@/assets/florr3boots.png";
 import floor3Branded2 from "@/assets/flor3brandedd.png";
 import floor3BrandedAlt from "@/assets/florr3brandedd.png";
+import floorTwoNavMobile from "@/assets/Floor2Imag-mobile.webp";
+import floorThreeNavMobile from "@/assets/Floor3Image-mobile.webp";
+import floor2HillsMobile from "@/assets/floor2Hills-mobile.webp";
+import floor2HillsAltMobile from "@/assets/Floor2hillss-mobile.webp";
+import floor2BootsMobile from "@/assets/floor2bootss-mobile.webp";
+import floor2BootsAltMobile from "@/assets/floor2boots-mobile.webp";
+import floor2ShoesMobile from "@/assets/Floor2CloseShoes-mobile.webp";
+import floor2ShoesCloseMobile from "@/assets/floor2closeee-mobile.webp";
+import floor3BrandedMobile from "@/assets/floor3branded-mobile.webp";
+import floor3TablesMobile from "@/assets/floor3tbls-mobile.webp";
+import floor3BootsMobile from "@/assets/florr3boots-mobile.webp";
+import floor3Branded2Mobile from "@/assets/flor3brandedd-mobile.webp";
+import floor3BrandedAltMobile from "@/assets/florr3brandedd-mobile.webp";
 
 const floors = [
   {
@@ -49,13 +62,13 @@ const floors = [
     highlights: ["Sandals", "Heels", "Boots"],
     navImage: floorTwoNav,
     images: [
-      { src: floorTwoNav, title: "Floor overview", note: "Complete view", alt: "Second floor overview" },
-      { src: floor2Hills, title: "Heels section", note: "Occasion pairs", alt: "Second floor heels display" },
-      { src: floor2HillsAlt, title: "Heels wall", note: "Premium selection", alt: "Heels collection on second floor" },
-      { src: floor2Boots, title: "Boot wall", note: "Structured fits", alt: "Boots arranged on the second floor" },
-      { src: floor2BootsAlt, title: "Boot collection", note: "Various styles", alt: "Different boot styles on display" },
-      { src: floor2Shoes, title: "Close shoes", note: "Detailed view", alt: "Close-up shoe display on second floor" },
-      { src: floor2ShoesClose, title: "Shoe details", note: "Premium finishes", alt: "Detailed shoe collection on second floor" },
+      { src: floorTwoNav, mobileSrc: floorTwoNavMobile, title: "Floor overview", note: "Complete view", alt: "Second floor overview" },
+      { src: floor2Hills, mobileSrc: floor2HillsMobile, title: "Heels section", note: "Occasion pairs", alt: "Second floor heels display" },
+      { src: floor2HillsAlt, mobileSrc: floor2HillsAltMobile, title: "Heels wall", note: "Premium selection", alt: "Heels collection on second floor" },
+      { src: floor2Boots, mobileSrc: floor2BootsMobile, title: "Boot wall", note: "Structured fits", alt: "Boots arranged on the second floor" },
+      { src: floor2BootsAlt, mobileSrc: floor2BootsAltMobile, title: "Boot collection", note: "Various styles", alt: "Different boot styles on display" },
+      { src: floor2Shoes, mobileSrc: floor2ShoesMobile, title: "Close shoes", note: "Detailed view", alt: "Close-up shoe display on second floor" },
+      { src: floor2ShoesClose, mobileSrc: floor2ShoesCloseMobile, title: "Shoe details", note: "Premium finishes", alt: "Detailed shoe collection on second floor" },
     ],
   },
   {
@@ -70,12 +83,12 @@ const floors = [
     highlights: ["Nike", "Adidas", "Premium picks"],
     navImage: floorThreeNav,
     images: [
-      { src: floorThreeNav, title: "Floor overview", note: "Complete view", alt: "Top floor overview" },
-      { src: floor3Branded, title: "Premium brands", note: "Popular labels", alt: "Top floor premium branded shoes" },
-      { src: floor3Tables, title: "Display tables", note: "Organized collection", alt: "Brand shoes on display tables" },
-      { src: floor3Boots, title: "Boots display", note: "Selected styles", alt: "Boot collection on top floor" },
-      { src: floor3Branded2, title: "Brand collection", note: "Fresh arrivals", alt: "Brand collection display on top floor" },
-      { src: floor3BrandedAlt, title: "Branded wall", note: "Premium picks", alt: "Premium branded shoe wall" },
+      { src: floorThreeNav, mobileSrc: floorThreeNavMobile, title: "Floor overview", note: "Complete view", alt: "Top floor overview" },
+      { src: floor3Branded, mobileSrc: floor3BrandedMobile, title: "Premium brands", note: "Popular labels", alt: "Top floor premium branded shoes" },
+      { src: floor3Tables, mobileSrc: floor3TablesMobile, title: "Display tables", note: "Organized collection", alt: "Brand shoes on display tables" },
+      { src: floor3Boots, mobileSrc: floor3BootsMobile, title: "Boots display", note: "Selected styles", alt: "Boot collection on top floor" },
+      { src: floor3Branded2, mobileSrc: floor3Branded2Mobile, title: "Brand collection", note: "Fresh arrivals", alt: "Brand collection display on top floor" },
+      { src: floor3BrandedAlt, mobileSrc: floor3BrandedAltMobile, title: "Branded wall", note: "Premium picks", alt: "Premium branded shoe wall" },
     ],
   },
 ];
@@ -135,14 +148,18 @@ const FloorImageSlider = ({ floor, floorIndex }: { floor: Floor; floorIndex: num
           {floor.images.map((image, imageIndex) => (
             <CarouselItem key={image.title} className="pl-0">
               <article className="bg-card">
-                <div className="relative aspect-[4/3] min-h-[17rem] overflow-hidden bg-muted sm:aspect-[16/10] sm:min-h-[24rem] lg:aspect-[16/9] flex items-center justify-center">
+                <div className="relative aspect-[16/11] max-h-[15rem] overflow-hidden bg-muted xs:max-h-[17rem] sm:aspect-[16/10] sm:max-h-none sm:min-h-[24rem] lg:aspect-[16/9] flex items-center justify-center">
                   {image.src ? (
-                    <img
-                      src={image.src}
-                      alt={image.alt}
-                      loading={floorIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
-                      className="h-full w-full object-cover"
-                    />
+                    <picture className="h-full w-full">
+                      {image.mobileSrc ? <source media="(max-width: 640px)" srcSet={image.mobileSrc} type="image/webp" /> : null}
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        loading={floorIndex === 0 && imageIndex === 0 ? "eager" : "lazy"}
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                      />
+                    </picture>
                   ) : (
                     <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                       <ImageIcon className="h-8 w-8" />
@@ -227,34 +244,45 @@ const ShopFloors = () => {
       </section>
 
       <nav className="sticky top-[4.25rem] z-30 bg-background/95 border-b border-border/20 backdrop-blur-sm">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
-          <div className="flex items-center justify-center gap-3 overflow-x-auto text-sm sm:gap-4">
+        <div className="mx-auto max-w-7xl px-3 py-3 sm:px-6 sm:py-4">
+          <div className="grid grid-cols-3 gap-2 text-sm sm:flex sm:items-center sm:justify-center sm:gap-4">
             {floors.map((floor, index) => (
-              <div key={floor.id} className="flex items-center gap-3">
+              <div key={floor.id} className="min-w-0 sm:flex sm:items-center sm:gap-3">
                 <a
                   href={`#${floor.id}`}
-                  className="inline-flex items-center gap-3 rounded-full border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary hover:bg-primary/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                  className="flex min-h-[5.5rem] min-w-0 flex-col items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 py-2 text-center shadow-sm transition-colors hover:border-primary hover:bg-primary/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 sm:min-h-0 sm:inline-flex sm:flex-row sm:gap-3 sm:rounded-full sm:px-4 sm:py-3 sm:text-left"
                 >
                   {floor.navImage ? (
-                    <img
-                      src={floor.navImage}
-                      alt={`${floor.title} preview`}
-                      className="h-9 w-9 rounded-full object-cover"
-                    />
+                    <>
+                      <img
+                        src={floor.navImage}
+                        alt={`${floor.title} preview`}
+                        loading="lazy"
+                        decoding="async"
+                        className="hidden h-9 w-9 rounded-full object-cover sm:block"
+                      />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-black text-foreground sm:hidden">
+                        {floor.number}
+                      </div>
+                    </>
                   ) : (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-black text-foreground">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-black text-foreground sm:h-9 sm:w-9 sm:text-sm">
                       {floor.number}
                     </div>
                   )}
 
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Floor {floor.number}</p>
-                    <p className="font-semibold text-foreground">{floor.title}</p>
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:text-[10px] sm:tracking-[0.24em]">
+                      Floor {floor.number}
+                    </p>
+                    <p className="text-xs font-bold leading-4 text-foreground sm:text-base sm:font-semibold">
+                      {floor.title}
+                    </p>
                   </div>
                 </a>
 
                 {index < floors.length - 1 && (
-                  <span className="text-muted-foreground">→</span>
+                  <span className="hidden text-muted-foreground sm:inline">→</span>
                 )}
               </div>
             ))}

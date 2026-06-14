@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { LayoutGrid, LayoutList } from "lucide-react";
 import { fetchShoes } from "@/api/shoeApi";
-import { handleProductImageError, resolveImageUrl } from "@/lib/image";
+import { handleProductImageError, resolveOptimizedProductImageUrl } from "@/lib/image";
 import { cn } from "@/lib/utils";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { ProductFilters } from "@/components/ProductFilters";
@@ -11,6 +11,8 @@ import ShoeModal from "@/components/ShoeModal";
 import type { Shoe } from "@/types/shoe";
 
 const ITEMS_PER_PAGE = 12;
+const NEW_DAYS = 15;
+const NEW_DURATION_MS = NEW_DAYS * 24 * 60 * 60 * 1000;
 
 const normalizeSearchText = (value?: string | number | null) =>
   value
@@ -53,13 +55,26 @@ const getCreatedTime = (shoe: Shoe) => {
   return Number.isFinite(objectIdTime) ? objectIdTime : 0;
 };
 
+const isTrendingShoe = (shoe: Shoe) => {
+  return shoe.trending === true;
+};
+
+const isNewShoe = (shoe: Shoe) => {
+  const createdTime = getCreatedTime(shoe);
+  return createdTime > 0 && Date.now() - createdTime <= NEW_DURATION_MS;
+};
+
 const getSearchScore = (shoe: Shoe, searchTerm: string) => {
   if (!searchTerm) return 0;
 
   const name = normalizeSearchText(shoe.name);
   const category = normalizeSearchText(shoe.subcategory);
   const brand = normalizeSearchText(shoe.brand);
+  const trending = isTrendingShoe(shoe);
+  const isNew = isNewShoe(shoe);
 
+  if (trending && matchesSearchTerm("trending", searchTerm)) return 0;
+  if (isNew && matchesSearchTerm("new newest latest fresh arrival", searchTerm)) return 0;
   if (name === searchTerm || category === searchTerm) return 0;
   if (name.startsWith(searchTerm) || category.startsWith(searchTerm)) return 1;
   if (name.includes(searchTerm) || category.includes(searchTerm)) return 2;
@@ -138,6 +153,8 @@ const ProductCatalog = () => {
           shoe.brand,
           shoe.gender,
           shoe.description,
+          isTrendingShoe(shoe) ? "trending" : "",
+          isNewShoe(shoe) ? "new newest latest fresh arrival" : "",
         ]
           .map(normalizeSearchText)
           .join(" ");
@@ -153,7 +170,7 @@ const ProductCatalog = () => {
         const shoeCategory = shoe.subcategory?.toString().trim().toLowerCase() || "";
         if (shoeCategory !== selectedCategory) return false;
       }
-      if (trendingOnly && !shoe.trending) return false;
+      if (trendingOnly && !isTrendingShoe(shoe)) return false;
       return true;
     });
   }, [shoes, search, gender, category, trendingOnly]);
@@ -230,7 +247,7 @@ const ProductCatalog = () => {
     setTrendingOnly(false);
   };
 
-  const getImage = (shoe: Shoe) => resolveImageUrl(shoe.images?.[0]?.url);
+  const getImage = (shoe: Shoe) => resolveOptimizedProductImageUrl(shoe.images?.[0]?.url, { width: 640, height: 640 });
   const getPrice = (shoe: Shoe) => {
     const raw = shoe.price;
     const num = typeof raw === "number" ? raw : Number(raw);
@@ -246,7 +263,6 @@ const ProductCatalog = () => {
   const ProductTile = ({ shoe, index }: { shoe: Shoe; index: number }) => (
     <article
       className="shoe-scroll-reveal group flex min-h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md"
-      style={{ transitionDelay: `${Math.min(index, 8) * 70}ms` }}
     >
       <button
         type="button"
@@ -259,13 +275,19 @@ const ProductCatalog = () => {
             src={getImage(shoe)}
             alt={shoe.name}
             loading={index < 4 ? "eager" : "lazy"}
+            decoding="async"
             onError={handleProductImageError}
             className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
           />
           <div className="absolute right-3 top-3 flex flex-col gap-2">
-            {shoe.trending && (
+            {isNewShoe(shoe) && (
               <span className="inline-block rounded bg-red-600 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-white shadow-md">
                 New
+              </span>
+            )}
+            {isTrendingShoe(shoe) && (
+              <span className="inline-block rounded bg-red-600 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-white shadow-md">
+                Trending
               </span>
             )}
             {shoe.soldOut && (
@@ -307,7 +329,6 @@ const ProductCatalog = () => {
   const ProductRow = ({ shoe, index }: { shoe: Shoe; index: number }) => (
     <article
       className="shoe-scroll-reveal group grid gap-4 rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md sm:grid-cols-[10rem_1fr_auto] sm:items-center"
-      style={{ transitionDelay: `${Math.min(index, 8) * 70}ms` }}
     >
       <button
         type="button"
@@ -319,6 +340,7 @@ const ProductCatalog = () => {
           src={getImage(shoe)} 
           alt={shoe.name} 
           loading={index < 4 ? "eager" : "lazy"} 
+          decoding="async"
           onError={handleProductImageError}
           className="aspect-square h-full w-full object-cover transition duration-300 group-hover:scale-110" 
         />

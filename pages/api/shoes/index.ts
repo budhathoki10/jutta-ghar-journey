@@ -60,10 +60,11 @@ export default async function handler(
         name: formatProductName(req.body?.name),
       };
 
+      const trending = payload.trending === true;
       const shoe = await Shoe.create({
         ...payload,
-        trending: true,
-        trendingUntil: getTrendingUntil(),
+        trending,
+        ...(trending ? { trendingUntil: getTrendingUntil() } : { trendingUntil: undefined }),
       });
 
       return res.status(201).json(shoe);

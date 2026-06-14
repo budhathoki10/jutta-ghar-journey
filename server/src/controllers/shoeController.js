@@ -117,11 +117,11 @@ exports.getShoeById = async (req, res) => {
 
 exports.createShoe = async (req, res) => {
   try {
-    const payload = {
-      ...buildShoePayload(req.body),
-      trending: true,
-      trendingUntil: getTrendingUntil(),
-    };
+    const payload = buildShoePayload(req.body);
+
+    if (payload.trending) {
+      payload.trendingUntil = getTrendingUntil();
+    }
 
     if (!payload.name) {
       return res.status(400).json({

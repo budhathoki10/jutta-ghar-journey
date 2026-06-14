@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchShoes } from '../api/shoeApi';
 import { Search } from 'lucide-react';
-import { handleProductImageError, resolveImageUrl } from '@/lib/image';
+import { handleProductImageError, resolveOptimizedProductImageUrl } from '@/lib/image';
 import type { Shoe } from '@/types/shoe';
 
 const AllShoes: React.FC = () => {
@@ -69,16 +69,17 @@ const AllShoes: React.FC = () => {
             </div>
           ) : filteredShoes.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredShoes.map((shoe) => (
+              {filteredShoes.map((shoe, index) => (
                 <div key={shoe._id} className="group rounded-lg overflow-hidden border border-border bg-card shadow-card hover:shadow-lg hover:border-primary transition-all duration-200 hover:-translate-y-0.5">
                   {/* Image Container */}
                   <div className="relative h-40 bg-muted overflow-hidden">
                     {shoe.images?.[0]?.url ? (
                       <img
-                        src={resolveImageUrl(shoe.images[0].url)}
+                        src={resolveOptimizedProductImageUrl(shoe.images[0].url, { width: 480, height: 360 })}
                         alt={shoe.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                        loading="lazy"
+                        loading={index < 4 ? "eager" : "lazy"}
+                        decoding="async"
                         onError={handleProductImageError}
                       />
                     ) : (

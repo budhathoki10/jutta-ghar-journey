@@ -2,18 +2,36 @@ import { useEffect, useRef, useState } from "react";
 import { fetchShoes } from "@/api/shoeApi";
 import { Button } from "@/components/ui/button";
 import { useReveal } from "@/hooks/use-reveal";
-import { handleProductImageError, resolveImageUrl } from "@/lib/image";
+import { handleProductImageError, resolveOptimizedProductImageUrl } from "@/lib/image";
 import type { Shoe } from "@/types/shoe";
-import { MapPin, Phone, Clock, Star, ArrowUpRight, ImageIcon } from "lucide-react";
+import { MapPin, Phone, Clock, Star, ArrowUpRight, ImageIcon, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroShoes from "@/assets/hero-shoes.jpg";
+
+const NEW_DAYS = 15;
+const NEW_DURATION_MS = NEW_DAYS * 24 * 60 * 60 * 1000;
 
 type CollectionCard = {
   id: string;
   name: string;
   category: string;
   img: string;
+  isNew: boolean;
   trending?: boolean;
+};
+
+const getShoeCreatedTime = (shoe: Shoe) => {
+  const createdAtTime = shoe.createdAt ? new Date(shoe.createdAt).getTime() : 0;
+  if (Number.isFinite(createdAtTime) && createdAtTime > 0) return createdAtTime;
+
+  return /^[a-f0-9]{24}$/i.test(shoe._id)
+    ? parseInt(shoe._id.slice(0, 8), 16) * 1000
+    : 0;
+};
+
+const isNewShoe = (shoe: Shoe) => {
+  const createdTime = getShoeCreatedTime(shoe);
+  return createdTime > 0 && Date.now() - createdTime <= NEW_DURATION_MS;
 };
 
 const googleMapsUrl = "https://www.google.com/maps/place/GoGo+Jutta+Ghar/@27.7082595,85.3093997,928m/data=!3m2!1e3!4b1!4m6!3m5!1s0x39eb18fe4cf62957:0x3054f9c0f5228fb0!8m2!3d27.7082548!4d85.31198!16s%2Fg%2F11d_d1vhp3?entry=ttu&g_ep=EgoyMDI2MDUwNi4wIKXMDSoASAFQAw%3D%3D";
@@ -91,10 +109,11 @@ const Index = () => {
         const shoes = ((res.data.data || []) as Shoe[]).filter((shoe) => shoe.images?.length);
 
         const latestShoes = shoes
+          .filter(isNewShoe)
           .slice()
           .sort(
             (a, b) =>
-              new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+              getShoeCreatedTime(b) - getShoeCreatedTime(a)
           );
 
         const uniqueLatestShoes = latestShoes.filter(
@@ -106,8 +125,9 @@ const Index = () => {
           id: shoe._id,
           name: shoe.name,
           category: `${shoe.gender ? `${shoe.gender.charAt(0).toUpperCase() + shoe.gender.slice(1)}` : 'Unisex'} · ${shoe.subcategory || 'Shoe'}`,
-          img: resolveImageUrl(shoe.images[0].url),
-          trending: Boolean(shoe.trending),
+          img: resolveOptimizedProductImageUrl(shoe.images[0].url, { width: 768, height: 614 }),
+          isNew: true,
+          trending: shoe.trending === true,
         }));
 
         setCollections(selectedCardData);
@@ -287,10 +307,10 @@ const Index = () => {
         <div className="mb-8 flex items-end justify-between gap-6 sm:mb-12 reveal">
           <div>
             <p className="mb-3 text-xs uppercase tracking-[0.18em] text-muted-foreground sm:tracking-[0.25em]">§ 02 — The Shelf</p>
-            <h2 className="font-serif text-3xl font-black tracking-tight sm:text-5xl md:text-6xl">This week, in store.</h2>
+            <h2 className="font-serif text-3xl font-black tracking-tight sm:text-5xl md:text-6xl">New arrivals.</h2>
           </div>
           <p className="hidden max-w-xs text-sm text-muted-foreground md:block">
-            A rotating selection of what just came in. Try them on — there's chai while you wait.
+            Fresh pairs stay here for 15 days after they are added.
           </p>
         </div>
 
@@ -312,16 +332,30 @@ const Index = () => {
                   className="snap-start flex-none w-[80vw] sm:w-[60vw] lg:w-[42vw] xl:w-[32rem] group relative overflow-hidden rounded-[1.5rem] bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
                   style={{ transitionDelay: `${i * 80}ms` }}
                 >
-                  <div className="aspect-[5/4] overflow-hidden bg-muted">
+                  <div className="relative aspect-[5/4] overflow-hidden bg-muted">
                     <img
                       src={item.img}
-                      alt={`${item.name} ${item.trending ? 'trending shoe' : 'shoe'}`}
-                      loading="lazy"
+                      alt={`${item.name} ${item.trending ? 'trending shoe' : 'new shoe'}`}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      decoding="async"
                       onError={handleProductImageError}
                       width={800}
                       height={1000}
                       className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
                     />
+                    <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+                      {item.isNew && (
+                        <span className="inline-flex items-center rounded bg-red-600 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-md sm:text-xs">
+                          New
+                        </span>
+                      )}
+                      {item.trending && (
+                        <span className="inline-flex items-center gap-1.5 rounded bg-red-600 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-white shadow-md sm:text-xs">
+                          <TrendingUp className="h-3.5 w-3.5" />
+                          Trending
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="space-y-2 p-5">
                     <div className="flex items-center justify-between gap-4">
@@ -340,6 +374,11 @@ const Index = () => {
                         Trending right now — the most requested pair in store.
                       </p>
                     )}
+                    {!item.trending && item.isNew && (
+                      <p className="text-sm text-muted-foreground">
+                        Newly added — available in the fresh arrivals shelf.
+                      </p>
+                    )}
                   </div>
                 </article>
               ))
@@ -349,7 +388,7 @@ const Index = () => {
                   <div>
                     <p className="text-lg font-semibold text-ink">New arrivals will appear here.</p>
                     <p className="mt-3 text-sm text-muted-foreground">
-                      Add new shoes and they will automatically show in this section.
+                      Add new shoes and they will automatically show here for 15 days.
                     </p>
                   </div>
                 </div>

@@ -31,9 +31,26 @@ type Shoe = {
   images?: Array<{ url: string; publicId?: string }>;
   sizes?: number[];
   description?: string;
+  createdAt?: string;
 };
 
 const ITEMS_PER_PAGE = 9;
+const NEW_DAYS = 15;
+const NEW_DURATION_MS = NEW_DAYS * 24 * 60 * 60 * 1000;
+
+const getCreatedTime = (shoe: Shoe) => {
+  const createdAtTime = shoe.createdAt ? new Date(shoe.createdAt).getTime() : 0;
+  if (Number.isFinite(createdAtTime) && createdAtTime > 0) return createdAtTime;
+
+  return /^[a-f0-9]{24}$/i.test(shoe._id)
+    ? parseInt(shoe._id.slice(0, 8), 16) * 1000
+    : 0;
+};
+
+const isNewShoe = (shoe: Shoe) => {
+  const createdTime = getCreatedTime(shoe);
+  return createdTime > 0 && Date.now() - createdTime <= NEW_DURATION_MS;
+};
 
 const Shoes: React.FC = () => {
   const { admin, authLoading } = useContext(AuthContext);
@@ -68,7 +85,14 @@ const Shoes: React.FC = () => {
     if (!text) return shoes;
 
     return shoes.filter((shoe) =>
-      [shoe.name, shoe.brand, shoe.subcategory, shoe.gender]
+      [
+        shoe.name,
+        shoe.brand,
+        shoe.subcategory,
+        shoe.gender,
+        shoe.trending ? 'trending' : '',
+        isNewShoe(shoe) ? 'new newest latest fresh arrival' : '',
+      ]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(text))
     );
@@ -125,8 +149,9 @@ const Shoes: React.FC = () => {
   const stats = useMemo(
     () => ({
       total: shoes.length,
+      new: shoes.filter(isNewShoe).length,
       withImages: shoes.filter((shoe) => shoe.images?.length).length,
-      trending: shoes.filter((shoe) => shoe.trending).length,
+      trending: shoes.filter((shoe) => shoe.trending === true).length,
     }),
     [shoes]
   );
@@ -200,10 +225,15 @@ const Shoes: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div className="rounded-sm border border-white/10 bg-white/10 p-4">
                 <p className="text-xs text-ink-foreground/60">Total</p>
                 <p className="mt-2 text-3xl font-black">{stats.total}</p>
+              </div>
+
+              <div className="rounded-sm border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-ink-foreground/60">New</p>
+                <p className="mt-2 text-3xl font-black">{stats.new}</p>
               </div>
 
               <div className="rounded-sm border border-white/10 bg-white/10 p-4">
@@ -257,6 +287,7 @@ const Shoes: React.FC = () => {
                 shoe.branded && shoe.brand ? shoe.brand : null,
                 shoe.subcategory,
               ].filter(Boolean).join(' • ');
+              const isNew = isNewShoe(shoe);
 
               return (
                 <article
@@ -285,8 +316,14 @@ const Shoes: React.FC = () => {
                       )}
 
                       <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-                        {shoe.trending && (
-                          <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow">
+                        {isNew && (
+                          <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow">
+                            New
+                          </span>
+                        )}
+
+                        {shoe.trending === true && (
+                          <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow">
                             Trending
                           </span>
                         )}
@@ -502,8 +539,13 @@ const Shoes: React.FC = () => {
             <div className="flex flex-col justify-between p-5 sm:p-7">
               <div>
                 <div className="flex flex-wrap gap-2 pr-10">
-                  {selectedShoe.trending && (
-                    <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                  {isNewShoe(selectedShoe) && (
+                    <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
+                      New
+                    </span>
+                  )}
+                  {selectedShoe.trending === true && (
+                    <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
                       Trending
                     </span>
                   )}

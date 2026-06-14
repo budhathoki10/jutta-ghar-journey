@@ -236,11 +236,11 @@
   .reveal-scale { opacity: 0; transform: scale(0.94); transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1); }
   .reveal-scale.in-view { opacity: 1; transform: scale(1); }
   .shoe-scroll-reveal {
-    opacity: 0;
-    transform: translateY(34px) scale(0.96);
+    opacity: 1;
+    transform: translateY(0) scale(1);
     transition:
-      opacity 0.75s cubic-bezier(0.22,1,0.36,1),
-      transform 0.75s cubic-bezier(0.22,1,0.36,1),
+      opacity 0.32s cubic-bezier(0.22,1,0.36,1),
+      transform 0.32s cubic-bezier(0.22,1,0.36,1),
       box-shadow 0.3s ease,
       border-color 0.3s ease;
     will-change: opacity, transform;
